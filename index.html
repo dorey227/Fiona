@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Fiona's Kitchen</title>
+<style>
+  :root {
+    --cream: #fbf7f0;
+    --card: #ffffff;
+    --sage: #8ba888;
+    --sage-dark: #6b8a68;
+    --terra: #d98b6a;
+    --terra-dark: #c2744f;
+    --ink: #3a3a3a;
+    --ink-soft: #7a7a7a;
+    --line: #ebe4d8;
+    --shadow: 0 4px 20px rgba(120, 100, 70, 0.08);
+  }
+  * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; padding: 0 0 100px 0; background: var(--cream); color: var(--ink); min-height: 100vh; }
+  .wrap { max-width: 500px; margin: 0 auto; padding: 0 16px; }
+
+  .app-header { position: sticky; top: 0; z-index: 10; background: rgba(251,247,240,0.95); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
+  .app-header .brand { font-size: 17px; font-weight: 700; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .app-header .brand .logo { font-size: 22px; }
+  .header-actions { display: flex; gap: 8px; align-items: center; }
+  .icon-btn { background: transparent; border: none; font-size: 22px; cursor: pointer; padding: 6px; border-radius: 10px; width: auto; margin: 0; color: var(--ink-soft); display: flex; align-items: center; justify-content: center; }
+  .icon-btn:hover { background: var(--line); }
+
+  .floating-chat-btn {
+    position: fixed; bottom: 24px; right: 24px; z-index: 90;
+    width: 64px; height: 64px; border-radius: 50%;
+    background: var(--terra); color: white; border: none;
+    box-shadow: 0 8px 24px rgba(217, 139, 106, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; cursor: pointer; transition: transform 0.2s, background 0.2s;
+    padding: 0; margin: 0;
+  }
+  .floating-chat-btn:hover { background: var(--terra-dark); transform: scale(1.05); }
+  .floating-chat-btn::after {
+    content: ''; position: absolute; top: 0; right: 0;
+    width: 16px; height: 16px; background: #e74c3c; border-radius: 50%;
+    border: 2px solid white;
+  }
+
+  .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .card h3 { margin: 0 0 12px; font-size: 15px; color: var(--ink-soft); font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }
+
+  .hello { font-size: 26px; font-weight: 700; margin: 20px 0 4px; color: var(--ink); }
+  .hello-sub { color: var(--ink-soft); font-size: 15px; margin-bottom: 20px; }
+  .pill { display: inline-block; background: #f3ede1; color: var(--terra-dark); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 18px; }
+
+  .rings-row { display: flex; gap: 14px; }
+  .ring-card { flex: 1; background: var(--card); border-radius: 20px; padding: 18px 14px; text-align: center; box-shadow: var(--shadow); }
+  .ring-svg { width: 90px; height: 90px; margin: 0 auto 8px; display: block; }
+  .ring-track { fill: none; stroke: #f0ebdf; stroke-width: 9; }
+  .ring-fill { fill: none; stroke-width: 9; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; transition: stroke-dashoffset 0.5s ease; }
+  .ring-fill.water { stroke: #7ab8d9; }
+  .ring-fill.cal { stroke: var(--terra); }
+  .ring-label { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
+  .ring-label strong { color: var(--ink); font-size: 15px; display: block; }
+  .ring-text { font-size: 18px; font-weight: 700; fill: var(--ink); }
+
+  .water-controls { display: flex; gap: 8px; margin-top: 10px; }
+  .water-controls button { flex: 1; padding: 10px; font-size: 18px; border-radius: 12px; }
+
+  .tabs { display: flex; gap: 8px; margin: 20px 0 14px; background: #f0ebdf; border-radius: 14px; padding: 4px; }
+  .tab { flex: 1; background: transparent; color: var(--ink-soft); border: none; padding: 10px; border-radius: 11px; font-size: 14px; font-weight: 600; cursor: pointer; width: auto; margin: 0; }
+  .tab.active { background: white; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+
+  label { display: block; font-weight: 600; margin: 14px 0 6px; font-size: 13px; color: var(--ink-soft); }
+  input, select, textarea { width: 100%; padding: 14px; border: 1.5px solid var(--line); border-radius: 14px; font-size: 16px; background: #fdfbf7; color: var(--ink); font-family: inherit; }
+  input:focus, select:focus, textarea:focus { border-color: var(--sage); outline: none; background: white; }
+  button { width: 100%; padding: 15px; background: var(--sage); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 600; margin-top: 12px; cursor: pointer; transition: transform 0.05s, background 0.2s; font-family: inherit; }
+  button:hover { background: var(--sage-dark); }
+  button:active { transform: scale(0.98); }
+  button:disabled { background: #ccc; cursor: not-allowed; }
+  .btn-terra { background: var(--terra); }
+  .btn-terra:hover { background: var(--terra-dark); }
+  .btn-soft { background: #f3ede1; color: var(--ink); }
+  .btn-soft:hover { background: #ebe2ce; }
+  .btn-danger { background: #f5e1da; color: #b45435; }
+  .btn-danger:hover { background: #efd3c7; }
+  .google-btn { background: white; color: var(--ink); border: 1.5px solid var(--line); display: flex; align-items: center; justify-content: center; gap: 10px; }
+  .google-btn:hover { background: #fdfbf7; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px; }
+  .chip { background: #f3ede1; border: 1.5px solid transparent; color: var(--ink); padding: 10px 14px; border-radius: 14px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 6px; margin: 0; width: auto; font-weight: 500; transition: all 0.15s; }
+  .chip:hover { background: #ebe2ce; }
+  .chip input { display: none; }
+  .chip.on { background: var(--sage); color: white; border-color: var(--sage-dark); }
+
+  .progress-dots { display: flex; justify-content: center; gap: 8px; margin: 10px 0 22px; }
+  .progress-dots .dot { width: 10px; height: 10px; border-radius: 50%; background: #e5ddcd; transition: background 0.3s; }
+  .progress-dots .dot.active { background: var(--sage); }
+  .wizard-footer { display: flex; gap: 10px; margin-top: 20px; }
+  .wizard-footer button { flex: 1; margin-top: 0; }
+  .wizard-footer .back { background: #f3ede1; color: var(--ink); flex: 0 0 auto; padding-left: 22px; padding-right: 22px; }
+  .wizard-footer .back:hover { background: #ebe2ce; }
+
+  .ai-box { background: linear-gradient(135deg, #fdf7ec 0%, #f7f0e2 100%); border-left: 4px solid var(--terra); padding: 16px; border-radius: 14px; font-size: 15px; line-height: 1.55; white-space: pre-wrap; color: var(--ink); min-height: 60px; }
+  .ai-box.thinking { color: var(--ink-soft); font-style: italic; }
+
+  .meal-list { list-style: none; padding: 0; margin: 0; }
+  .meal-list li { background: #fdfbf7; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 14px; }
+  .meal-meta { color: var(--ink-soft); font-size: 12px; margin-top: 2px; }
+  .meal-list .del { background: #f5e1da; color: #b45435; border: none; width: 34px; height: 34px; border-radius: 10px; font-size: 15px; padding: 0; margin: 0; cursor: pointer; flex-shrink: 0; }
+  .meal-list .del:hover { background: #efd3c7; }
+  .empty { color: var(--ink-soft); font-size: 14px; font-style: italic; text-align: center; padding: 20px; }
+
+  .loading { text-align: center; padding: 60px 20px; color: var(--ink-soft); }
+  .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--line); border-top-color: var(--sage); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .sheet-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; display: none; animation: fadeIn 0.2s; }
+  .sheet-overlay.open { display: block; }
+  .sheet { position: fixed; bottom: 0; left: 0; right: 0; background: var(--card); border-radius: 24px 24px 0 0; padding: 24px 20px max(24px, env(safe-area-inset-bottom)); z-index: 101; max-width: 500px; margin: 0 auto; transform: translateY(100%); transition: transform 0.3s ease; }
+  .sheet.open { transform: translateY(0); }
+  .sheet h2 { margin: 0 0 6px; font-size: 20px; }
+  .sheet .sheet-sub { color: var(--ink-soft); font-size: 14px; margin: 0 0 18px; }
+  .sheet .handle { width: 40px; height: 4px; background: var(--line); border-radius: 2px; margin: 0 auto 16px; }
+  .sheet .version { text-align: center; color: var(--ink-soft); font-size: 12px; margin-top: 16px; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .status { text-align: center; font-size: 13px; margin-top: 8px; min-height: 18px; }
+  .status.success { color: var(--sage-dark); }
+  .status.error { color: #c0392b; }
+
+  .recipe-card { background: #fdfbf7; border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 10px; }
+  .recipe-card .recipe-title { font-weight: 700; margin-bottom: 6px; font-size: 15px; }
+  .recipe-card .recipe-body { font-size: 14px; color: var(--ink-soft); line-height: 1.5; white-space: pre-wrap; }
+  .recipe-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .recipe-actions button { padding: 8px 12px; font-size: 13px; margin: 0; }
+
+  .hidden { display: none !important; }
+
+  .chat-overlay { position: fixed; inset: 0; background: var(--cream); z-index: 200; display: none; flex-direction: column; }
+  .chat-overlay.open { display: flex; }
+  .chat-header { background: var(--card); padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); box-shadow: 0 2px 10px rgba(0,0,0,0.02); z-index: 2; }
+  .chat-header h3 { margin: 0; font-size: 17px; display: flex; align-items: center; gap: 8px; }
+  .chat-close { background: transparent; color: var(--ink-soft); font-size: 24px; border: none; cursor: pointer; padding: 4px 8px; margin: 0; width: auto; border-radius: 8px; }
+  .chat-close:hover { background: var(--line); color: var(--ink); }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 12px; max-width: 500px; margin: 0 auto; width: 100%; }
+  .chat-msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 15px; line-height: 1.45; white-space: pre-wrap; }
+  .chat-msg.ai { background: var(--card); border: 1px solid var(--line); border-bottom-left-radius: 4px; align-self: flex-start; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+  .chat-msg.user { background: var(--sage); color: white; border-bottom-right-radius: 4px; align-self: flex-end; }
+  .chat-input-area { background: var(--card); padding: 12px 16px max(12px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); display: flex; gap: 10px; align-items: flex-end; max-width: 500px; margin: 0 auto; width: 100%; }
+  .chat-input-area input { flex: 1; border-radius: 20px; padding: 14px 18px; background: #fdfbf7; }
+  .chat-input-area button { width: auto; margin: 0; border-radius: 50%; width: 48px; height: 48px; padding: 0; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<div id="globalError" style="display:none; position:fixed; top:0; left:0; right:0; background:#e74c3c; color:white; padding:16px; z-index:9999; font-size:14px;"></div>
+
+<div class="app-header">
+  <div class="brand"><span class="logo">🍃</span><span>Fiona's Kitchen</span></div>
+  <div class="header-actions">
+    <button class="icon-btn" onclick="openSettings()" aria-label="Settings">⚙️</button>
+  </div>
+</div>
+
+<button class="floating-chat-btn" onclick="openChat()" aria-label="Chat with your dietitian">
+  💬
+</button>
+
+<div class="chat-overlay" id="chatOverlay">
+  <div class="chat-header">
+    <h3><span>🍃</span> Your Dietitian</h3>
+    <button class="chat-close" onclick="closeChat()">×</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="chat-msg ai">
+      Hi Fiona 🌿 I'm here if you want to chat about meals, ask a quick question, or just need a little encouragement. What's on your mind?
+    </div>
+  </div>
+  <div class="chat-input-area">
+    <input type="text" id="chatInput" placeholder="Ask a question…" onkeypress="if(event.key==='Enter') sendChat()">
+    <button onclick="sendChat()" aria-label="Send">↑</button>
+  </div>
+</div>
+
+<div class="wrap" id="loadingScreen">
+  <div class="loading">
+    <div class="spinner"></div>
+    <div>Getting things ready…</div>
+  </div>
+</div>
+
+<div class="wrap" id="loginScreen" style="display:none;">
+  <div class="hello">Welcome 🌿</div>
+  <p class="hello-sub">Your kitchen companion — meals, recipes, and a dietitian who knows you.</p>
+  <div class="card">
+    <button class="google-btn" onclick="signInWithGoogle()">
+      <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      Continue with Google
+    </button>
+    <div class="status" id="status"></div>
+  </div>
+</div>
+
+<div class="wrap" id="signupScreen" style="display:none;">
+  <div class="progress-dots" id="progressDots">
+    <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+  </div>
+
+  <div id="wiz1">
+    <div class="hello">A little about you</div>
+    <p class="hello-sub">So I can help in the way that fits you best.</p>
+
+    <label>Your name</label>
+    <input type="text" id="name" placeholder="First name">
+    <label>Age</label>
+    <input type="number" id="age" placeholder="e.g. 62" min="1" max="120" inputmode="numeric">
+    <label>Height (cm)</label>
+    <input type="number" id="heightCm" placeholder="e.g. 165" min="80" max="220" inputmode="numeric">
+    <label>Current weight (kg)</label>
+    <input type="number" id="currentWeightKg" placeholder="e.g. 72" min="30" max="250" step="0.1" inputmode="decimal">
+
+    <label>What matters most to you right now?</label>
+    <select id="goal" onchange="toggleGoalWeight()">
+      <option value="lose_weight">Losing some weight</option>
+      <option value="maintain">Feeling good as I am</option>
+      <option value="heart_health">Heart health</option>
+      <option value="diabetes">Managing blood sugar</option>
+      <option value="energy">More energy</option>
+    </select>
+
+    <div id="goalWeightWrap" style="display:none;">
+      <label>A weight I'd feel great at (kg)</label>
+      <input type="number" id="goalWeightKg" placeholder="e.g. 65" min="30" max="250" step="0.1" inputmode="decimal">
+    </div>
+
+    <div class="wizard-footer">
+      <button onclick="wizNext(1)">Next →</button>
+    </div>
+  </div>
+
+  <div id="wiz2" class="hidden">
+    <div class="hello">Pace & daily life</div>
+    <p class="hello-sub">There's no wrong answer — just what's realistic for you.</p>
+
+    <label>How quickly would you like to get there?</label>
+    <select id="pace">
+      <option value="gentle">Gentle — slow & steady</option>
+      <option value="steady" selected>Steady — balanced</option>
+      <option value="faster">Faster — more focused</option>
+      <option value="na">Not really about weight</option>
+    </select>
+
+    <label>How active are you day to day?</label>
+    <select id="activityLevel">
+      <option value="sedentary">Mostly sitting</option>
+      <option value="light" selected>Some walking most days</option>
+      <option value="moderate">Exercise 3–4 times a week</option>
+      <option value="active">Active most days</option>
+    </select>
+
+    <label>How many meals a day suits you?</label>
+    <select id="mealsPerDay">
+      <option value="2">2 meals</option>
+      <option value="3" selected>3 meals</option>
+      <option value="3+snacks">3 meals + snacks</option>
+      <option value="grazing">Small meals through the day</option>
+    </select>
+
+    <label>What's your cooking situation?</label>
+    <select id="cooking">
+      <option value="self">I cook for myself</option>
+      <option value="family">I cook for my family</option>
+      <option value="takeout">Mostly takeout / ready meals</option>
+      <option value="assisted">Someone else usually cooks</option>
+    </select>
+
+    <label>Food budget</label>
+    <select id="budget">
+      <option value="tight">Keep it cheap</option>
+      <option value="moderate" selected>Moderate</option>
+      <option value="flexible">Flexible</option>
+    </select>
+
+    <div class="wizard-footer">
+      <button class="back" onclick="wizBack(2)">← Back</button>
+      <button onclick="wizNext(2)">Next →</button>
+    </div>
+  </div>
+
+  <div id="wiz3" class="hidden">
+    <div class="hello">Health & habits</div>
+    <p class="hello-sub">The more I know, the better I can help.</p>
+
+    <label>Anything I should know about your health?</label>
+    <div class="chips" id="medChips">
+      <label class="chip"><input type="checkbox" value="diabetes" class="med">🩸 Diabetes</label>
+      <label class="chip"><input type="checkbox" value="high_bp" class="med">❤️ Blood pressure</label>
+      <label class="chip"><input type="checkbox" value="high_cholesterol" class="med">🫀 Cholesterol</label>
+      <label class="chip"><input type="checkbox" value="thyroid" class="med">🦋 Thyroid</label>
+      <label class="chip"><input type="checkbox" value="ibs" class="med">🌀 Digestion / IBS</label>
+      <label class="chip"><input type="checkbox" value="kidney" class="med">🫘 Kidney</label>
+      <label class="chip"><input type="checkbox" value="none" class="med">✨ None</label>
+    </div>
+
+    <label>Allergies or intolerances</label>
+    <input type="text" id="allergies" placeholder="e.g. peanuts, lactose">
+    <label>Foods you'd rather avoid</label>
+    <input type="text" id="dislikes" placeholder="e.g. broccoli, mushrooms">
+
+    <label>Usual breakfast</label>
+    <input type="text" id="typicalBreakfast" placeholder="e.g. toast and tea">
+    <label>Usual lunch</label>
+    <input type="text" id="typicalLunch" placeholder="e.g. sandwich and fruit">
+    <label>Usual dinner</label>
+    <input type="text" id="typicalDinner" placeholder="e.g. chicken, rice, veg">
+
+    <label>Snacking</label>
+    <select id="snacking">
+      <option value="never">I rarely snack</option>
+      <option value="sometimes" selected>Sometimes</option>
+      <option value="daily">Most days</option>
+      <option value="constant">I nibble all day</option>
+    </select>
+
+    <label>How much water do you usually drink?</label>
+    <select id="waterNow">
+      <option value="2">Hardly any (0–2 glasses)</option>
+      <option value="4" selected>A few (3–5 glasses)</option>
+      <option value="7">Decent (6–8 glasses)</option>
+      <option value="9">Lots (8+ glasses)</option>
+    </select>
+
+    <label>Alcohol</label>
+    <select id="alcohol">
+      <option value="none" selected>None</option>
+      <option value="occasional">Now and then</option>
+      <option value="weekly">Weekly</option>
+      <option value="daily">Daily</option>
+    </select>
+
+    <label>Exercise</label>
+    <select id="exercise">
+      <option value="none">Not much</option>
+      <option value="light" selected>Walking</option>
+      <option value="2-3">2–3 times a week</option>
+      <option value="4+">4+ times a week</option>
+    </select>
+
+    <label>In your own words — why now?</label>
+    <textarea id="motivation" rows="2" placeholder="e.g. I want to keep up with my grandkids"></textarea>
+
+    <div class="wizard-footer">
+      <button class="back" onclick="wizBack(3)">← Back</button>
+      <button id="saveBtn" onclick="saveProfile()">Save & finish ✓</button>
+    </div>
+    <div class="status" id="formStatus"></div>
+  </div>
+</div>
+
+<div class="wrap" id="dashScreen" style="display:none;">
+  <div class="hello" id="greeting">Hi</div>
+  <p class="hello-sub" id="helloSub">Here's your day.</p>
+  <div class="pill" id="goalBadge">Goal</div>
+
+  <div class="rings-row">
+    <div class="ring-card">
+      <svg class="ring-svg" viewBox="0 0 100 100">
+        <circle class="ring-track" cx="50" cy="50" r="42"></circle>
+        <circle class="ring-fill water" id="waterRing" cx="50" cy="50" r="42" stroke-dasharray="263.9" stroke-dashoffset="263.9"></circle>
+        <text x="50" y="55" text-anchor="middle" class="ring-text" id="waterRingText">0</text>
+      </svg>
+      <div class="ring-label"><strong id="waterCount">0</strong>of <span id="waterGoal">8</span> glasses</div>
+      <div class="water-controls">
+        <button class="btn-soft" onclick="removeWater()" aria-label="Remove a glass">−</button>
+        <button onclick="addWater()" aria-label="Add a glass">+</button>
+      </div>
+    </div>
+    <div class="ring-card">
+      <svg class="ring-svg" viewBox="0 0 100 100">
+        <circle class="ring-track" cx="50" cy="50" r="42"></circle>
+        <circle class="ring-fill cal" id="calRing" cx="50" cy="50" r="42" stroke-dasharray="263.9" stroke-dashoffset="263.9"></circle>
+        <text x="50" y="55" text-anchor="middle" class="ring-text" id="calRingText">0</text>
+      </svg>
+      <div class="ring-label"><strong id="calCount">0</strong>of <span id="calGoal">—</span> cal</div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('today')" id="tabToday">Today</button>
+    <button class="tab" onclick="switchTab('cook')" id="tabCook">Cook</button>
+    <button class="tab" onclick="switchTab('ask')" id="tabAsk">Ask</button>
+  </div>
+
+  <div id="tab-today">
+    <div class="card">
+      <h3>Today's meals</h3>
+      <ul class="meal-list" id="mealList"></ul>
+    </div>
+    <div class="card">
+      <h3>Add a meal</h3>
+      <input type="text" id="mealDesc" placeholder="What did you eat?" maxlength="120">
+      <label>Calories (optional)</label>
+      <input type="number" id="mealCal" placeholder="e.g. 350" min="0" max="5000" inputmode="numeric">
+      <button onclick="addMeal()">➕ Log meal</button>
+      <div class="status" id="mealStatus"></div>
+    </div>
+  </div>
+
+  <div id="tab-cook" class="hidden">
+    <div class="card">
+      <h3>Cook something</h3>
+      <p style="font-size:14px;color:var(--ink-soft);margin:0 0 12px;">Tell me what's in the fridge, or what you fancy — I'll build you a recipe.</p>
+      <textarea id="cookPrompt" rows="2" placeholder="e.g. I have chicken, carrots and rice. Something easy tonight."></textarea>
+      <div class="chips" style="margin-top:10px;">
+        <button class="chip" onclick="quickCook('Use whatever I have in the fridge — surprise me with something simple for one.')">🥕 From the fridge</button>
+        <button class="chip" onclick="quickCook('A light, easy dinner — not too heavy.')">🌙 Light dinner</button>
+        <button class="chip" onclick="quickCook('A high-protein meal I can make quickly.')">💪 High protein</button>
+        <button class="chip" onclick="quickCook('Something low in salt that still tastes good.')">🧂 Low sodium</button>
+      </div>
+      <button class="btn-terra" onclick="cookNow()">🍳 Make me a recipe</button>
+      <div class="status" id="cookStatus"></div>
+    </div>
+    <div class="card">
+      <h3>Saved recipes</h3>
+      <div id="recipeList"><div class="empty">Your saved recipes will appear here.</div></div>
+    </div>
+  </div>
+
+  <div id="tab-ask" class="hidden">
+    <div class="card">
+      <h3>Ask your dietitian</h3>
+      <p style="font-size:14px;color:var(--ink-soft);margin:0 0 12px;">She knows your goals and what you've eaten today.</p>
+      <div class="ai-box" id="aiSuggestion">Tap a question below to get started.</div>
+      <div class="chips" style="margin-top:12px;">
+        <button class="chip" onclick="askAI('Give me one short, friendly tip for today.')">💡 A tip for today</button>
+        <button class="chip" onclick="askAI('Review my meals today and suggest one small improvement.')">🔍 Review my day</button>
+        <button class="chip" onclick="askAI('Suggest three healthy meal ideas for me today, using my usual foods.')">🍽 Meal ideas</button>
+        <button class="chip" onclick="askAI('Am I doing okay this week? Encourage me.')">💚 Encourage me</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="sheetOverlay" onclick="closeSettings()"></div>
+<div class="sheet" id="settingsSheet">
+  <div class="handle"></div>
+  <h2>Settings</h2>
+  <p class="sheet-sub">Manage your profile and data.</p>
+  <button class="btn-soft" onclick="editProfile()">✏️ Edit my profile</button>
+  <button class="btn-soft" onclick="logout()">🚪 Sign out</button>
+  <button class="btn-danger" onclick="startFresh()">🔄 Start fresh</button>
+  <p style="font-size:12px;color:var(--ink-soft);text-align:center;margin-top:14px;line-height:1.4;">
+    "Start fresh" clears this device's profile, meals, water and recipes, and takes you back to the welcome screen.
+  </p>
+  <div class="version">Fiona's Kitchen · v1.0</div>
+</div>
+
+<script type="module">
+  window.addEventListener('error', function(e) {
+    const el = document.getElementById('globalError');
+    if (el) { el.style.display = 'block'; el.textContent = 'Oops! Something went wrong: ' + e.message; }
+  });
+
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js';
+  import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js';
+  import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBlrh8RMSF4QOuND-MWorEERPcig2LirbQ",
+    authDomain: "fiona-a79a6.firebaseapp.com",
+    projectId: "fiona-a79a6",
+    storageBucket: "fiona-a79a6.firebasestorage.app",
+    messagingSenderId: "656679972697",
+    appId: "1:656679972697:web:7897a4a2bcd6a3f2466648",
+    measurementId: "G-X0LWTN6PT5"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  let currentProfile = null;
+  let currentUser = null;
+  let todaysMeals = [];
+  let todaysWater = 0;
+  let savedRecipes = [];
+  let unsubMeals = null;
+  let unsubRecipes = null;
+
+  let chatHistory = [ { role: "assistant", content: "Hi Fiona 🌿 I'm here if you want to chat about meals, ask a quick question, or just need a little encouragement. What's on your mind?" } ];
+  let isChatting = false;
+
+  const RING_CIRC = 2 * Math.PI * 42;
+
+  function todayKey() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  }
+
+  function showScreen(id) {
+    ['loadingScreen','loginScreen','signupScreen','dashScreen'].forEach(s => {
+      const el = document.getElementById(s);
+      if (el) el.style.display = (s === id) ? 'block' : 'none';
+    });
+    window.scrollTo(0,0);
+  }
+
+  setTimeout(() => {
+    const loading = document.getElementById('loadingScreen');
+    if (loading && loading.style.display !== 'none') { showScreen('loginScreen'); setStatus('status', 'Taking too long to respond. Please try signing in.', true); }
+  }, 3000);
+
+  function setStatus(id, msg, isError) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.className = 'status ' + (isError ? 'error' : 'success');
+  }
+
+  window.openChat = function() { document.getElementById('chatOverlay').classList.add('open'); setTimeout(() => document.getElementById('chatInput').focus(), 100); };
+  window.closeChat = function() { document.getElementById('chatOverlay').classList.remove('open'); };
+
+  window.sendChat = async function() {
+    if (isChatting) return;
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    appendChatMsg(text, 'user');
+    chatHistory.push({ role: 'user', content: text });
+    isChatting = true;
+
+    const loadingId = 'thinking-' + Date.now();
+    appendChatMsg('...', 'ai', loadingId);
+
+    try {
+      const p = currentProfile || { name: 'Fiona', age: '', goal: '', activityLevel: '', medicalConditions: [] };
+      const t = p.targets || {};
+      const calTotal = todaysMeals.reduce((s, m) => s + (m.calories || 0), 0);
+      const remaining = (t.calorieTarget || 2000) - calTotal;
+
+      const systemMsg = {
+        role: 'system',
+        content: `You are a warm, friendly dietitian and cookbook companion for ${p.name}. She is ${p.age} years old, goal: ${p.goal}, activity: ${p.activityLevel}. Medical: ${(p.medicalConditions||[]).join(', ')}. Allergies: ${p.allergies||'none'}. Dislikes: ${p.dislikes||'none'}. Today she has logged: ${calTotal} calories (target ~${t.calorieTarget||2000}), meaning she has ~${remaining} calories left today. Keep answers conversational, warm, and relatively short (2-4 sentences). Never mention being an AI.`
+      };
+
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [systemMsg, ...chatHistory] })
+      });
+
+      const rawText = await res.text();
+      let data;
+      try { data = JSON.parse(rawText); } catch (parseError) { throw new Error("Server returned: " + (rawText.substring(0, 80) || "empty response")); }
+      if (!res.ok) throw new Error(data.error || data.message || "API Error " + res.status);
+
+      const reply = data.choices?.[0]?.message?.content || "I didn't quite catch that, could you say it again?";
+      document.getElementById(loadingId)?.remove();
+      appendChatMsg(reply, 'ai');
+      chatHistory.push({ role: 'assistant', content: reply });
+    } catch (e) {
+      document.getElementById(loadingId)?.remove();
+      appendChatMsg("⚠️ Error: " + e.message, 'ai');
+    } finally { isChatting = false; }
+  };
+
+  function appendChatMsg(text, sender, id = '') {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'chat-msg ' + sender;
+    if (id) div.id = id;
+    div.textContent = text;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  window.signInWithGoogle = async function() {
+    setStatus('status', 'Opening sign-in…');
+    try {
+      await signInWithPopup(auth, new GoogleAuthProvider());
+    } catch (e) {
+      console.error('Sign-in error:', e);
+      if (e.code === 'auth/popup-closed-by-user') setStatus('status', 'Sign-in cancelled.', true);
+      else setStatus('status', 'Failed: ' + e.message, true);
+    }
+  };
+
+  window.logout = async function() {
+    closeSettings();
+    if (unsubMeals) { unsubMeals(); unsubMeals = null; }
+    if (unsubRecipes) { unsubRecipes(); unsubRecipes = null; }
+    await signOut(auth);
+    currentProfile = null; currentUser = null;
+    todaysMeals = []; todaysWater = 0; savedRecipes = [];
+    chatHistory = chatHistory.slice(0, 1);
+    document.getElementById('chatMessages').innerHTML = '';
+    appendChatMsg(chatHistory[0].content, 'ai');
+  };
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { showScreen('loginScreen'); return; }
+    currentUser = user;
+    showScreen('loadingScreen');
+    try {
+      const snap = await getDoc(doc(db, 'profiles', user.uid));
+      if (snap.exists() && snap.data().setupComplete) {
+        currentProfile = snap.data();
+        if (!currentProfile.targets) {
+          currentProfile.targets = computeTargets(currentProfile);
+          try { await setDoc(doc(db, 'profiles', user.uid), { targets: currentProfile.targets }, { merge: true }); } catch (e) {}
+        }
+        await loadTodayData();
+        renderDashboard();
+      } else {
+        document.getElementById('name').value = user.displayName || '';
+        showWizard(1);
+        showScreen('signupScreen');
+      }
+    } catch (e) {
+      console.error('Auth load error:', e);
+      showScreen('loginScreen');
+      setStatus('status', 'Could not load: ' + e.message, true);
+    }
+  });
+
+  window.toggleGoalWeight = function() {
+    const g = document.getElementById('goal').value;
+    document.getElementById('goalWeightWrap').style.display = (g === 'lose_weight' || g === 'heart_health') ? 'block' : 'none';
+  };
+
+  window.showWizard = function(step) {
+    [1,2,3].forEach(n => document.getElementById('wiz'+n).classList.toggle('hidden', n !== step));
+    document.querySelectorAll('#progressDots .dot').forEach((d,i) => { d.classList.toggle('active', i < step); });
+    window.scrollTo(0,0);
+  };
+
+  window.wizNext = function(step) {
+    if (step === 1) {
+      const name = document.getElementById('name').value.trim();
+      if (!name) { alert('Please add your name first.'); return; }
+    }
+    showWizard(step + 1);
+  };
+  window.wizBack = function(step) { showWizard(step - 1); };
+
+  document.querySelectorAll('.chip input').forEach(cb => {
+    cb.addEventListener('change', () => cb.closest('.chip').classList.toggle('on', cb.checked));
+  });
+
+  function computeTargets(p) {
+    const w = p.currentWeightKg, h = p.heightCm, a = p.age;
+    if (!w || !h || !a) return { bmr: null, calorieTarget: null, proteinTarget: null, waterGoal: 8 };
+    const bmr = Math.round(10*w + 6.25*h - 5*a - 161);
+    const actMultiplier = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725 }[p.activityLevel] || 1.375;
+    const tdee = bmr * actMultiplier;
+    const paceAdjust = { gentle: -250, steady: -500, faster: -750, na: 0 }[p.pace] || 0;
+    let calorieTarget = p.goal === 'lose_weight' ? tdee + paceAdjust : tdee;
+    calorieTarget = Math.max(1200, Math.round(calorieTarget / 10) * 10);
+    const proteinTarget = Math.round(w * 1.2);
+    const waterGoal = Math.max(8, (p.waterNow || 4) + 2);
+    return { bmr, calorieTarget, proteinTarget, waterGoal };
+  }
+
+  window.saveProfile = async function() {
+    const btn = document.getElementById('saveBtn');
+    const name = document.getElementById('name').value.trim();
+    if (!name) { setStatus('formStatus', 'Please add your name.', true); return; }
+
+    const meds = Array.from(document.querySelectorAll('.med:checked')).map(cb => cb.value);
+    const profile = {
+      name, age: parseInt(document.getElementById('age').value) || null, heightCm: parseFloat(document.getElementById('heightCm').value) || null,
+      currentWeightKg: parseFloat(document.getElementById('currentWeightKg').value) || null, goalWeightKg: parseFloat(document.getElementById('goalWeightKg').value) || null,
+      goal: document.getElementById('goal').value, pace: document.getElementById('pace').value, activityLevel: document.getElementById('activityLevel').value,
+      mealsPerDay: document.getElementById('mealsPerDay').value, cooking: document.getElementById('cooking').value, budget: document.getElementById('budget').value,
+      medicalConditions: meds.length ? meds : ['none'], allergies: document.getElementById('allergies').value.trim(), dislikes: document.getElementById('dislikes').value.trim(),
+      typicalBreakfast: document.getElementById('typicalBreakfast').value.trim(), typicalLunch: document.getElementById('typicalLunch').value.trim(), typicalDinner: document.getElementById('typicalDinner').value.trim(),
+      snacking: document.getElementById('snacking').value, waterNow: parseInt(document.getElementById('waterNow').value) || 4, alcohol: document.getElementById('alcohol').value,
+      exercise: document.getElementById('exercise').value, motivation: document.getElementById('motivation').value.trim(), email: currentUser.email || null,
+      createdAt: new Date().toISOString(), setupComplete: true
+    };
+    profile.targets = computeTargets(profile);
+    btn.disabled = true; setStatus('formStatus', 'Saving…');
+    try {
+      await setDoc(doc(db, 'profiles', currentUser.uid), profile);
+      currentProfile = profile; setStatus('formStatus', '✅ All set!');
+      await loadTodayData(); setTimeout(renderDashboard, 500);
+    } catch (e) {
+      setStatus('formStatus', '❌ ' + e.message, true); btn.disabled = false;
+    }
+  };
+
+  async function loadTodayData() {
+    try { const wSnap = await getDoc(doc(db, 'water', currentUser.uid, 'days', todayKey())); todaysWater = wSnap.exists() ? (wSnap.data().glasses || 0) : 0; } catch (e) { todaysWater = 0; }
+    if (unsubMeals) unsubMeals();
+    try {
+      const q = query(collection(db, 'meals', currentUser.uid, 'items'), where('dateKey', '==', todayKey()), orderBy('createdAt', 'asc'));
+      unsubMeals = onSnapshot(q, (snap) => { todaysMeals = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderMeals(); updateRings(); }, () => { todaysMeals = []; renderMeals(); updateRings(); });
+    } catch (e) { todaysMeals = []; }
+    if (unsubRecipes) unsubRecipes();
+    try {
+      const q = query(collection(db, 'recipes', currentUser.uid, 'items'), orderBy('createdAt', 'desc'));
+      unsubRecipes = onSnapshot(q, (snap) => { savedRecipes = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderRecipes(); }, () => { savedRecipes = []; renderRecipes(); });
+    } catch (e) { savedRecipes = []; }
+  }
+
+  window.addWater = async function() { todaysWater++; updateRings(); try { await setDoc(doc(db, 'water', currentUser.uid, 'days', todayKey()), { glasses: todaysWater, updatedAt: serverTimestamp() }, { merge: true }); } catch (e) {} };
+  window.removeWater = async function() { todaysWater = Math.max(0, todaysWater - 1); updateRings(); try { await setDoc(doc(db, 'water', currentUser.uid, 'days', todayKey()), { glasses: todaysWater, updatedAt: serverTimestamp() }, { merge: true }); } catch (e) {} };
+
+  window.addMeal = async function() {
+    const descEl = document.getElementById('mealDesc'); const calEl = document.getElementById('mealCal');
+    const description = descEl.value.trim(); const calories = parseInt(calEl.value) || null;
+    if (!description) { setStatus('mealStatus', 'Please write what you ate.', true); return; }
+    setStatus('mealStatus', 'Saving…');
+    try {
+      await addDoc(collection(db, 'meals', currentUser.uid, 'items'), { description, calories, dateKey: todayKey(), createdAt: serverTimestamp() });
+      descEl.value = ''; calEl.value = ''; setStatus('mealStatus', '✅ Logged!');
+      setTimeout(() => setStatus('mealStatus', ''), 1500);
+    } catch (e) { setStatus('mealStatus', '❌ ' + e.message, true); }
+  };
+
+  window.deleteMeal = async function(id) { try { await deleteDoc(doc(db, 'meals', currentUser.uid, 'items', id)); } catch (e) {} };
+
+  function renderMeals() {
+    const list = document.getElementById('mealList'); if (!list) return;
+    const calTotal = todaysMeals.reduce((s, m) => s + (m.calories || 0), 0);
+    const calCountEl = document.getElementById('calCount'); if (calCountEl) calCountEl.textContent = calTotal;
+    if (!todaysMeals.length) { list.innerHTML = '<li class="empty">Nothing logged yet — that\'s okay.</li>'; return; }
+    list.innerHTML = todaysMeals.map(m => `<li><div><div>${escapeHtml(m.description)}</div>${m.calories ? `<div class="meal-meta">${m.calories} cal</div>` : ''}</div><button class="del" onclick="deleteMeal('${m.id}')" aria-label="Delete">🗑</button></li>`).join('');
+  }
+
+  function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  function updateRings() {
+    const t = currentProfile?.targets || {}; const waterGoal = t.waterGoal || 8; const calGoal = t.calorieTarget || 2000;
+    const wPct = Math.min(1, todaysWater / waterGoal);
+    const wRing = document.getElementById('waterRing'); if (wRing) wRing.setAttribute('stroke-dashoffset', RING_CIRC * (1 - wPct));
+    const wText = document.getElementById('waterRingText'); if (wText) wText.textContent = todaysWater;
+    const wCount = document.getElementById('waterCount'); if (wCount) wCount.textContent = todaysWater;
+    const wGoal = document.getElementById('waterGoal'); if (wGoal) wGoal.textContent = waterGoal;
+    const calTotal = todaysMeals.reduce((s, m) => s + (m.calories || 0), 0); const cPct = Math.min(1, calTotal / calGoal);
+    const cRing = document.getElementById('calRing'); if (cRing) cRing.setAttribute('stroke-dashoffset', RING_CIRC * (1 - cPct));
+    const cText = document.getElementById('calRingText'); if (cText) cText.textContent = calTotal;
+    const cCount = document.getElementById('calCount'); if (cCount) cCount.textContent = calTotal;
+    const cGoal = document.getElementById('calGoal'); if (cGoal) cGoal.textContent = calGoal;
+  }
+
+  window.switchTab = function(name) {
+    ['today','cook','ask'].forEach(n => { document.getElementById('tab-'+n).classList.toggle('hidden', n !== name); document.getElementById('tab'+n.charAt(0).toUpperCase()+n.slice(1)).classList.toggle('active', n === name); });
+  };
+
+  window.quickCook = function(prompt) { document.getElementById('cookPrompt').value = prompt; cookNow(); };
+
+  window.cookNow = async function() {
+    const prompt = document.getElementById('cookPrompt').value.trim();
+    if (!prompt) { setStatus('cookStatus', 'Tell me what you have or what you fancy.', true); return; }
+    setStatus('cookStatus', 'Creating a recipe…');
+    const p = currentProfile; const t = p.targets || {}; const remainingCal = Math.max(200, (t.calorieTarget || 2000) - todaysMeals.reduce((s,m)=>s+(m.calories||0),0));
+    const system = `You are a warm, encouraging cookbook author helping ${p.name}, age ${p.age}. Dietary needs: ${(p.medicalConditions||[]).join(', ')}. Allergies: ${p.allergies||'none'}. Dislikes: ${p.dislikes||'none'}. Cooking situation: ${p.cooking}. Budget: ${p.budget}. She wants roughly ${remainingCal} calories for this meal. Keep sodium moderate unless she has blood pressure concerns.\nRespond ONLY with a JSON object: {"title": "short recipe name", "ingredients": "line-separated list", "steps": "numbered steps, short"}. No extra text. Keep ingredients and steps practical for one older adult cooking simply.`;
+    try {
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }) });
+      const rawText = await res.text(); let data;
+      try { data = JSON.parse(rawText); } catch (e) { throw new Error("Server error"); }
+      if (!res.ok) throw new Error(data.error || "Server error");
+      const raw = data.choices?.[0]?.message?.content || ''; let parsed;
+      try { const match = raw.match(/\{[\s\S]*\}/); parsed = JSON.parse(match ? match[0] : raw); } catch { parsed = { title: 'Recipe', ingredients: '', steps: raw }; }
+      setStatus('cookStatus', '');
+      await addDoc(collection(db, 'recipes', currentUser.uid, 'items'), { title: parsed.title || 'Recipe', ingredients: parsed.ingredients || '', steps: parsed.steps || '', prompt, createdAt: serverTimestamp() });
+      document.getElementById('cookPrompt').value = '';
+    } catch (e) { setStatus('cookStatus', '⚠️ Error: ' + e.message, true); }
+  };
+
+  function renderRecipes() {
+    const el = document.getElementById('recipeList'); if (!el) return;
+    if (!savedRecipes.length) { el.innerHTML = '<div class="empty">Your saved recipes will appear here.</div>'; return; }
+    el.innerHTML = savedRecipes.map(r => `<div class="recipe-card"><div class="recipe-title">${escapeHtml(r.title)}</div><div class="recipe-body">${escapeHtml(r.ingredients).replace(/\n/g,'<br>')}</div><details style="margin-top:8px;"><summary style="cursor:pointer;color:var(--sage-dark);font-size:14px;font-weight:600;">Show steps</summary><div class="recipe-body" style="margin-top:8px;">${escapeHtml(r.steps).replace(/\n/g,'<br>')}</div></details><div class="recipe-actions"><button class="btn-soft" onclick="deleteRecipe('${r.id}')">Remove</button></div></div>`).join('');
+  }
+
+  window.deleteRecipe = async function(id) { try { await deleteDoc(doc(db, 'recipes', currentUser.uid, 'items', id)); } catch (e) {} };
+
+  const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
+
+  function renderDashboard() {
+    document.getElementById('greeting').textContent = 'Hi, ' + currentProfile.name + ' 🌿';
+    document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
+    document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
+    renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
+  }
+
+  window.editProfile = function() {
+    closeSettings(); const p = currentProfile;
+    document.getElementById('name').value = p.name || ''; document.getElementById('age').value = p.age || '';
+    document.getElementById('heightCm').value = p.heightCm || ''; document.getElementById('currentWeightKg').value = p.currentWeightKg || '';
+    document.getElementById('goalWeightKg').value = p.goalWeightKg || ''; document.getElementById('goal').value = p.goal;
+    document.getElementById('pace').value = p.pace; document.getElementById('activityLevel').value = p.activityLevel;
+    document.getElementById('mealsPerDay').value = p.mealsPerDay; document.getElementById('cooking').value = p.cooking;
+    document.getElementById('budget').value = p.budget; document.getElementById('allergies').value = p.allergies || '';
+    document.getElementById('dislikes').value = p.dislikes || ''; document.getElementById('typicalBreakfast').value = p.typicalBreakfast || '';
+    document.getElementById('typicalLunch').value = p.typicalLunch || ''; document.getElementById('typicalDinner').value = p.typicalDinner || '';
+    document.getElementById('snacking').value = p.snacking; document.getElementById('waterNow').value = p.waterNow || 4;
+    document.getElementById('alcohol').value = p.alcohol; document.getElementById('exercise').value = p.exercise;
+    document.getElementById('motivation').value = p.motivation || '';
+    document.querySelectorAll('.med').forEach(cb => { cb.checked = (p.medicalConditions || []).includes(cb.value); cb.closest('.chip').classList.toggle('on', cb.checked); });
+    toggleGoalWeight(); document.getElementById('saveBtn').textContent = 'Update profile ✓'; showWizard(1); showScreen('signupScreen');
+  };
+
+  window.askAI = async function(prompt) {
+    const box = document.getElementById('aiSuggestion'); box.classList.add('thinking'); box.textContent = 'Thinking…';
+    const p = currentProfile; const mealSummary = todaysMeals.length ? todaysMeals.map(m => `- ${m.description}${m.calories ? ` (${m.calories} cal)` : ''}`).join('\n') : '(nothing yet today)';
+    const t = p.targets || {}; const remaining = (t.calorieTarget || 0) - todaysMeals.reduce((s,m)=>s+(m.calories||0),0);
+    const system = `You are a warm, encouraging dietitian for ${p.name}, age ${p.age}. Goal: ${p.goal}. Height ${p.heightCm}cm, weight ${p.currentWeightKg}kg${p.goalWeightKg ? ', goal weight '+p.goalWeightKg+'kg' : ''}. Pace: ${p.pace}. Activity: ${p.activityLevel}. Medical: ${(p.medicalConditions||[]).join(', ')}. Allergies: ${p.allergies||'none'}. Dislikes: ${p.dislikes||'none'}. Usual meals — breakfast: "${p.typicalBreakfast||'?'}", lunch: "${p.typicalLunch||'?'}", dinner: "${p.typicalDinner||'?'}". Motivation: "${p.motivation||'unknown'}". Targets: ${t.calorieTarget||'?'} cal, ${t.proteinTarget||'?'}g protein, ${t.waterGoal||8} glasses water.\nToday she has eaten:\n${mealSummary}\nWater: ${todaysWater} glasses. Remaining calories: ~${remaining}.\nBe warm. 2-4 sentences. Practical and specific. Never mention being an AI.`;
+    try {
+      const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }) });
+      const rawText = await res.text(); let data;
+      try { data = JSON.parse(rawText); } catch (e) { throw new Error("Server error"); }
+      if (!res.ok) throw new Error(data.error || "Server error");
+      box.classList.remove('thinking'); box.textContent = data.choices?.[0]?.message?.content || 'Hmm, I couldn\'t think of anything just now.';
+    } catch (e) { box.classList.remove('thinking'); box.textContent = '⚠️ ' + e.message; }
+  };
+
+  window.openSettings = function() { document.getElementById('settingsSheet').classList.add('open'); document.getElementById('sheetOverlay').classList.add('open'); };
+  window.closeSettings = function() { document.getElementById('settingsSheet').classList.remove('open'); document.getElementById('sheetOverlay').classList.remove('open'); };
+
+  window.startFresh = async function() {
+    if (!currentUser) return;
+    if (!confirm('Start fresh?\n\nThis clears everything on this device — your profile, meals, water and saved recipes.')) return;
+    const uid = currentUser.uid;
+    try {
+      await deleteDoc(doc(db, 'profiles', uid));
+      const mealsSnap = await getDocs(collection(db, 'meals', uid, 'items')); for (const d of mealsSnap.docs) await deleteDoc(d.ref);
+      const waterSnap = await getDocs(collection(db, 'water', uid, 'days')); for (const d of waterSnap.docs) await deleteDoc(d.ref);
+      const recSnap = await getDocs(collection(db, 'recipes', uid, 'items')); for (const d of recSnap.docs) await deleteDoc(d.ref);
+      closeSettings(); if (unsubMeals) { unsubMeals(); unsubMeals = null; } if (unsubRecipes) { unsubRecipes(); unsubRecipes = null; }
+      currentProfile = null; todaysMeals = []; todaysWater = 0; savedRecipes = [];
+      await signOut(auth);
+    } catch (e) { alert('Something went wrong clearing data: ' + e.message); }
+  };
+</script>
+</body>
+</html>
