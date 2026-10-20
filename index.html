@@ -361,4 +361,168 @@
       document.getElementById('nav-'+p).classList.remove('active');
     });
     document.getElementById('page-'+page).classList.remove('hidden');
-   
+    document.getElementById('nav-'+page).classList.add('active');
+  };
+
+  window.setStatus = function(id, msg, isError) {
+    const el = document.getElementById(id);
+    if (el) { el.textContent = msg; el.className = 'status ' + (isError ? 'error' : 'success'); }
+  };
+
+  function getTimeString() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
+  function todayKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+
+  // CHAT
+  window.openChat = function() { document.getElementById('chatOverlay').classList.add('open'); setTimeout(() => document.getElementById('chatInput').focus(), 100); };
+  window.closeChat = function() { document.getElementById('chatOverlay').classList.remove('open'); };
+
+  window.sendChat = async function() {
+    if (isChatting) return;
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    appendChatMsg(text, 'user', getTimeString());
+    chatHistory.push({ role: 'user', content: text });
+    isChatting = true;
+
+    const loadingId = 'thinking-' + Date.now();
+    appendChatMsg('...', 'ai', getTimeString(), loadingId);
+
+    try {
+      const p = currentProfile || { name: 'Fiona', age: '', goal: '', activityLevel: '', medicalConditions: [] };
+      const calTotal = todaysMeals.reduce((s, m) => s + (m.calories || 0), 0);
+      const now = new Date().toLocaleString();
+
+      const systemMsg = { role: 'system', content: `You are a warm dietitian for ${p.name}. Time: ${now}. She has eaten ${calTotal} cal today. Keep answers short and friendly.` };
+
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [systemMsg, ...chatHistory] })
+      });
+
+      const data = await res.json();
+      document.getElementById(loadingId)?.remove();
+      
+      if (!res.ok) throw new Error(data.error || "API Error");
+      
+      const reply = data.choices?.[0]?.message?.content || "I didn't quite catch that.";
+      appendChatMsg(reply, 'ai', getTimeString());
+      chatHistory.push({ role: 'assistant', content: reply });
+    } catch (e) {
+      document.getElementById(loadingId)?.remove();
+      appendChatMsg("⚠️ Error: " + e.message, 'ai', getTimeString());
+    } finally { isChatting = false; }
+  };
+
+  function appendChatMsg(text, sender, time, id = '') {
+    const container = document.getElementById('chatMessages');
+    const wrapper = document.createElement('div');
+    wrapper.className = `msg-wrapper ${sender}`;
+    if (id) wrapper.id = id;
+    wrapper.innerHTML = `<div class="msg-time">${time}</div><div class="chat-msg ${sender}">${escapeHtml(text)}</div>`;
+    container.appendChild(wrapper);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  // PHOTO UPLOAD
+  window.handlePhotoUpload = async function(event) {
+    const file = event.target.files[0];
+    if (!file || !currentUser) return;
+
+    setStatus('photoStatus', 'Analyzing photo...');
+    
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64Image = e.target.result.split(',')[1];
+      
+      try {
+        const system = `You are an expert nutritionist. The user uploaded an image. Respond ONLY with JSON: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}.`;
+        
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isVision: true,
+            messages: [
+              { role: 'system', content: system },
+              { role: 'user', content: [
+                  { type: "text", text: "Analyze this food photo." },
+                  { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
+                ] 
+              }
+            ]
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "API Error");
+
+        const raw = data.choices?.[0]?.message?.content || '';
+        const match = raw.match(/\{[\s\S]*\}/);
+        const parsed = JSON.parse(match ? match[0] : raw);
+
+        await addDoc(collection(db, 'meals', currentUser.uid, 'items'), {
+          description: parsed.meal || 'Scanned Meal',
+          calories: parsed.calories || 0,
+          protein: parsed.protein || 0,
+          carbs: parsed.carbs || 0,
+          fat: parsed.fat || 0,
+          dateKey: todayKey(),
+          createdAt: serverTimestamp()
+        });
+
+        setStatus('photoStatus', `✅ Logged! ${parsed.calories} cal. ${parsed.advice}`, false);
+        setTimeout(() => setStatus('photoStatus', ''), 5000);
+      } catch (err) {
+        console.error(err);
+        setStatus('photoStatus', '⚠️ Error: ' + err.message, true);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // AUTH & LOAD
+  window.signInWithGoogle = async function() {
+    try { await signInWithPopup(auth, new GoogleAuthProvider()); } 
+    catch (e) { setStatus('status', 'Failed: ' + e.message, true); }
+  };
+
+  window.logout = async function() {
+    closeSettings(); await signOut(auth);
+  };
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) { showScreen('loginScreen'); return; }
+    currentUser = user;
+    showScreen('loadingScreen');
+    try {
+      const snap = await getDoc(doc(db, 'profiles', user.uid));
+      if (snap.exists() && snap.data().setupComplete) {
+        currentProfile = snap.data();
+        await loadTodayData();
+        renderDashboard();
+      } else {
+        // BRAND NEW USER
+        document.getElementById('name').value = user.displayName || '';
+        welcomeStep = 0;
+        document.getElementById('welcomeIcon').textContent = welcomeData[0].icon;
+        document.getElementById('welcomeTitle').textContent = welcomeData[0].title;
+        document.getElementById('welcomeText').textContent = welcomeData[0].text;
+        document.querySelectorAll('.welcome-dot').forEach((dot, i) => { dot.classList.toggle('active', i === 0); });
+        document.getElementById('welcomeBtn').textContent = "Next →";
+        showScreen('welcomeScreen');
+      }
+    } catch (e) { 
+      showScreen('loginScreen'); 
+      setStatus('status', 'Could not load profile.', true); 
+    }
+  });
+
+  // Keep your existing saveProfile, loadTodayData, addWater, removeWater, addMeal, deleteMeal, cookNow, askAI, etc.
+  // (Paste them below here from your previous working code)
+</script>
+</body>
+</html>
