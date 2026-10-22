@@ -289,7 +289,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V31)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V32)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -564,10 +564,12 @@
     
     isChatting = true;
     
-    // Show fixed typing indicator
+    // 1. Show the fixed typing indicator above the input
     document.getElementById('typingWrapper').classList.add('show');
     const container = document.getElementById('chatMessages');
     container.scrollTop = container.scrollHeight;
+
+    const startTime = Date.now();
 
     try {
       const p = currentProfile || { name: 'Fiona', age: '', goal: '', activityLevel: '', medicalConditions: [] };
@@ -589,24 +591,32 @@
         5. Never mention being an AI. Never use bullet points for casual chat.` 
       };
 
-      // 1. Start the fetch request
-      const fetchPromise = fetch('/api/chat', {
+      // Fetch the response
+      const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: [systemMsg, ...chatHistory] })
       });
 
-      // 2. Create a 2-second delay promise
-      const delayPromise = new Promise(resolve => setTimeout(resolve, 2000));
-
-      // 3. Wait for BOTH to finish
-      const [res] = await Promise.all([fetchPromise, delayPromise]);
-
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "API Error");
       const reply = data.choices?.[0]?.message?.content || "I didn't quite catch that.";
       
-      // 4. Hide dots and show message
+      // HUMAN-LIKE DELAY CALCULATION
+      const timePassed = Date.now() - startTime;
+      
+      // Calculate target typing time: Base 1s + 30ms per character (capped at 6s)
+      let targetTypingTime = 1000 + (reply.length * 30);
+      targetTypingTime = Math.min(targetTypingTime, 6000); // Max 6 seconds
+      
+      // Calculate how much longer we need to wait
+      const remainingTime = targetTypingTime - timePassed;
+      
+      if (remainingTime > 0) {
+        await new Promise(resolve => setTimeout(resolve, remainingTime));
+      }
+
+      // Hide dots and show message
       document.getElementById('typingWrapper').classList.remove('show');
       appendChatMsg(reply, 'ai', getTimeString());
       chatHistory.push({ role: 'assistant', content: reply });
@@ -639,10 +649,12 @@
       const container = document.getElementById('chatMessages');
       container.scrollTop = container.scrollHeight;
 
+      const startTime = Date.now();
+
       try {
         const system = `You are an expert nutritionist. The user uploaded an image. Look at the image, estimate the meal, and respond with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}. Do not add any extra text outside the JSON.`;
         
-        const fetchPromise = fetch('/api/chat', {
+        const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -657,9 +669,6 @@
             ]
           })
         });
-        
-        const delayPromise = new Promise(resolve => setTimeout(resolve, 2000));
-        const [res] = await Promise.all([fetchPromise, delayPromise]);
 
         const rawText = await res.text(); 
         let data;
@@ -684,6 +693,14 @@
 
         const replyText = `that looks like **${parsed.meal}**! 😋\n\n📊 calories: ${parsed.calories}\n🥩 protein: ${parsed.protein}g\n🍞 carbs: ${parsed.carbs}g\n🥑 fat: ${parsed.fat}g\n\n💡 *${parsed.advice}*\n\nwould you like me to suggest a healthy side dish to go with this?`;
         
+        // Human-like delay for photos (just fixed 2.5s to 4s for analysis)
+        const timePassed = Date.now() - startTime;
+        const targetTime = 2500 + Math.floor(Math.random() * 1500);
+        const remainingTime = targetTime - timePassed;
+        if (remainingTime > 0) {
+          await new Promise(resolve => setTimeout(resolve, remainingTime));
+        }
+
         document.getElementById('typingWrapper').classList.remove('show');
         appendChatMsg(replyText, 'ai', getTimeString());
         saveChatMessage(replyText, 'ai', getTimeString());
@@ -945,7 +962,7 @@
   const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
 
   function renderDashboard() {
-    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V31)</span>';
+    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V32)</span>';
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
     renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
