@@ -324,7 +324,7 @@
       const el = document.getElementById(s);
       if (el) {
         el.style.display = 'none';
-        el.classList.remove('show'); // Ensure the welcome screen hides its flex layout
+        el.classList.remove('show');
       }
     });
     const target = document.getElementById(id);
@@ -438,6 +438,7 @@
     container.scrollTop = container.scrollHeight;
   }
 
+  // PHOTO UPLOAD FIXED (Base64 directly to DeepSeek)
   window.handlePhotoUpload = async function(event) {
     const file = event.target.files[0];
     if (!file || !currentUser) return;
@@ -446,10 +447,11 @@
     
     const reader = new FileReader();
     reader.onload = async (e) => {
-      const base64Image = e.target.result.split(',')[1];
+      // DeepSeek requires a specific Data URL format for Base64 images
+      const base64Image = e.target.result; 
       
       try {
-        const system = `You are an expert nutritionist. The user uploaded an image. Respond ONLY with JSON: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}.`;
+        const system = `You are an expert nutritionist. The user uploaded an image. Respond ONLY with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}. Do not add any extra text.`;
         
         const res = await fetch('/api/chat', {
           method: 'POST',
@@ -460,19 +462,28 @@
               { role: 'system', content: system },
               { role: 'user', content: [
                   { type: "text", text: "Analyze this food photo." },
-                  { type: "image_url", image_url: { url: `data:image/jpeg;base64,${base64Image}` } }
+                  { type: "image_url", image_url: { url: base64Image } } 
                 ] 
               }
             ]
           })
         });
 
-        const data = await res.json();
+        const rawText = await res.text(); // Read as text first to avoid JSON parse crash
+        let data;
+        try {
+          data = JSON.parse(rawText);
+        } catch (e) {
+          throw new Error("AI returned an empty response.");
+        }
+        
         if (!res.ok) throw new Error(data.error || "API Error");
 
         const raw = data.choices?.[0]?.message?.content || '';
         const match = raw.match(/\{[\s\S]*\}/);
-        const parsed = JSON.parse(match ? match[0] : raw);
+        if (!match) throw new Error("Could not read the nutritional data.");
+        
+        const parsed = JSON.parse(match[0]);
 
         await addDoc(collection(db, 'meals', currentUser.uid, 'items'), {
           description: parsed.meal || 'Scanned Meal',
