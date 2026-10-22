@@ -289,7 +289,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V30)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V31)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -564,12 +564,10 @@
     
     isChatting = true;
     
-    // 1. Show the fixed typing indicator above the input
+    // Show fixed typing indicator
     document.getElementById('typingWrapper').classList.add('show');
-    
-    // 2. Force scroll to bottom
     const container = document.getElementById('chatMessages');
-    setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+    container.scrollTop = container.scrollHeight;
 
     try {
       const p = currentProfile || { name: 'Fiona', age: '', goal: '', activityLevel: '', medicalConditions: [] };
@@ -591,17 +589,24 @@
         5. Never mention being an AI. Never use bullet points for casual chat.` 
       };
 
-      const res = await fetch('/api/chat', {
+      // 1. Start the fetch request
+      const fetchPromise = fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ messages: [systemMsg, ...chatHistory] })
       });
 
+      // 2. Create a 2-second delay promise
+      const delayPromise = new Promise(resolve => setTimeout(resolve, 2000));
+
+      // 3. Wait for BOTH to finish
+      const [res] = await Promise.all([fetchPromise, delayPromise]);
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "API Error");
       const reply = data.choices?.[0]?.message?.content || "I didn't quite catch that.";
       
-      // 3. Hide typing indicator and show message
+      // 4. Hide dots and show message
       document.getElementById('typingWrapper').classList.remove('show');
       appendChatMsg(reply, 'ai', getTimeString());
       chatHistory.push({ role: 'assistant', content: reply });
@@ -631,14 +636,13 @@
       
       isChatting = true;
       document.getElementById('typingWrapper').classList.add('show');
-      
       const container = document.getElementById('chatMessages');
-      setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+      container.scrollTop = container.scrollHeight;
 
       try {
         const system = `You are an expert nutritionist. The user uploaded an image. Look at the image, estimate the meal, and respond with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}. Do not add any extra text outside the JSON.`;
         
-        const res = await fetch('/api/chat', {
+        const fetchPromise = fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -653,6 +657,9 @@
             ]
           })
         });
+        
+        const delayPromise = new Promise(resolve => setTimeout(resolve, 2000));
+        const [res] = await Promise.all([fetchPromise, delayPromise]);
 
         const rawText = await res.text(); 
         let data;
@@ -938,7 +945,7 @@
   const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
 
   function renderDashboard() {
-    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V30)</span>';
+    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V31)</span>';
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
     renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
