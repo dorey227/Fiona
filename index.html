@@ -264,7 +264,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V15)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V16)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -537,7 +537,10 @@
     saveChatMessage(text, 'user', time);
     
     isChatting = true;
-    showTypingIndicator();
+    
+    // Show indicator and FORCE the browser to render it before the delay
+    const loadingId = showTypingIndicator();
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     try {
       const p = currentProfile || { name: 'Fiona', age: '', goal: '', activityLevel: '', medicalConditions: [] };
@@ -555,7 +558,8 @@
         1. Text like a real person. Use lowercase letters mostly, natural emojis, and short sentences. 
         2. Be informative but very friendly. 
         3. Always ask a follow-up question at the end to check if she understands or needs help with anything else.
-        4. Never mention being an AI. Never use bullet points for casual chat.` 
+        4. If she mentions a restaurant or a menu you don't know, or asks about a specific food, suggest she use the 📷 camera button to take a photo of it so you can read it.
+        5. Never mention being an AI. Never use bullet points for casual chat.` 
       };
 
       const res = await fetch('/api/chat', {
@@ -573,7 +577,7 @@
       const delay = Math.min(baseDelay + typingSpeed, 6000); 
       
       setTimeout(async () => {
-        removeTypingIndicator();
+        document.getElementById(loadingId)?.remove();
         appendChatMsg(reply, 'ai', getTimeString());
         chatHistory.push({ role: 'assistant', content: reply });
         saveChatMessage(reply, 'ai', getTimeString());
@@ -581,7 +585,7 @@
       }, delay);
 
     } catch (e) {
-      removeTypingIndicator();
+      document.getElementById(loadingId)?.remove();
       appendChatMsg("⚠️ Error: " + e.message, 'ai', getTimeString());
       isChatting = false;
     }
@@ -602,7 +606,8 @@
       saveChatMessage(photoNote, 'user', getTimeString());
       
       isChatting = true;
-      showTypingIndicator();
+      const loadingId = showTypingIndicator();
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       try {
         const system = `You are an expert nutritionist. The user uploaded an image. Look at the image, estimate the meal, and respond with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}. Do not add any extra text outside the JSON.`;
@@ -648,7 +653,7 @@
         
         const delay = Math.floor(Math.random() * 2000) + 2000;
         setTimeout(async () => {
-          removeTypingIndicator();
+          document.getElementById(loadingId)?.remove();
           appendChatMsg(replyText, 'ai', getTimeString());
           saveChatMessage(replyText, 'ai', getTimeString());
           isChatting = false;
@@ -656,7 +661,7 @@
 
       } catch (err) {
         console.error(err);
-        removeTypingIndicator();
+        document.getElementById(loadingId)?.remove();
         appendChatMsg("⚠️ Error: " + err.message, 'ai', getTimeString());
         isChatting = false;
       }
@@ -679,11 +684,7 @@
     `;
     document.getElementById('chatMessages').appendChild(wrapper);
     document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
-  }
-
-  function removeTypingIndicator() {
-    const indicators = document.querySelectorAll('.typing-indicator');
-    indicators.forEach(el => el.closest('.msg-wrapper').remove());
+    return loadingId; // Return the ID so we can remove it later
   }
 
   function appendChatMsg(text, sender, time) {
@@ -930,7 +931,7 @@
   const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
 
   function renderDashboard() {
-    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V15)</span>';
+    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V16)</span>';
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
     renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
