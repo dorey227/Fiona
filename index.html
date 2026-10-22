@@ -90,8 +90,8 @@
   .chat-header { background: var(--card); padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top)); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
   .chat-close { background: transparent; color: var(--ink-soft); font-size: 24px; border: none; cursor: pointer; padding: 4px; width: auto; margin: 0; }
 
-  /* HIDE SCROLLBAR & FLIP DIRECTION */
-  .chat-messages { flex: 1; overflow-y: auto; padding: 20px 16px 20px 16px; display: flex; flex-direction: column-reverse; gap: 8px; max-width: 500px; margin: 0 auto; width: 100%; }
+  /* Chat Messages Area */
+  .chat-messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 8px; max-width: 500px; margin: 0 auto; width: 100%; }
   .chat-messages::-webkit-scrollbar { display: none; }
   .chat-messages { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -103,20 +103,24 @@
   .chat-msg.ai { background: var(--card); border: 1px solid var(--line); border-bottom-left-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
   .chat-msg.user { background: var(--sage); color: white; border-bottom-right-radius: 4px; }
   
-  /* Chat Input Area with Camera (REDUCED PADDING) */
+  /* Fixed Typing Indicator Wrapper (Right above input) */
+  .typing-wrapper { background: var(--cream); padding: 0 16px 8px 16px; max-width: 500px; margin: 0 auto; width: 100%; display: none; }
+  .typing-wrapper.show { display: block; }
+  
+  /* The 3 Bouncing Dots */
+  .typing-indicator { display: flex; gap: 4px; padding: 14px 18px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; align-items: center; height: 44px; }
+  .typing-dots { display: flex; gap: 5px; }
+  .typing-dots span { display: block; width: 6px; height: 6px; background: var(--ink-soft); border-radius: 50%; animation: bounce 1.2s infinite ease-in-out both; }
+  .typing-dots span:nth-child(1) { animation-delay: -0.24s; }
+  .typing-dots span:nth-child(2) { animation-delay: -0.12s; }
+  @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+  /* Chat Input Area */
   .chat-input-area { background: var(--card); padding: 8px 12px max(8px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); display: flex; gap: 8px; max-width: 500px; margin: 0 auto; width: 100%; align-items: center; }
   .chat-input-area input { flex: 1; border-radius: 20px; padding: 12px 16px; margin: 0; font-size: 15px; }
   .chat-input-area button { width: 44px; height: 44px; margin: 0; padding: 0; border-radius: 50%; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 18px; }
   .chat-camera-btn { background: #f3ede1; color: var(--ink); }
   .chat-send-btn { background: var(--sage); color: white; }
-
-  /* Typing Indicator - Made Bright Red for visibility testing */
-  .typing-indicator { display: flex; gap: 4px; padding: 14px 18px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; align-items: center; height: 44px; }
-  .typing-dots { display: flex; gap: 4px; }
-  .typing-dots span { display: block; width: 8px; height: 8px; background: #e74c3c; border-radius: 50%; animation: bounce 1.2s infinite ease-in-out both; }
-  .typing-dots span:nth-child(1) { animation-delay: -0.24s; }
-  .typing-dots span:nth-child(2) { animation-delay: -0.12s; }
-  @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
   /* Bottom Nav */
   .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.03); }
@@ -195,6 +199,16 @@
   </div>
   
   <div class="chat-messages" id="chatMessages"></div>
+  
+  <!-- Fixed Typing Indicator -->
+  <div class="typing-wrapper" id="typingWrapper">
+    <div class="typing-indicator">
+      <div class="typing-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
   <div class="chat-input-area">
     <!-- Hidden Camera Input for Chat -->
     <input type="file" id="chatFileCamera" accept="image/*" capture="environment" onchange="handleChatPhoto(event)" style="display:none;">
@@ -275,7 +289,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V29)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V30)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -456,7 +470,7 @@
     document.getElementById('chatOverlay').classList.add('open'); 
     setTimeout(() => {
       const container = document.getElementById('chatMessages');
-      container.scrollTop = 0; // 0 is bottom in column-reverse
+      container.scrollTop = container.scrollHeight;
       document.getElementById('chatInput').focus();
     }, 100); 
   };
@@ -483,15 +497,14 @@
           return;
         }
 
-        // Because flex-direction is column-reverse, we need to prepend the messages
         snap.forEach(docSnap => {
           const msg = docSnap.data();
-          appendChatMsg(msg.text, msg.sender, msg.timeString); 
+          appendChatMsg(msg.text, msg.sender, msg.timeString);
           chatHistory.push({ role: msg.sender === 'user' ? 'user' : 'assistant', content: msg.text });
         });
         
         const container = document.getElementById('chatMessages');
-        container.scrollTop = 0; // 0 is the bottom in column-reverse
+        container.scrollTop = container.scrollHeight;
       }, (error) => {
         console.error("Firestore Chat Listener Error:", error);
         appendChatMsg("⚠️ I couldn't load our previous chats. (Database permissions missing)", 'ai', getTimeString());
@@ -551,11 +564,12 @@
     
     isChatting = true;
     
-    // 1. Show the dots immediately
-    const loadingId = showTypingIndicator();
+    // 1. Show the fixed typing indicator above the input
+    document.getElementById('typingWrapper').classList.add('show');
     
-    // 2. Wait 50ms so the browser paints them on the screen
-    await new Promise(resolve => setTimeout(resolve, 50));
+    // 2. Force scroll to bottom
+    const container = document.getElementById('chatMessages');
+    setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
 
     try {
       const p = currentProfile || { name: 'Fiona', age: '', goal: '', activityLevel: '', medicalConditions: [] };
@@ -587,15 +601,15 @@
       if (!res.ok) throw new Error(data.error || "API Error");
       const reply = data.choices?.[0]?.message?.content || "I didn't quite catch that.";
       
-      // 3. Instantly replace the dots with the message
-      document.getElementById(loadingId)?.remove();
+      // 3. Hide typing indicator and show message
+      document.getElementById('typingWrapper').classList.remove('show');
       appendChatMsg(reply, 'ai', getTimeString());
       chatHistory.push({ role: 'assistant', content: reply });
       saveChatMessage(reply, 'ai', getTimeString());
       isChatting = false;
 
     } catch (e) {
-      document.getElementById(loadingId)?.remove();
+      document.getElementById('typingWrapper').classList.remove('show');
       appendChatMsg("⚠️ Error: " + e.message, 'ai', getTimeString());
       isChatting = false;
     }
@@ -616,10 +630,10 @@
       saveChatMessage(photoNote, 'user', getTimeString());
       
       isChatting = true;
+      document.getElementById('typingWrapper').classList.add('show');
       
-      // 1. Show dots
-      const loadingId = showTypingIndicator();
-      await new Promise(resolve => setTimeout(resolve, 50));
+      const container = document.getElementById('chatMessages');
+      setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
 
       try {
         const system = `You are an expert nutritionist. The user uploaded an image. Look at the image, estimate the meal, and respond with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}. Do not add any extra text outside the JSON.`;
@@ -663,15 +677,14 @@
 
         const replyText = `that looks like **${parsed.meal}**! 😋\n\n📊 calories: ${parsed.calories}\n🥩 protein: ${parsed.protein}g\n🍞 carbs: ${parsed.carbs}g\n🥑 fat: ${parsed.fat}g\n\n💡 *${parsed.advice}*\n\nwould you like me to suggest a healthy side dish to go with this?`;
         
-        // 3. Instantly replace dots
-        document.getElementById(loadingId)?.remove();
+        document.getElementById('typingWrapper').classList.remove('show');
         appendChatMsg(replyText, 'ai', getTimeString());
         saveChatMessage(replyText, 'ai', getTimeString());
         isChatting = false;
 
       } catch (err) {
         console.error(err);
-        document.getElementById(loadingId)?.remove();
+        document.getElementById('typingWrapper').classList.remove('show');
         appendChatMsg("⚠️ Error: " + err.message, 'ai', getTimeString());
         isChatting = false;
       }
@@ -679,36 +692,15 @@
     reader.readAsDataURL(file);
   };
 
-  function showTypingIndicator() {
-    const loadingId = 'thinking-' + Date.now();
-    const wrapper = document.createElement('div');
-    wrapper.className = `msg-wrapper ai`;
-    wrapper.id = loadingId;
-    wrapper.innerHTML = `
-      <div class="msg-time">${getTimeString()}</div>
-      <div class="typing-indicator">
-        <div class="typing-dots">
-          <span></span><span></span><span></span>
-        </div>
-      </div>
-    `;
-    // Prepend to make it appear at the bottom (since container is column-reverse)
-    const container = document.getElementById('chatMessages');
-    container.prepend(wrapper);
-    container.scrollTop = 0; // 0 is bottom in column-reverse
-    
-    return loadingId;
-  }
-
   function appendChatMsg(text, sender, time) {
     const container = document.getElementById('chatMessages');
     const wrapper = document.createElement('div');
     wrapper.className = `msg-wrapper ${sender}`;
     wrapper.innerHTML = `<div class="msg-time">${time}</div><div class="chat-msg ${sender}">${escapeHtml(text)}</div>`;
+    container.appendChild(wrapper);
     
-    // Prepend to make it appear at the bottom (since container is column-reverse)
-    container.prepend(wrapper); 
-    container.scrollTop = 0; // 0 is bottom in column-reverse
+    // Force scroll to bottom
+    container.scrollTop = container.scrollHeight;
   }
 
   window.handlePhotoUpload = async function(event) {
@@ -946,7 +938,7 @@
   const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
 
   function renderDashboard() {
-    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V29)</span>';
+    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V30)</span>';
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
     renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
