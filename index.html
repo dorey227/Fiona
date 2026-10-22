@@ -122,6 +122,19 @@
   .chat-camera-btn { background: #f3ede1; color: var(--ink); }
   .chat-send-btn { background: var(--sage); color: white; }
 
+  /* Scan Modal */
+  .scan-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+  .scan-modal-overlay.show { opacity: 1; pointer-events: auto; }
+  .scan-modal-card { background: var(--card); border-radius: 24px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s; max-height: 90vh; overflow-y: auto; }
+  .scan-modal-overlay.show .scan-modal-card { transform: translateY(0); }
+  .scan-img { width: 100%; height: 180px; object-fit: cover; border-radius: 16px; margin-bottom: 16px; background: #eee; }
+  .scan-title { font-size: 18px; font-weight: 700; margin: 0 0 16px; color: var(--ink); }
+  .macro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .macro-item { background: #f8fafc; border-radius: 12px; padding: 10px; text-align: center; }
+  .macro-val { font-size: 18px; font-weight: 700; color: var(--sage-dark); }
+  .macro-label { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; margin-top: 2px; }
+  .scan-advice { font-size: 14px; color: var(--ink-soft); font-style: italic; background: #fdf7ec; padding: 12px; border-radius: 12px; border-left: 3px solid var(--terra); margin-bottom: 16px; }
+
   /* Bottom Nav */
   .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.03); }
   .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: var(--ink-soft); cursor: pointer; font-weight: 600; background: none; border: none; width: 50%; padding: 0; margin: 0; }
@@ -210,12 +223,43 @@
   </div>
 
   <div class="chat-input-area">
-    <!-- Hidden Camera Input for Chat -->
     <input type="file" id="chatFileCamera" accept="image/*" capture="environment" onchange="handleChatPhoto(event)" style="display:none;">
     <button class="chat-camera-btn" onclick="document.getElementById('chatFileCamera').click()" aria-label="Send photo">📷</button>
     
     <input type="text" id="chatInput" placeholder="Ask a question…" onkeypress="if(event.key==='Enter') sendChat()">
     <button class="chat-send-btn" onclick="sendChat()" aria-label="Send">↑</button>
+  </div>
+</div>
+
+<!-- SCAN MODAL -->
+<div class="scan-modal-overlay" id="scanModal">
+  <div class="scan-modal-card">
+    <img id="scanPreview" class="scan-img" src="" alt="Food scan">
+    <h3 class="scan-title" id="scanDesc">Analyzing...</h3>
+    
+    <div class="macro-grid">
+      <div class="macro-item">
+        <div class="macro-val" id="scanCal">0</div>
+        <div class="macro-label">Calories</div>
+      </div>
+      <div class="macro-item">
+        <div class="macro-val" id="scanPro">0g</div>
+        <div class="macro-label">Protein</div>
+      </div>
+      <div class="macro-item">
+        <div class="macro-val" id="scanCarb">0g</div>
+        <div class="macro-label">Carbs</div>
+      </div>
+      <div class="macro-item">
+        <div class="macro-val" id="scanFat">0g</div>
+        <div class="macro-label">Fat</div>
+      </div>
+    </div>
+
+    <div class="scan-advice" id="scanAdvice">Loading advice...</div>
+
+    <button class="btn-terra" onclick="saveScannedMeal()">Save to Food Diary</button>
+    <button class="btn-soft" onclick="discardScannedMeal()">Discard</button>
   </div>
 </div>
 
@@ -289,7 +333,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V33)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V34)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -383,6 +427,7 @@
 
   let currentProfile = null, currentUser = null, todaysMeals = [], todaysWater = 0, savedRecipes = [];
   let unsubMeals = null, unsubRecipes = null, unsubChat = null, isChatting = false;
+  let pendingScanData = null; // Stores data while modal is open
   
   const WELCOME_MSG = "Welcome to the 21 Questions room! 😄 This room is your personal assistant to help with any questions you may have—whether that be diet-related or other interests. Feel free to ask away! Also, if you ever wish to delete the chats, you can do so inside the app settings.";
 
@@ -575,6 +620,7 @@
       const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       
+      // Note: Removed the "break into paragraphs" instruction to stop double-texting on short answers
       const systemMsg = { 
         role: 'system', 
         content: `You are a warm, friendly, human nutritionist texting with your client, ${p.name}. The current date is ${dateString} and the time is ${timeString}. She has eaten ${calTotal} cal today. 
@@ -584,8 +630,7 @@
         2. Be informative but very friendly. 
         3. Always ask a follow-up question at the end to check if she understands or needs help with anything else.
         4. If she mentions a specific restaurant, a menu, or a food you don't know the exact details of, you MUST immediately suggest she use the 📷 camera button to take a photo of it so you can read it for her. Do not try to guess the menu.
-        5. Never mention being an AI. Never use bullet points for casual chat.
-        6. Break your thoughts into two or three short paragraphs separated by a new line (\\n\\n) so it feels like texting.` 
+        5. Never mention being an AI. Never use bullet points for casual chat.` 
       };
 
       const res = await fetch('/api/chat', {
@@ -598,44 +643,50 @@
       if (!res.ok) throw new Error(data.error || "API Error");
       const reply = data.choices?.[0]?.message?.content || "I didn't quite catch that.";
       
-      // Store full reply in history
       chatHistory.push({ role: 'assistant', content: reply });
 
-      // SPLIT INTO CHUNKS (Double Text effect)
-      // Splits by double newlines (paragraphs) or single sentences
-      let chunks = reply.split(/\n\n+/); 
-      if (chunks.length === 1) {
-        // If it's one big block, split by sentences
-        chunks = reply.match(/[^.!?]+[.!?]+/g) || [reply];
+      // DIALED BACK DOUBLE TEXTING LOGIC:
+      // Only split into two bubbles if the message is long (> 180 characters)
+      // AND it contains a newline or a period to split on.
+      let chunks = [reply]; 
+      
+      if (reply.length > 180) {
+        let split = reply.split(/\n\n+/);
+        if (split.length === 1) {
+          // Try splitting by sentences instead
+          const sentences = reply.match(/[^.!?]+[.!?]+/g) || [reply];
+          if (sentences.length > 1) {
+            const mid = Math.ceil(sentences.length / 2);
+            split = [
+              sentences.slice(0, mid).join(' '),
+              sentences.slice(mid).join(' ')
+            ];
+          }
+        }
+        // If we successfully split, use the chunks (max 2 chunks to avoid spam)
+        if (split.length > 1) {
+          chunks = split.slice(0, 2).map(c => c.trim()).filter(c => c.length > 0);
+        }
       }
       
-      // Filter out tiny chunks or combine them if they are too short
-      chunks = chunks.map(c => c.trim()).filter(c => c.length > 0);
-      
-      // Loop through chunks
+      // Loop through chunks (either 1 or 2 messages)
       for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
         
-        // Show typing dots
         typingWrapper.classList.add('show');
         container.scrollTop = container.scrollHeight;
         
-        // Calculate typing time for this specific chunk
-        let typingTime = 800 + (chunk.length * 30); 
-        typingTime = Math.min(typingTime, 4000); // Cap at 4s per chunk
+        let typingTime = 800 + (chunk.length * 25); 
+        typingTime = Math.min(typingTime, 4000); 
         
         await new Promise(resolve => setTimeout(resolve, typingTime));
         
-        // Hide typing dots
         typingWrapper.classList.remove('show');
-        
-        // Show the chunk
         appendChatMsg(chunk, 'ai', getTimeString());
         saveChatMessage(chunk, 'ai', getTimeString());
         
-        // Small pause before the next chunk starts typing
         if (i < chunks.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 600));
+          await new Promise(resolve => setTimeout(resolve, 800)); // Short pause between texts
         }
       }
 
@@ -648,6 +699,7 @@
     }
   };
 
+  // PHOTO SCAN FROM CHAT
   window.handleChatPhoto = function(event) {
     const file = event.target.files[0];
     if (!file || !currentUser) return;
@@ -710,7 +762,6 @@
 
         const replyText = `that looks like **${parsed.meal}**! 😋\n\n📊 calories: ${parsed.calories}\n🥩 protein: ${parsed.protein}g\n🍞 carbs: ${parsed.carbs}g\n🥑 fat: ${parsed.fat}g\n\n💡 *${parsed.advice}*\n\nwould you like me to suggest a healthy side dish to go with this?`;
         
-        // Hide dots
         typingWrapper.classList.remove('show');
         appendChatMsg(replyText, 'ai', getTimeString());
         saveChatMessage(replyText, 'ai', getTimeString());
@@ -726,17 +777,7 @@
     reader.readAsDataURL(file);
   };
 
-  function appendChatMsg(text, sender, time) {
-    const container = document.getElementById('chatMessages');
-    const wrapper = document.createElement('div');
-    wrapper.className = `msg-wrapper ${sender}`;
-    wrapper.innerHTML = `<div class="msg-time">${time}</div><div class="chat-msg ${sender}">${escapeHtml(text)}</div>`;
-    container.appendChild(wrapper);
-    
-    // Force scroll to bottom
-    container.scrollTop = container.scrollHeight;
-  }
-
+  // PHOTO SCAN FROM HOME (MODAL LOGIC)
   window.handlePhotoUpload = async function(event) {
     const file = event.target.files[0];
     if (!file || !currentUser) return;
@@ -777,18 +818,29 @@
         
         const parsed = JSON.parse(match[0]);
 
-        await addDoc(collection(db, 'meals', currentUser.uid, 'items'), {
+        // Store for modal
+        pendingScanData = {
           description: parsed.meal || 'Scanned Meal',
           calories: parsed.calories || 0,
           protein: parsed.protein || 0,
           carbs: parsed.carbs || 0,
           fat: parsed.fat || 0,
-          dateKey: todayKey(),
-          createdAt: serverTimestamp()
-        });
+          dateKey: todayKey()
+        };
 
-        setStatus('photoStatus', `✅ Logged! ${parsed.calories} cal. ${parsed.advice}`, false);
-        setTimeout(() => setStatus('photoStatus', ''), 5000);
+        // Populate Modal
+        document.getElementById('scanPreview').src = base64Image;
+        document.getElementById('scanDesc').textContent = parsed.meal;
+        document.getElementById('scanCal').textContent = parsed.calories;
+        document.getElementById('scanPro').textContent = parsed.protein + 'g';
+        document.getElementById('scanCarb').textContent = parsed.carbs + 'g';
+        document.getElementById('scanFat').textContent = parsed.fat + 'g';
+        document.getElementById('scanAdvice').textContent = parsed.advice;
+
+        // Show Modal
+        document.getElementById('scanModal').classList.add('show');
+        setStatus('photoStatus', '');
+
       } catch (err) {
         console.error(err);
         setStatus('photoStatus', '⚠️ Error: ' + err.message, true);
@@ -796,6 +848,38 @@
     };
     reader.readAsDataURL(file);
   };
+
+  // SAVE SCANNED MEAL FROM MODAL
+  window.saveScannedMeal = async function() {
+    if (!pendingScanData || !currentUser) return;
+    try {
+      await addDoc(collection(db, 'meals', currentUser.uid, 'items'), {
+        ...pendingScanData,
+        createdAt: serverTimestamp()
+      });
+      document.getElementById('scanModal').classList.remove('show');
+      pendingScanData = null;
+    } catch (err) {
+      alert("Failed to save meal: " + err.message);
+    }
+  };
+
+  // DISCARD SCANNED MEAL
+  window.discardScannedMeal = function() {
+    document.getElementById('scanModal').classList.remove('show');
+    pendingScanData = null;
+  };
+
+  function appendChatMsg(text, sender, time) {
+    const container = document.getElementById('chatMessages');
+    const wrapper = document.createElement('div');
+    wrapper.className = `msg-wrapper ${sender}`;
+    wrapper.innerHTML = `<div class="msg-time">${time}</div><div class="chat-msg ${sender}">${escapeHtml(text)}</div>`;
+    container.appendChild(wrapper);
+    
+    // Force scroll to bottom
+    container.scrollTop = container.scrollHeight;
+  }
 
   window.signInWithGoogle = async function() {
     try { 
@@ -972,7 +1056,7 @@
   const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
 
   function renderDashboard() {
-    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V33)</span>';
+    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V34)</span>';
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
     renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
