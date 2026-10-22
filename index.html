@@ -87,9 +87,13 @@
   .chat-msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 15px; line-height: 1.45; white-space: pre-wrap; }
   .chat-msg.ai { background: var(--card); border: 1px solid var(--line); border-bottom-left-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
   .chat-msg.user { background: var(--sage); color: white; border-bottom-right-radius: 4px; }
-  .chat-input-area { background: var(--card); padding: 12px 16px max(12px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); display: flex; gap: 10px; max-width: 500px; margin: 0 auto; width: 100%; }
-  .chat-input-area input { flex: 1; border-radius: 20px; padding: 14px 18px; }
-  .chat-input-area button { width: auto; margin: 0; border-radius: 50%; width: 48px; height: 48px; padding: 0; }
+  
+  /* Chat Input Area with Camera */
+  .chat-input-area { background: var(--card); padding: 12px 16px max(12px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); display: flex; gap: 8px; max-width: 500px; margin: 0 auto; width: 100%; align-items: center; }
+  .chat-input-area input { flex: 1; border-radius: 20px; padding: 14px 18px; margin: 0; }
+  .chat-input-area button { width: 48px; height: 48px; margin: 0; padding: 0; border-radius: 50%; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 20px; }
+  .chat-camera-btn { background: #f3ede1; color: var(--ink); }
+  .chat-send-btn { background: var(--sage); color: white; }
 
   /* Typing Indicator */
   .typing-indicator { display: flex; gap: 4px; padding: 12px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; align-items: center; height: 44px; }
@@ -100,11 +104,28 @@
 
   /* Bottom Nav */
   .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.03); }
-  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: var(--ink-soft); cursor: pointer; font-weight: 600; background: none; border: none; width: 33%; padding: 0; margin: 0; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: var(--ink-soft); cursor: pointer; font-weight: 600; background: none; border: none; width: 50%; padding: 0; margin: 0; }
   .nav-item.active { color: var(--sage-dark); }
   .nav-icon { font-size: 20px; margin-bottom: 4px; }
+
+  /* Floating Chat Button */
+  .floating-chat-btn {
+    position: fixed; bottom: 90px; right: 20px; z-index: 95;
+    width: 60px; height: 60px; border-radius: 50%;
+    background: var(--terra); color: white; border: none;
+    box-shadow: 0 4px 16px rgba(217, 139, 106, 0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 28px; cursor: pointer; transition: transform 0.2s, background 0.2s;
+    padding: 0; margin: 0;
+  }
+  .floating-chat-btn:hover { background: var(--terra-dark); transform: scale(1.05); }
+  .floating-chat-btn::after {
+    content: ''; position: absolute; top: 2px; right: 2px;
+    width: 14px; height: 14px; background: #e74c3c; border-radius: 50%;
+    border: 2px solid var(--cream);
+  }
   
-  /* Photo Button */
+  /* Photo Button on Home */
   .photo-btn { background: #f3ede1; color: var(--ink); border: 2px dashed var(--line); border-radius: 16px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; display: block; margin: 0; }
   .photo-btn:hover { background: #ebe2ce; border-color: var(--sage); }
 
@@ -124,6 +145,11 @@
 <body>
 
 <div id="globalError" style="display:none; position:fixed; top:0; left:0; right:0; background:#e74c3c; color:white; padding:16px; z-index:9999; font-size:14px;"></div>
+
+<!-- FLOATING CHAT BUTTON -->
+<button class="floating-chat-btn" onclick="openChat()" aria-label="Chat with your dietitian">
+  💬
+</button>
 
 <!-- WELCOME ONBOARDING -->
 <div class="welcome-overlay" id="welcomeScreen">
@@ -151,8 +177,12 @@
   </div>
   <div class="chat-messages" id="chatMessages"></div>
   <div class="chat-input-area">
+    <!-- Hidden Camera Input for Chat -->
+    <input type="file" id="chatFileCamera" accept="image/*" capture="environment" onchange="handleChatPhoto(event)" style="display:none;">
+    <button class="chat-camera-btn" onclick="document.getElementById('chatFileCamera').click()" aria-label="Send photo">📷</button>
+    
     <input type="text" id="chatInput" placeholder="Ask a question…" onkeypress="if(event.key==='Enter') sendChat()">
-    <button onclick="sendChat()">↑</button>
+    <button class="chat-send-btn" onclick="sendChat()" aria-label="Send">↑</button>
   </div>
 </div>
 
@@ -280,10 +310,10 @@
   </div>
 </div>
 
+<!-- BOTTOM NAV (Now only Home and Cookbook) -->
 <div class="bottom-nav" id="bottomNav" style="display:none;">
   <button class="nav-item active" id="nav-home" onclick="switchMainPage('home')"><span class="nav-icon">🏠</span> Home</button>
   <button class="nav-item" id="nav-cookbook" onclick="switchMainPage('cookbook')"><span class="nav-icon">📖</span> Cookbook</button>
-  <button class="nav-item" onclick="openChat()"><span class="nav-icon">💬</span> Dietitian</button>
 </div>
 
 <div class="sheet-overlay" id="sheetOverlay" onclick="closeSettings()"></div>
@@ -346,6 +376,7 @@
       }
     }
     
+    // Show bottom nav ONLY on the dashboard, but floating chat is always visible
     document.getElementById('bottomNav').style.display = (id === 'dashScreen') ? 'flex' : 'none';
     window.scrollTo(0,0);
   };
@@ -409,25 +440,12 @@
     chatHistory.push({ role: 'user', content: text });
     isChatting = true;
 
-    // Show typing indicator with 3 bouncing dots
-    const loadingId = 'thinking-' + Date.now();
-    const wrapper = document.createElement('div');
-    wrapper.className = `msg-wrapper ai`;
-    wrapper.id = loadingId;
-    wrapper.innerHTML = `
-      <div class="msg-time">${getTimeString()}</div>
-      <div class="typing-indicator">
-        <span></span><span></span><span></span>
-      </div>
-    `;
-    document.getElementById('chatMessages').appendChild(wrapper);
-    document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+    showTypingIndicator();
 
     try {
       const p = currentProfile || { name: 'Fiona', age: '', goal: '', activityLevel: '', medicalConditions: [] };
       const calTotal = todaysMeals.reduce((s, m) => s + (m.calories || 0), 0);
       
-      // Get exact current date and time for the AI
       const now = new Date();
       const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -444,15 +462,11 @@
       });
 
       const data = await res.json();
-      
       if (!res.ok) throw new Error(data.error || "API Error");
-      
       const reply = data.choices?.[0]?.message?.content || "I didn't quite catch that.";
       
-      // Remove typing indicator
-      document.getElementById(loadingId)?.remove();
+      removeTypingIndicator();
       
-      // Add random human-like delay (1 to 3 seconds) before showing the message
       const delay = Math.floor(Math.random() * 2000) + 1000;
       setTimeout(() => {
         appendChatMsg(reply, 'ai', getTimeString());
@@ -461,18 +475,129 @@
       }, delay);
 
     } catch (e) {
-      document.getElementById(loadingId)?.remove();
+      removeTypingIndicator();
       appendChatMsg("⚠️ Error: " + e.message, 'ai', getTimeString());
       isChatting = false;
     }
   };
 
-  function appendChatMsg(text, sender, time, id = '') {
+  // --- CHAT PHOTO LOGIC ---
+  window.handleChatPhoto = function(event) {
+    const file = event.target.files[0];
+    if (!file || !currentUser) return;
+    
+    // Clear the input so they can take another photo later
+    document.getElementById('chatFileCamera').value = '';
+
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64Image = e.target.result; 
+      
+      // Show the photo they took in the chat immediately
+      appendPhotoMsg(base64Image, 'user', getTimeString());
+      isChatting = true;
+      showTypingIndicator();
+
+      try {
+        const system = `You are an expert nutritionist. The user uploaded an image. Look at the image, estimate the meal, and respond with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}. Do not add any extra text outside the JSON.`;
+        
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            isVision: true,
+            messages: [
+              { role: 'system', content: system },
+              { role: 'user', content: [
+                  { type: "text", text: "Analyze this food photo." },
+                  { type: "image_url", image_url: { url: base64Image } } 
+                ] 
+              }
+            ]
+          })
+        });
+
+        const rawText = await res.text(); 
+        let data;
+        try { data = JSON.parse(rawText); } catch (e) { throw new Error("AI returned an empty response."); }
+        if (!res.ok) throw new Error(data.error || "API Error");
+
+        const raw = data.choices?.[0]?.message?.content || '';
+        const match = raw.match(/\{[\s\S]*\}/);
+        if (!match) throw new Error("Could not read the nutritional data.");
+        
+        const parsed = JSON.parse(match[0]);
+
+        // Save to database
+        await addDoc(collection(db, 'meals', currentUser.uid, 'items'), {
+          description: parsed.meal || 'Scanned Meal',
+          calories: parsed.calories || 0,
+          protein: parsed.protein || 0,
+          carbs: parsed.carbs || 0,
+          fat: parsed.fat || 0,
+          dateKey: todayKey(),
+          createdAt: serverTimestamp()
+        });
+
+        // Format the AI's response nicely for the chat
+        const replyText = `That looks like **${parsed.meal}**.\n\n📊 **Calories:** ${parsed.calories}\n🥩 **Protein:** ${parsed.protein}g\n🍞 **Carbs:** ${parsed.carbs}g\n🥑 **Fat:** ${parsed.fat}g\n\n💡 *${parsed.advice}*`;
+        
+        removeTypingIndicator();
+        const delay = Math.floor(Math.random() * 2000) + 1000;
+        setTimeout(() => {
+          appendChatMsg(replyText, 'ai', getTimeString());
+          isChatting = false;
+        }, delay);
+
+      } catch (err) {
+        console.error(err);
+        removeTypingIndicator();
+        appendChatMsg("⚠️ Error: " + err.message, 'ai', getTimeString());
+        isChatting = false;
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  function showTypingIndicator() {
+    const loadingId = 'thinking-' + Date.now();
+    const wrapper = document.createElement('div');
+    wrapper.className = `msg-wrapper ai`;
+    wrapper.id = loadingId;
+    wrapper.innerHTML = `
+      <div class="msg-time">${getTimeString()}</div>
+      <div class="typing-indicator">
+        <span></span><span></span><span></span>
+      </div>
+    `;
+    document.getElementById('chatMessages').appendChild(wrapper);
+    document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const indicators = document.querySelectorAll('.typing-indicator');
+    indicators.forEach(el => el.closest('.msg-wrapper').remove());
+  }
+
+  function appendChatMsg(text, sender, time) {
     const container = document.getElementById('chatMessages');
     const wrapper = document.createElement('div');
     wrapper.className = `msg-wrapper ${sender}`;
-    if (id) wrapper.id = id;
     wrapper.innerHTML = `<div class="msg-time">${time}</div><div class="chat-msg ${sender}">${escapeHtml(text)}</div>`;
+    container.appendChild(wrapper);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function appendPhotoMsg(base64, sender, time) {
+    const container = document.getElementById('chatMessages');
+    const wrapper = document.createElement('div');
+    wrapper.className = `msg-wrapper ${sender}`;
+    wrapper.innerHTML = `
+      <div class="msg-time">${time}</div>
+      <div class="chat-msg ${sender}" style="padding: 4px;">
+        <img src="${base64}" style="max-width: 100%; border-radius: 14px; display: block;">
+      </div>
+    `;
     container.appendChild(wrapper);
     container.scrollTop = container.scrollHeight;
   }
@@ -508,12 +633,7 @@
 
         const rawText = await res.text(); 
         let data;
-        try {
-          data = JSON.parse(rawText);
-        } catch (e) {
-          throw new Error("AI returned an empty response.");
-        }
-        
+        try { data = JSON.parse(rawText); } catch (e) { throw new Error("AI returned an empty response."); }
         if (!res.ok) throw new Error(data.error || "API Error");
 
         const raw = data.choices?.[0]?.message?.content || '';
@@ -825,8 +945,6 @@
     deferredPrompt = null;
   };
 </script>
-
-<button id="installBtn" style="display:none; position:fixed; bottom:80px; right:20px; z-index:99; width:auto; padding:10px 16px; font-size:14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" onclick="triggerInstall()">📲 Install App</button>
 
 </body>
 </html>
