@@ -28,7 +28,7 @@ export default async function handler(req, res) {
       },
       body: JSON.stringify({
         // If the app sends "isVision: true", use the Vision model. Otherwise, use the standard text chat model.
-        model: isVision ? 'deepseek-vl' : 'deepseek-chat',
+        model: isVision ? 'deepseek-flash' : 'deepseek-chat',
         messages: messages,
         max_tokens: 1000
       })
