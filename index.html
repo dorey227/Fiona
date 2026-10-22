@@ -99,16 +99,8 @@
   .photo-btn:hover { background: #ebe2ce; border-color: var(--sage); }
 
   /* WELCOME ONBOARDING SEQUENCE */
-  .welcome-overlay {
-    position: fixed; inset: 0; background: var(--cream); z-index: 300;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-    padding: 24px; text-align: center;
-  }
-  .welcome-card {
-    background: var(--card); border-radius: 24px; padding: 40px 24px;
-    max-width: 450px; width: 100%; box-shadow: var(--shadow);
-    animation: fadeSlideUp 0.5s ease forwards; opacity: 0; transform: translateY(20px);
-  }
+  .welcome-overlay { position: fixed; inset: 0; background: var(--cream); z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center; }
+  .welcome-card { background: var(--card); border-radius: 24px; padding: 40px 24px; max-width: 450px; width: 100%; box-shadow: var(--shadow); animation: fadeSlideUp 0.5s ease forwards; opacity: 0; transform: translateY(20px); }
   .welcome-icon { font-size: 48px; margin-bottom: 20px; }
   .welcome-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; color: var(--ink); }
   .welcome-text { font-size: 17px; line-height: 1.6; color: var(--ink-soft); margin-bottom: 32px; }
@@ -328,7 +320,7 @@
   window.showScreen = function(id) {
     ['loadingScreen','loginScreen','signupScreen','dashScreen', 'welcomeScreen'].forEach(s => {
       const el = document.getElementById(s);
-      if (el) el.style.display = 'none'; // hide all
+      if (el) el.style.display = 'none';
     });
     const target = document.getElementById(id);
     if (target) target.style.display = (id === 'welcomeScreen') ? 'flex' : 'block';
@@ -340,7 +332,6 @@
   window.nextWelcomeStep = function() {
     welcomeStep++;
     if (welcomeStep >= welcomeData.length) {
-      // Finished welcome, show wizard
       showWizard(1);
       showScreen('signupScreen');
       return;
@@ -348,7 +339,7 @@
     
     const card = document.getElementById('welcomeCard');
     card.style.animation = 'none';
-    card.offsetHeight; // trigger reflow
+    card.offsetHeight;
     card.style.animation = 'fadeSlideUp 0.5s ease forwards';
     
     document.getElementById('welcomeIcon').textContent = welcomeData[welcomeStep].icon;
@@ -514,7 +505,7 @@
         await loadTodayData();
         renderDashboard();
       } else {
-        // BRAND NEW USER: Trigger the Welcome Sequence
+        // BRAND NEW USER
         document.getElementById('name').value = user.displayName || '';
         welcomeStep = 0;
         document.getElementById('welcomeIcon').textContent = welcomeData[0].icon;
