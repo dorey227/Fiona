@@ -289,7 +289,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V32)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V33)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -564,13 +564,9 @@
     
     isChatting = true;
     
-    // 1. Show the fixed typing indicator above the input
-    document.getElementById('typingWrapper').classList.add('show');
     const container = document.getElementById('chatMessages');
-    container.scrollTop = container.scrollHeight;
-
-    const startTime = Date.now();
-
+    const typingWrapper = document.getElementById('typingWrapper');
+    
     try {
       const p = currentProfile || { name: 'Fiona', age: '', goal: '', activityLevel: '', medicalConditions: [] };
       const calTotal = todaysMeals.reduce((s, m) => s + (m.calories || 0), 0);
@@ -588,10 +584,10 @@
         2. Be informative but very friendly. 
         3. Always ask a follow-up question at the end to check if she understands or needs help with anything else.
         4. If she mentions a specific restaurant, a menu, or a food you don't know the exact details of, you MUST immediately suggest she use the 📷 camera button to take a photo of it so you can read it for her. Do not try to guess the menu.
-        5. Never mention being an AI. Never use bullet points for casual chat.` 
+        5. Never mention being an AI. Never use bullet points for casual chat.
+        6. Break your thoughts into two or three short paragraphs separated by a new line (\\n\\n) so it feels like texting.` 
       };
 
-      // Fetch the response
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -602,29 +598,51 @@
       if (!res.ok) throw new Error(data.error || "API Error");
       const reply = data.choices?.[0]?.message?.content || "I didn't quite catch that.";
       
-      // HUMAN-LIKE DELAY CALCULATION
-      const timePassed = Date.now() - startTime;
+      // Store full reply in history
+      chatHistory.push({ role: 'assistant', content: reply });
+
+      // SPLIT INTO CHUNKS (Double Text effect)
+      // Splits by double newlines (paragraphs) or single sentences
+      let chunks = reply.split(/\n\n+/); 
+      if (chunks.length === 1) {
+        // If it's one big block, split by sentences
+        chunks = reply.match(/[^.!?]+[.!?]+/g) || [reply];
+      }
       
-      // Calculate target typing time: Base 1s + 30ms per character (capped at 6s)
-      let targetTypingTime = 1000 + (reply.length * 30);
-      targetTypingTime = Math.min(targetTypingTime, 6000); // Max 6 seconds
+      // Filter out tiny chunks or combine them if they are too short
+      chunks = chunks.map(c => c.trim()).filter(c => c.length > 0);
       
-      // Calculate how much longer we need to wait
-      const remainingTime = targetTypingTime - timePassed;
-      
-      if (remainingTime > 0) {
-        await new Promise(resolve => setTimeout(resolve, remainingTime));
+      // Loop through chunks
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
+        
+        // Show typing dots
+        typingWrapper.classList.add('show');
+        container.scrollTop = container.scrollHeight;
+        
+        // Calculate typing time for this specific chunk
+        let typingTime = 800 + (chunk.length * 30); 
+        typingTime = Math.min(typingTime, 4000); // Cap at 4s per chunk
+        
+        await new Promise(resolve => setTimeout(resolve, typingTime));
+        
+        // Hide typing dots
+        typingWrapper.classList.remove('show');
+        
+        // Show the chunk
+        appendChatMsg(chunk, 'ai', getTimeString());
+        saveChatMessage(chunk, 'ai', getTimeString());
+        
+        // Small pause before the next chunk starts typing
+        if (i < chunks.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 600));
+        }
       }
 
-      // Hide dots and show message
-      document.getElementById('typingWrapper').classList.remove('show');
-      appendChatMsg(reply, 'ai', getTimeString());
-      chatHistory.push({ role: 'assistant', content: reply });
-      saveChatMessage(reply, 'ai', getTimeString());
       isChatting = false;
 
     } catch (e) {
-      document.getElementById('typingWrapper').classList.remove('show');
+      typingWrapper.classList.remove('show');
       appendChatMsg("⚠️ Error: " + e.message, 'ai', getTimeString());
       isChatting = false;
     }
@@ -645,11 +663,10 @@
       saveChatMessage(photoNote, 'user', getTimeString());
       
       isChatting = true;
-      document.getElementById('typingWrapper').classList.add('show');
+      const typingWrapper = document.getElementById('typingWrapper');
+      typingWrapper.classList.add('show');
       const container = document.getElementById('chatMessages');
       container.scrollTop = container.scrollHeight;
-
-      const startTime = Date.now();
 
       try {
         const system = `You are an expert nutritionist. The user uploaded an image. Look at the image, estimate the meal, and respond with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}. Do not add any extra text outside the JSON.`;
@@ -693,22 +710,15 @@
 
         const replyText = `that looks like **${parsed.meal}**! 😋\n\n📊 calories: ${parsed.calories}\n🥩 protein: ${parsed.protein}g\n🍞 carbs: ${parsed.carbs}g\n🥑 fat: ${parsed.fat}g\n\n💡 *${parsed.advice}*\n\nwould you like me to suggest a healthy side dish to go with this?`;
         
-        // Human-like delay for photos (just fixed 2.5s to 4s for analysis)
-        const timePassed = Date.now() - startTime;
-        const targetTime = 2500 + Math.floor(Math.random() * 1500);
-        const remainingTime = targetTime - timePassed;
-        if (remainingTime > 0) {
-          await new Promise(resolve => setTimeout(resolve, remainingTime));
-        }
-
-        document.getElementById('typingWrapper').classList.remove('show');
+        // Hide dots
+        typingWrapper.classList.remove('show');
         appendChatMsg(replyText, 'ai', getTimeString());
         saveChatMessage(replyText, 'ai', getTimeString());
         isChatting = false;
 
       } catch (err) {
         console.error(err);
-        document.getElementById('typingWrapper').classList.remove('show');
+        typingWrapper.classList.remove('show');
         appendChatMsg("⚠️ Error: " + err.message, 'ai', getTimeString());
         isChatting = false;
       }
@@ -962,7 +972,7 @@
   const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
 
   function renderDashboard() {
-    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V32)</span>';
+    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V33)</span>';
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
     renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
