@@ -13,8 +13,11 @@
     --line: #ebe4d8; --shadow: 0 4px 20px rgba(120, 100, 70, 0.08);
   }
   * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-  body { margin: 0; padding: env(safe-area-inset-top) 0 90px 0; background: var(--cream); color: var(--ink); min-height: 100vh; min-height: 100dvh; }
-  .wrap { max-width: 500px; margin: 0 auto; padding: 0 16px; }
+  
+  /* FIX: Removed the 90px bottom padding here */
+  body { margin: 0; padding: env(safe-area-inset-top) 0 0 0; background: var(--cream); color: var(--ink); min-height: 100vh; min-height: 100dvh; }
+  .wrap { max-width: 500px; margin: 0 auto; padding: 0 16px 90px 16px; /* Moved padding to wrap */ }
+  
   .app-header { position: sticky; top: 0; z-index: 10; background: rgba(251,247,240,0.95); backdrop-filter: blur(8px); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
   .brand { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
   .icon-btn { background: transparent; border: none; font-size: 22px; cursor: pointer; padding: 6px; border-radius: 10px; color: var(--ink-soft); }
@@ -271,7 +274,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V23)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V24)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -938,7 +941,7 @@
   const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
 
   function renderDashboard() {
-    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V23)</span>';
+    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V24)</span>';
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
     renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
