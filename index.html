@@ -59,7 +59,6 @@
   .chip input { display: none; }
   .chip.on { background: var(--sage); color: white; }
 
-  /* Small tappable prompt buttons (auto-width, unlike global buttons) */
   .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
   .chip-btn { width: auto; margin: 0; background: #f3ede1; color: var(--ink); padding: 10px 14px; border-radius: 14px; font-size: 14px; font-weight: 500; }
   .chip-btn:hover { background: #ebe2ce; }
@@ -78,7 +77,6 @@
   .meal-list .del { background: #f5e1da; color: #b45435; border: none; width: 34px; height: 34px; border-radius: 10px; font-size: 15px; padding: 0; margin: 0; cursor: pointer; }
   .empty { color: var(--ink-soft); font-size: 14px; font-style: italic; text-align: center; padding: 20px; }
 
-  /* Manual "add by hand" disclosure */
   details.manual-add { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
   details.manual-add summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--sage-dark); list-style: none; }
   details.manual-add summary::-webkit-details-marker { display: none; }
@@ -95,6 +93,16 @@
   .week-bar-wrap { height: 8px; background: #f0ebdf; border-radius: 4px; overflow: hidden; }
   .week-bar { height: 100%; background: var(--terra); border-radius: 4px; transition: width 0.4s ease; }
   .week-sub { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+
+  /* Snaps */
+  .snap-date-header { font-size: 12px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.6px; margin: 18px 0 8px; }
+  .snap-date-header:first-child { margin-top: 4px; }
+  .snap-card { display: flex; gap: 12px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px; margin-bottom: 8px; box-shadow: var(--shadow); cursor: pointer; transition: transform 0.05s; }
+  .snap-card:active { transform: scale(0.99); }
+  .snap-thumb { width: 64px; height: 64px; object-fit: cover; border-radius: 12px; flex-shrink: 0; background: #eee; }
+  .snap-info { flex: 1; min-width: 0; }
+  .snap-desc { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .snap-card .del { background: #f5e1da; color: #b45435; border: none; width: 34px; height: 34px; border-radius: 10px; font-size: 15px; padding: 0; margin: 0; cursor: pointer; flex-shrink: 0; }
 
   .loading { text-align: center; padding: 60px 20px; color: var(--ink-soft); }
   .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--line); border-top-color: var(--sage); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
@@ -117,7 +125,6 @@
   .chat-header { background: var(--card); padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top)); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
   .chat-close { background: transparent; color: var(--ink-soft); font-size: 24px; border: none; cursor: pointer; padding: 4px; width: auto; margin: 0; }
 
-  /* Chat Messages Area */
   .chat-messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 8px; max-width: 500px; margin: 0 auto; width: 100%; }
   .chat-messages::-webkit-scrollbar { display: none; }
   .chat-messages { -ms-overflow-style: none; scrollbar-width: none; }
@@ -130,11 +137,9 @@
   .chat-msg.ai { background: var(--card); border: 1px solid var(--line); border-bottom-left-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
   .chat-msg.user { background: var(--sage); color: white; border-bottom-right-radius: 4px; }
   
-  /* Fixed Typing Indicator Wrapper (Right above input) */
   .typing-wrapper { background: var(--cream); padding: 0 16px 8px 16px; max-width: 500px; margin: 0 auto; width: 100%; display: none; }
   .typing-wrapper.show { display: block; }
   
-  /* The 3 Bouncing Dots */
   .typing-indicator { display: flex; gap: 4px; padding: 14px 18px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; align-items: center; height: 44px; }
   .typing-dots { display: flex; gap: 5px; }
   .typing-dots span { display: block; width: 6px; height: 6px; background: var(--ink-soft); border-radius: 50%; animation: bounce 1.2s infinite ease-in-out both; }
@@ -142,14 +147,12 @@
   .typing-dots span:nth-child(2) { animation-delay: -0.12s; }
   @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-  /* Chat Input Area */
   .chat-input-area { background: var(--card); padding: 8px 12px max(8px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); display: flex; gap: 8px; max-width: 500px; margin: 0 auto; width: 100%; align-items: center; }
   .chat-input-area input { flex: 1; border-radius: 20px; padding: 12px 16px; margin: 0; font-size: 15px; }
   .chat-input-area button { width: 44px; height: 44px; margin: 0; padding: 0; border-radius: 50%; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 18px; }
   .chat-camera-btn { background: #f3ede1; color: var(--ink); }
   .chat-send-btn { background: var(--sage); color: white; }
 
-  /* Scan Modal */
   .scan-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 400; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
   .scan-modal-overlay.show { opacity: 1; pointer-events: auto; }
   .scan-modal-card { background: var(--card); border-radius: 24px; padding: 24px; width: 100%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); transform: translateY(20px); transition: transform 0.3s; max-height: 90vh; overflow-y: auto; }
@@ -162,19 +165,17 @@
   .macro-label { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; margin-top: 2px; }
   .scan-advice { font-size: 14px; color: var(--ink-soft); font-style: italic; background: #fdf7ec; padding: 12px; border-radius: 12px; border-left: 3px solid var(--terra); margin-bottom: 16px; }
 
-  /* Bottom Nav */
   .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.03); }
-  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: var(--ink-soft); cursor: pointer; font-weight: 600; background: none; border: none; flex: 1; padding: 0; margin: 0; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: var(--ink-soft); cursor: pointer; font-weight: 600; background: none; border: none; flex: 1; padding: 0; margin: 0; }
   .nav-item.active { color: var(--sage-dark); }
   .nav-icon { font-size: 20px; margin-bottom: 4px; }
 
-  /* Floating Chat Button */
   .floating-chat-btn {
     position: fixed; bottom: 90px; right: 20px; z-index: 95;
     width: 60px; height: 60px; border-radius: 50%;
     background: var(--terra); color: white; border: none;
     box-shadow: 0 4px 16px rgba(217, 139, 106, 0.4);
-    display: none; /* Hidden until logged in */
+    display: none;
     align-items: center; justify-content: center;
     font-size: 28px; cursor: pointer; transition: transform 0.2s, background 0.2s;
     padding: 0; margin: 0;
@@ -187,11 +188,9 @@
     border: 2px solid var(--cream);
   }
   
-  /* Photo Button on Home */
   .photo-btn { background: #f3ede1; color: var(--ink); border: 2px dashed var(--line); border-radius: 16px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; display: block; margin: 0; }
   .photo-btn:hover { background: #ebe2ce; border-color: var(--sage); }
 
-  /* WELCOME ONBOARDING SEQUENCE */
   .welcome-overlay { position: fixed; inset: 0; background: var(--cream); z-index: 300; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center; }
   .welcome-overlay.show { display: flex; }
   .welcome-card { background: var(--card); border-radius: 24px; padding: 40px 24px; max-width: 450px; width: 100%; box-shadow: var(--shadow); animation: fadeSlideUp 0.5s ease forwards; opacity: 0; transform: translateY(20px); }
@@ -240,7 +239,6 @@
   
   <div class="chat-messages" id="chatMessages"></div>
   
-  <!-- Fixed Typing Indicator -->
   <div class="typing-wrapper" id="typingWrapper">
     <div class="typing-indicator">
       <div class="typing-dots">
@@ -258,7 +256,7 @@
   </div>
 </div>
 
-<!-- SCAN MODAL -->
+<!-- SCAN MODAL (Save from home) -->
 <div class="scan-modal-overlay" id="scanModal">
   <div class="scan-modal-card">
     <img id="scanPreview" class="scan-img" src="" alt="Food scan">
@@ -295,6 +293,22 @@
 
     <button class="btn-terra" onclick="saveScannedMeal()">Save to Food Diary</button>
     <button class="btn-soft" onclick="discardScannedMeal()">Discard</button>
+  </div>
+</div>
+
+<!-- SNAP VIEW MODAL -->
+<div class="scan-modal-overlay" id="snapViewModal" onclick="if(event.target===this) closeSnapView()">
+  <div class="scan-modal-card">
+    <img id="snapViewImg" class="scan-img" src="" alt="Food snap" style="height:220px;">
+    <h3 class="scan-title" id="snapViewTitle">Meal</h3>
+    <div class="macro-grid">
+      <div class="macro-item"><div class="macro-val" id="snapViewCal">0</div><div class="macro-label">Calories</div></div>
+      <div class="macro-item"><div class="macro-val" id="snapViewPro">0g</div><div class="macro-label">Protein</div></div>
+      <div class="macro-item"><div class="macro-val" id="snapViewCarb">0g</div><div class="macro-label">Carbs</div></div>
+      <div class="macro-item"><div class="macro-val" id="snapViewFat">0g</div><div class="macro-label">Fat</div></div>
+    </div>
+    <div class="scan-advice" id="snapViewMeta"></div>
+    <button class="btn-soft" onclick="closeSnapView()">Close</button>
   </div>
 </div>
 
@@ -368,7 +382,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V35)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V36)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -436,6 +450,12 @@
     </div>
   </div>
 
+  <div id="page-snaps" class="hidden">
+    <div class="hello">Food snaps</div>
+    <p class="hello-sub">Every photo you've logged, newest first.</p>
+    <div id="snapsList"><div class="empty">No snaps yet.</div></div>
+  </div>
+
   <div id="page-cookbook" class="hidden">
     <div class="hello">Cookbook</div>
     <p class="hello-sub">Ideas based on what you have.</p>
@@ -468,6 +488,7 @@
 <!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottomNav" style="display:none;">
   <button class="nav-item active" id="nav-home" onclick="switchMainPage('home')"><span class="nav-icon">🏠</span> Home</button>
+  <button class="nav-item" id="nav-snaps" onclick="switchMainPage('snaps')"><span class="nav-icon">📸</span> Snaps</button>
   <button class="nav-item" id="nav-cookbook" onclick="switchMainPage('cookbook')"><span class="nav-icon">📖</span> Cookbook</button>
   <button class="nav-item" id="nav-week" onclick="switchMainPage('week')"><span class="nav-icon">📊</span> Week</button>
 </div>
@@ -485,7 +506,7 @@
 <script type="module">
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js';
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js';
-  import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
+  import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, addDoc, onSnapshot, query, where, orderBy, limit, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
 
   const firebaseConfig = {
     apiKey: "AIzaSyBlrh8RMSF4QOuND-MWorEERPcig2LirbQ",
@@ -501,13 +522,14 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const APP_VERSION = 'V35';
+  const APP_VERSION = 'V36';
 
   let currentProfile = null, currentUser = null, todaysMeals = [], todaysWater = 0, savedRecipes = [];
-  let unsubMeals = null, unsubRecipes = null, unsubChat = null, isChatting = false;
-  let pendingScanData = null; // Stores data while modal is open
-  let activeDayKey = todayKey(); // Detects midnight rollover
-  
+  let unsubMeals = null, unsubRecipes = null, unsubChat = null, unsubSnaps = null, isChatting = false;
+  let pendingScanData = null;
+  let activeDayKey = todayKey();
+  let allSnaps = []; // recent photo meals (newest first)
+
   const WELCOME_MSG = "Welcome to the 21 Questions room! 😄 This room is your personal assistant to help with any questions you may have—whether that be diet-related or other interests. Feel free to ask away! Also, if you ever wish to delete the chats, you can do so inside the app settings.";
 
   let chatHistory = [{ role: "assistant", content: WELCOME_MSG }];
@@ -534,7 +556,7 @@
   const welcomeData = [
     { icon: "👋", title: "Hello, Fiona!", text: "I'm so glad you're here. I'm your personal nutritionist. Think of this little app as your very own kitchen companion. My goal isn't to put you on a strict diet—it's simply to help you feel your best and keep your energy up." },
     { icon: "💧", title: "Tracking Made Easy", text: "Sometimes it's hard to remember exactly what we've eaten or how much water we've had. This app makes it incredibly easy. You can just tap to log a glass of water, or type in a meal. It will quietly keep track of your calories in the background, so you never have to do the math." },
-    { icon: "📷", title: "Snap a Photo", text: "And if you're ever unsure about a food, or you're reading a label at the supermarket—just use the camera button! Snap a photo, and I'll instantly tell you what nutritional ingredients are inside, and how it fits into your day." },
+    { icon: "📷", title: "Snap a Photo", text: "And if you're ever unsure about a food, or you're reading a label at the supermarket—just use the camera button! Snap a photo, and I'll instantly tell you what nutritional ingredients are inside, and how it fits into your day. Every snap you save gets kept safe in the Snaps tab." },
     { icon: "💬", title: "Friendly Advice", text: "If you ever have a question—like 'What should I cook with the chicken in my fridge?' or 'Is this a good snack?'—just tap the chat bubble at the bottom. I'm always here to give you friendly, practical advice based on your specific goals. You're going to do wonderfully. Let's get started!" }
   ];
   let welcomeStep = 0;
@@ -589,7 +611,7 @@
   };
 
   window.switchMainPage = function(page) {
-    ['home', 'cookbook', 'week'].forEach(p => {
+    ['home', 'snaps', 'cookbook', 'week'].forEach(p => {
       const el = document.getElementById('page-'+p);
       if (el) el.classList.add('hidden');
       const nav = document.getElementById('nav-'+p);
@@ -611,6 +633,28 @@
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); 
   }
   function todayKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+
+  // Shrink a data URL to a small thumbnail so it fits comfortably in Firestore
+  function downscaleImage(dataUrl, maxDim = 420, quality = 0.7) {
+    return new Promise((resolve) => {
+      try {
+        const img = new Image();
+        img.onload = () => {
+          let { width, height } = img;
+          if (width > height && width > maxDim) { height = Math.round(height * maxDim / width); width = maxDim; }
+          else if (height > maxDim) { width = Math.round(width * maxDim / height); height = maxDim; }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          try { resolve(canvas.toDataURL('image/jpeg', quality)); }
+          catch (e) { resolve(dataUrl); }
+        };
+        img.onerror = () => resolve(dataUrl);
+        img.src = dataUrl;
+      } catch (e) { resolve(dataUrl); }
+    });
+  }
 
   window.openChat = function() { 
     document.getElementById('chatOverlay').classList.add('open'); 
@@ -660,7 +704,6 @@
     }
   }
 
-  // SAVE MESSAGE TO FIREBASE
   async function saveChatMessage(text, sender, timeString) {
     if (!currentUser) return;
     try {
@@ -671,12 +714,10 @@
         createdAt: serverTimestamp()
       });
     } catch (e) {
-      // Message already shown optimistically — no need to re-append (avoids duplicates).
       console.error("Failed to save message:", e);
     }
   }
 
-  // CLEAR CHAT HISTORY
   window.clearChatHistory = async function() {
     if (!currentUser) return;
     if (!confirm('Are you sure you want to clear all chat messages? This cannot be undone.')) return;
@@ -694,6 +735,16 @@
       alert("Error clearing chat: " + e.message);
     }
   };
+
+  // Build a short summary of recent food snaps for the AI
+  function buildSnapsSummary(maxItems = 8) {
+    const recent = allSnaps.slice(0, maxItems);
+    if (!recent.length) return '(no logged food photos yet)';
+    return recent.map(m => {
+      const t = MEAL_TYPE_MAP[m.mealType];
+      return `- ${m.dateKey || '?'}${t ? ' ' + t.label.toLowerCase() : ''}: ${m.description}${m.calories ? ' (~' + m.calories + ' cal)' : ''}`;
+    }).join('\n');
+  }
 
   window.sendChat = async function() {
     if (isChatting) return;
@@ -721,9 +772,16 @@
       const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       
+      const snapsSummary = buildSnapsSummary(8);
+
       const systemMsg = { 
         role: 'system', 
         content: `You are a warm, friendly, human nutritionist texting with your client, ${p.name}. The current date is ${dateString} and the time is ${timeString}. She has eaten ${calTotal} cal today. 
+        
+        She keeps a photo food diary inside the app. Her most recent logged food snaps are:
+        ${snapsSummary}
+        
+        If she asks about a past meal, or wants to know what she ate yesterday/earlier, use the snaps list above. She can also open the "Snaps" tab to see them herself.
         
         IMPORTANT RULES:
         1. Text like a real person. Use lowercase letters mostly, natural emojis, and short sentences. 
@@ -745,7 +803,6 @@
       
       chatHistory.push({ role: 'assistant', content: reply });
 
-      // Only split into two bubbles if the message is long (> 180 characters)
       let chunks = [reply]; 
       
       if (reply.length > 180) {
@@ -845,6 +902,9 @@
         
         const parsed = JSON.parse(match[0]);
 
+        // Downscale and store a thumbnail so the snap shows up in the Snaps tab
+        const thumb = await downscaleImage(base64Image);
+
         await addDoc(collection(db, 'meals', currentUser.uid, 'items'), {
           description: parsed.meal || 'Scanned Meal',
           calories: parsed.calories || 0,
@@ -852,12 +912,13 @@
           carbs: parsed.carbs || 0,
           fat: parsed.fat || 0,
           mealType: defaultMealType(),
+          photo: thumb,
           dateKey: todayKey(),
           createdAt: serverTimestamp()
         });
 
-        const replyText = `that looks like **${parsed.meal}**! 😋\n\n📊 calories: ${parsed.calories}\n🥩 protein: ${parsed.protein}g\n🍞 carbs: ${parsed.carbs}g\n🥑 fat: ${parsed.fat}g\n\n💡 *${parsed.advice}*\n\nwould you like me to suggest a healthy side dish to go with this?`;
-        
+        const replyText = `that looks like **${parsed.meal}**! 😋\n\n📊 calories: ${parsed.calories}\n🥩 protein: ${parsed.protein}g\n🍞 carbs: ${parsed.carbs}g\n🥑 fat: ${parsed.fat}g\n\n💡 *${parsed.advice}*\n\nI've saved it to your food diary too — you'll find the photo in the 📸 Snaps tab.`;
+
         typingWrapper.classList.remove('show');
         appendChatMsg(replyText, 'ai', getTimeString());
         saveChatMessage(replyText, 'ai', getTimeString());
@@ -914,16 +975,20 @@
         
         const parsed = JSON.parse(match[0]);
 
+        // Downscale so the thumbnail fits comfortably in Firestore
+        const thumb = await downscaleImage(base64Image);
+
         pendingScanData = {
           description: parsed.meal || 'Scanned Meal',
           calories: parsed.calories || 0,
           protein: parsed.protein || 0,
           carbs: parsed.carbs || 0,
           fat: parsed.fat || 0,
+          photo: thumb,
           dateKey: todayKey()
         };
 
-        // Populate Modal
+        // Populate Modal (use full image for a sharp preview)
         document.getElementById('scanPreview').src = base64Image;
         document.getElementById('scanDesc').textContent = parsed.meal;
         document.getElementById('scanCal').textContent = parsed.calories;
@@ -944,7 +1009,6 @@
     reader.readAsDataURL(file);
   };
 
-  // SAVE SCANNED MEAL FROM MODAL
   window.saveScannedMeal = async function() {
     if (!pendingScanData || !currentUser) return;
     const typeEl = document.getElementById('scanType');
@@ -956,18 +1020,92 @@
       });
       document.getElementById('scanModal').classList.remove('show');
       pendingScanData = null;
+      document.getElementById('fileCamera').value = '';
     } catch (err) {
       alert("Failed to save meal: " + err.message);
     }
   };
 
-  // DISCARD SCANNED MEAL
   window.discardScannedMeal = function() {
     document.getElementById('scanModal').classList.remove('show');
     pendingScanData = null;
+    document.getElementById('fileCamera').value = '';
   };
 
-  // Lightweight markdown (bold / italic) so AI replies read nicely
+  // ---------- SNAPS ----------
+  function renderSnaps() {
+    const el = document.getElementById('snapsList');
+    if (!el) return;
+    if (!allSnaps.length) {
+      el.innerHTML = '<div class="empty">No snaps yet — take a photo from the Home tab and tap Save.</div>';
+      return;
+    }
+
+    const todayK = todayKey();
+    const yestD = new Date(); yestD.setDate(yestD.getDate() - 1);
+    const yestK = yestD.getFullYear() + '-' + String(yestD.getMonth()+1).padStart(2,'0') + '-' + String(yestD.getDate()).padStart(2,'0');
+
+    const groups = {};
+    allSnaps.forEach(m => {
+      const k = m.dateKey || 'older';
+      if (!groups[k]) groups[k] = [];
+      groups[k].push(m);
+    });
+
+    const keys = Object.keys(groups).sort().reverse();
+    let html = '';
+    keys.forEach(k => {
+      let label = k;
+      if (k === todayK) label = 'Today';
+      else if (k === yestK) label = 'Yesterday';
+      else if (k !== 'older') {
+        try {
+          const d = new Date(k + 'T12:00:00');
+          label = d.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+        } catch (e) { label = k; }
+      } else { label = 'Older'; }
+
+      html += `<div class="snap-date-header">${escapeHtml(label)}</div>`;
+      groups[k].forEach(m => {
+        const t = MEAL_TYPE_MAP[m.mealType];
+        const meta = [];
+        if (t) meta.push(t.icon + ' ' + t.label);
+        if (m.calories) meta.push(m.calories + ' cal');
+        if (m.protein) meta.push(Math.round(m.protein) + 'g protein');
+        html += `<div class="snap-card" onclick="viewSnap('${m.id}')">
+          <img src="${m.photo}" alt="${escapeHtml(m.description || 'Food snap')}" class="snap-thumb">
+          <div class="snap-info">
+            <div class="snap-desc">${escapeHtml(m.description || 'Food snap')}</div>
+            <div class="meal-meta">${meta.join(' · ') || '—'}</div>
+          </div>
+          <button class="del" onclick="event.stopPropagation(); deleteMeal('${m.id}')" aria-label="Delete">🗑</button>
+        </div>`;
+      });
+    });
+    el.innerHTML = html;
+  }
+
+  window.viewSnap = function(id) {
+    const m = allSnaps.find(x => x.id === id);
+    if (!m) return;
+    document.getElementById('snapViewImg').src = m.photo || '';
+    document.getElementById('snapViewTitle').textContent = m.description || 'Meal';
+    document.getElementById('snapViewCal').textContent = m.calories || 0;
+    document.getElementById('snapViewPro').textContent = (m.protein || 0) + 'g';
+    document.getElementById('snapViewCarb').textContent = (m.carbs || 0) + 'g';
+    document.getElementById('snapViewFat').textContent = (m.fat || 0) + 'g';
+    const t = MEAL_TYPE_MAP[m.mealType];
+    const meta = [];
+    if (t) meta.push(t.icon + ' ' + t.label);
+    if (m.dateKey) meta.push(m.dateKey);
+    document.getElementById('snapViewMeta').textContent = meta.join(' · ');
+    document.getElementById('snapViewModal').classList.add('show');
+  };
+
+  window.closeSnapView = function() {
+    document.getElementById('snapViewModal').classList.remove('show');
+  };
+
   function formatChatText(s) {
     return escapeHtml(s)
       .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
@@ -980,7 +1118,6 @@
     wrapper.className = `msg-wrapper ${sender}`;
     wrapper.innerHTML = `<div class="msg-time">${escapeHtml(time)}</div><div class="chat-msg ${sender}">${formatChatText(text)}</div>`;
     container.appendChild(wrapper);
-    
     container.scrollTop = container.scrollHeight;
   }
 
@@ -1069,11 +1206,29 @@
   async function loadTodayData() {
     activeDayKey = todayKey();
     try { const wSnap = await getDoc(doc(db, 'water', currentUser.uid, 'days', todayKey())); todaysWater = wSnap.exists() ? (wSnap.data().glasses || 0) : 0; } catch (e) { todaysWater = 0; }
+
+    // Today's meals
     if (unsubMeals) unsubMeals();
     try {
       const q = query(collection(db, 'meals', currentUser.uid, 'items'), where('dateKey', '==', todayKey()), orderBy('createdAt', 'asc'));
       unsubMeals = onSnapshot(q, (snap) => { todaysMeals = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderMeals(); updateRings(); }, () => { todaysMeals = []; renderMeals(); updateRings(); });
     } catch (e) { todaysMeals = []; }
+
+    // Recent meals WITH photos (for the Snaps tab + chat context)
+    if (unsubSnaps) unsubSnaps();
+    try {
+      const qSnaps = query(collection(db, 'meals', currentUser.uid, 'items'), orderBy('createdAt', 'desc'), limit(80));
+      unsubSnaps = onSnapshot(qSnaps, (snap) => {
+        allSnaps = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(m => m.photo);
+        renderSnaps();
+      }, (err) => {
+        console.error("Snaps listener error:", err);
+        allSnaps = [];
+        renderSnaps();
+      });
+    } catch (e) { allSnaps = []; }
+
+    // Saved recipes
     if (unsubRecipes) unsubRecipes();
     try {
       const q = query(collection(db, 'recipes', currentUser.uid, 'items'), orderBy('createdAt', 'desc'));
@@ -1122,6 +1277,7 @@
       if (t) bits.push(t.icon + ' ' + t.label);
       if (m.calories) bits.push(m.calories + ' cal');
       if (m.protein) bits.push(Math.round(m.protein) + 'g protein');
+      if (m.photo) bits.push('📸');
       return `<li><div><div>${escapeHtml(m.description)}</div>${bits.length ? `<div class="meal-meta">${bits.join(' · ')}</div>` : ''}</div><button class="del" onclick="deleteMeal('${m.id}')" aria-label="Delete">🗑</button></li>`;
     }).join('');
   }
@@ -1166,8 +1322,6 @@
 
     try {
       const keys = lastNDays(7);
-
-      // Water: one small read per day
       const waterMap = {};
       await Promise.all(keys.map(async k => {
         try {
@@ -1176,7 +1330,6 @@
         } catch (e) { waterMap[k] = 0; }
       }));
 
-      // Meals: one query for the whole week
       const calMap = {};
       keys.forEach(k => calMap[k] = 0);
       try {
@@ -1224,8 +1377,6 @@
     summaryEl.innerHTML = `<strong>${daysLogged}</strong> of 7 days logged · average <strong>${avg}</strong> cal on logged days · <strong>${totalWater}</strong> glasses of water 💧`;
   }
 
-  window.switchTab = undefined; // (removed legacy dead code)
-
   window.quickCook = function(prompt) { document.getElementById('cookPrompt').value = prompt; cookNow(); };
 
   window.cookNow = async function() {
@@ -1262,7 +1413,7 @@
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
     const typeEl = document.getElementById('mealType'); if (typeEl) typeEl.value = defaultMealType();
-    renderMeals(); updateRings(); renderRecipes(); switchMainPage('home'); showScreen('dashScreen');
+    renderMeals(); updateRings(); renderRecipes(); renderSnaps(); switchMainPage('home'); showScreen('dashScreen');
   }
 
   window.editProfile = function() {
@@ -1291,8 +1442,9 @@
     const now = new Date();
     const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+    const snapsSummary = buildSnapsSummary(6);
     
-    const system = `You are a warm, encouraging dietitian for ${p.name}, age ${p.age}. The current date is ${dateString} and the time is ${timeString}. Goal: ${p.goal}. Height ${p.heightCm}cm, weight ${p.currentWeightKg}kg${p.goalWeightKg ? ', goal weight '+p.goalWeightKg+'kg' : ''}. Pace: ${p.pace}. Activity: ${p.activityLevel}. Medical: ${(p.medicalConditions||[]).join(', ')}. Allergies: ${p.allergies||'none'}. Dislikes: ${p.dislikes||'none'}. Usual meals — breakfast: "${p.typicalBreakfast||'?'}", lunch: "${p.typicalLunch||'?'}", dinner: "${p.typicalDinner||'?'}". Motivation: "${p.motivation||'unknown'}". Targets: ${t.calorieTarget||'?'} cal, ${t.proteinTarget||'?'}g protein, ${t.waterGoal||8} glasses water.\nToday she has eaten:\n${mealSummary}\nWater: ${todaysWater} glasses. Remaining calories: ~${remaining}.\nBe warm. 2-4 sentences. Practical and specific. Never mention being an AI.`;
+    const system = `You are a warm, encouraging dietitian for ${p.name}, age ${p.age}. The current date is ${dateString} and the time is ${timeString}. Goal: ${p.goal}. Height ${p.heightCm}cm, weight ${p.currentWeightKg}kg${p.goalWeightKg ? ', goal weight '+p.goalWeightKg+'kg' : ''}. Pace: ${p.pace}. Activity: ${p.activityLevel}. Medical: ${(p.medicalConditions||[]).join(', ')}. Allergies: ${p.allergies||'none'}. Dislikes: ${p.dislikes||'none'}. Usual meals — breakfast: "${p.typicalBreakfast||'?'}", lunch: "${p.typicalLunch||'?'}", dinner: "${p.typicalDinner||'?'}". Motivation: "${p.motivation||'unknown'}". Targets: ${t.calorieTarget||'?'} cal, ${t.proteinTarget||'?'}g protein, ${t.waterGoal||8} glasses water.\nToday she has eaten:\n${mealSummary}\nWater: ${todaysWater} glasses. Remaining calories: ~${remaining}.\nHer recent food snaps (photo diary):\n${snapsSummary}\nBe warm. 2-4 sentences. Practical and specific. Never mention being an AI.`;
     try {
       const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }) });
       const rawText = await res.text(); let data;
@@ -1320,7 +1472,8 @@
       if (unsubMeals) { unsubMeals(); unsubMeals = null; } 
       if (unsubRecipes) { unsubRecipes(); unsubRecipes = null; }
       if (unsubChat) { unsubChat(); unsubChat = null; }
-      currentProfile = null; todaysMeals = []; todaysWater = 0; savedRecipes = [];
+      if (unsubSnaps) { unsubSnaps(); unsubSnaps = null; }
+      currentProfile = null; todaysMeals = []; todaysWater = 0; savedRecipes = []; allSnaps = [];
       
       await signOut(auth);
       window.location.reload(); 
@@ -1328,7 +1481,6 @@
     } catch (e) { alert('Something went wrong clearing data: ' + e.message); }
   };
 
-  // Midnight rollover: if the app is left open, quietly start the new day
   setInterval(() => {
     const k = todayKey();
     if (k !== activeDayKey) {
