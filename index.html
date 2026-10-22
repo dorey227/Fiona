@@ -37,6 +37,8 @@
   .ring-label { font-size: 13px; color: var(--ink-soft); margin-top: 4px; }
   .ring-label strong { color: var(--ink); font-size: 15px; display: block; }
   .ring-text { font-size: 18px; font-weight: 700; fill: var(--ink); }
+  .ring-sub { font-size: 12px; color: var(--ink-soft); margin-top: 8px; }
+  .ring-sub strong { color: var(--ink); }
   .water-controls { display: flex; gap: 8px; margin-top: 10px; }
   .water-controls button { flex: 1; padding: 10px; font-size: 18px; border-radius: 12px; }
   label { display: block; font-weight: 600; margin: 14px 0 6px; font-size: 13px; color: var(--ink-soft); }
@@ -56,6 +58,12 @@
   .chip { background: #f3ede1; border: 1.5px solid transparent; padding: 10px 14px; border-radius: 14px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 6px; font-weight: 500; }
   .chip input { display: none; }
   .chip.on { background: var(--sage); color: white; }
+
+  /* Small tappable prompt buttons (auto-width, unlike global buttons) */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip-btn { width: auto; margin: 0; background: #f3ede1; color: var(--ink); padding: 10px 14px; border-radius: 14px; font-size: 14px; font-weight: 500; }
+  .chip-btn:hover { background: #ebe2ce; }
+
   .progress-dots { display: flex; justify-content: center; gap: 8px; margin: 10px 0 22px; }
   .progress-dots .dot { width: 10px; height: 10px; border-radius: 50%; background: #e5ddcd; }
   .progress-dots .dot.active { background: var(--sage); }
@@ -69,6 +77,25 @@
   .meal-meta { color: var(--ink-soft); font-size: 12px; margin-top: 2px; }
   .meal-list .del { background: #f5e1da; color: #b45435; border: none; width: 34px; height: 34px; border-radius: 10px; font-size: 15px; padding: 0; margin: 0; cursor: pointer; }
   .empty { color: var(--ink-soft); font-size: 14px; font-style: italic; text-align: center; padding: 20px; }
+
+  /* Manual "add by hand" disclosure */
+  details.manual-add { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+  details.manual-add summary { cursor: pointer; font-weight: 600; font-size: 14px; color: var(--sage-dark); list-style: none; }
+  details.manual-add summary::-webkit-details-marker { display: none; }
+  details.manual-add summary::before { content: '+ '; }
+  details.manual-add[open] summary::before { content: '− '; }
+
+  /* Week view */
+  .week-summary { font-size: 14px; color: var(--ink-soft); line-height: 1.7; }
+  .week-summary strong { color: var(--ink); }
+  .week-row { padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .week-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .week-top { display: flex; justify-content: space-between; font-size: 14px; font-weight: 600; margin-bottom: 7px; }
+  .week-row.today .week-top span:first-child { color: var(--sage-dark); }
+  .week-bar-wrap { height: 8px; background: #f0ebdf; border-radius: 4px; overflow: hidden; }
+  .week-bar { height: 100%; background: var(--terra); border-radius: 4px; transition: width 0.4s ease; }
+  .week-sub { font-size: 12px; color: var(--ink-soft); margin-top: 6px; }
+
   .loading { text-align: center; padding: 60px 20px; color: var(--ink-soft); }
   .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--line); border-top-color: var(--sage); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -137,7 +164,7 @@
 
   /* Bottom Nav */
   .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.03); }
-  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: var(--ink-soft); cursor: pointer; font-weight: 600; background: none; border: none; width: 50%; padding: 0; margin: 0; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 12px; color: var(--ink-soft); cursor: pointer; font-weight: 600; background: none; border: none; flex: 1; padding: 0; margin: 0; }
   .nav-item.active { color: var(--sage-dark); }
   .nav-icon { font-size: 20px; margin-bottom: 4px; }
 
@@ -258,6 +285,14 @@
 
     <div class="scan-advice" id="scanAdvice">Loading advice...</div>
 
+    <label>Which meal is this?</label>
+    <select id="scanType">
+      <option value="breakfast">🌅 Breakfast</option>
+      <option value="lunch">☀️ Lunch</option>
+      <option value="dinner">🌙 Dinner</option>
+      <option value="snack">🍎 Snack</option>
+    </select>
+
     <button class="btn-terra" onclick="saveScannedMeal()">Save to Food Diary</button>
     <button class="btn-soft" onclick="discardScannedMeal()">Discard</button>
   </div>
@@ -333,7 +368,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V34)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V35)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -354,6 +389,7 @@
           <text x="50" y="55" text-anchor="middle" class="ring-text" id="calRingText">0</text>
         </svg>
         <div class="ring-label"><strong id="calCount">0</strong>of <span id="calGoal">—</span> cal</div>
+        <div class="ring-sub">Protein <strong id="proteinCount">0</strong> / <span id="proteinGoal">—</span>g</div>
       </div>
     </div>
 
@@ -371,6 +407,32 @@
     <div class="card">
       <h3>Today's meals</h3>
       <ul class="meal-list" id="mealList"></ul>
+      <details class="manual-add">
+        <summary>Add a meal by hand</summary>
+        <label>What did you eat?</label>
+        <input type="text" id="mealDesc" placeholder="e.g. Chicken sandwich">
+        <label>Which meal?</label>
+        <select id="mealType">
+          <option value="breakfast">🌅 Breakfast</option>
+          <option value="lunch">☀️ Lunch</option>
+          <option value="dinner">🌙 Dinner</option>
+          <option value="snack">🍎 Snack</option>
+        </select>
+        <label>Calories (optional)</label>
+        <input type="number" id="mealCal" placeholder="e.g. 420">
+        <button onclick="addMeal()">Log it</button>
+        <div class="status" id="mealStatus"></div>
+      </details>
+    </div>
+
+    <div class="card">
+      <h3>Ask your dietitian</h3>
+      <div class="chip-row">
+        <button class="chip-btn" onclick="askAI('What should I have for dinner tonight?')">Dinner ideas</button>
+        <button class="chip-btn" onclick="askAI('How am I doing today?')">How am I doing?</button>
+        <button class="chip-btn" onclick="askAI('Is a handful of nuts a good snack?')">Snack check</button>
+      </div>
+      <div class="ai-box" id="aiSuggestion" style="margin-top:12px;">Tap a question above — or open the chat bubble for anything else. 💬</div>
     </div>
   </div>
 
@@ -388,12 +450,26 @@
       <div id="recipeList"><div class="empty">No recipes yet.</div></div>
     </div>
   </div>
+
+  <div id="page-week" class="hidden">
+    <div class="hello">Your week</div>
+    <p class="hello-sub">A gentle look at the last 7 days.</p>
+    <div class="card">
+      <h3>At a glance</h3>
+      <div class="week-summary" id="weekSummary">—</div>
+    </div>
+    <div class="card">
+      <h3>Day by day</h3>
+      <div id="weekList"><div class="empty">Loading…</div></div>
+    </div>
+  </div>
 </div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottomNav" style="display:none;">
   <button class="nav-item active" id="nav-home" onclick="switchMainPage('home')"><span class="nav-icon">🏠</span> Home</button>
   <button class="nav-item" id="nav-cookbook" onclick="switchMainPage('cookbook')"><span class="nav-icon">📖</span> Cookbook</button>
+  <button class="nav-item" id="nav-week" onclick="switchMainPage('week')"><span class="nav-icon">📊</span> Week</button>
 </div>
 
 <div class="sheet-overlay" id="sheetOverlay" onclick="closeSettings()"></div>
@@ -425,15 +501,35 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
+  const APP_VERSION = 'V35';
+
   let currentProfile = null, currentUser = null, todaysMeals = [], todaysWater = 0, savedRecipes = [];
   let unsubMeals = null, unsubRecipes = null, unsubChat = null, isChatting = false;
   let pendingScanData = null; // Stores data while modal is open
+  let activeDayKey = todayKey(); // Detects midnight rollover
   
   const WELCOME_MSG = "Welcome to the 21 Questions room! 😄 This room is your personal assistant to help with any questions you may have—whether that be diet-related or other interests. Feel free to ask away! Also, if you ever wish to delete the chats, you can do so inside the app settings.";
 
   let chatHistory = [{ role: "assistant", content: WELCOME_MSG }];
 
   const RING_CIRC = 2 * Math.PI * 42;
+
+  const MEAL_TYPES = [
+    { v: 'breakfast', icon: '🌅', label: 'Breakfast' },
+    { v: 'lunch', icon: '☀️', label: 'Lunch' },
+    { v: 'dinner', icon: '🌙', label: 'Dinner' },
+    { v: 'snack', icon: '🍎', label: 'Snack' }
+  ];
+  const MEAL_TYPE_MAP = {};
+  MEAL_TYPES.forEach(t => { MEAL_TYPE_MAP[t.v] = t; });
+
+  function defaultMealType() {
+    const h = new Date().getHours();
+    if (h < 11) return 'breakfast';
+    if (h < 15) return 'lunch';
+    if (h < 21) return 'dinner';
+    return 'snack';
+  }
 
   const welcomeData = [
     { icon: "👋", title: "Hello, Fiona!", text: "I'm so glad you're here. I'm your personal nutritionist. Think of this little app as your very own kitchen companion. My goal isn't to put you on a strict diet—it's simply to help you feel your best and keep your energy up." },
@@ -493,12 +589,17 @@
   };
 
   window.switchMainPage = function(page) {
-    ['home', 'cookbook'].forEach(p => {
-      document.getElementById('page-'+p).classList.add('hidden');
-      document.getElementById('nav-'+p).classList.remove('active');
+    ['home', 'cookbook', 'week'].forEach(p => {
+      const el = document.getElementById('page-'+p);
+      if (el) el.classList.add('hidden');
+      const nav = document.getElementById('nav-'+p);
+      if (nav) nav.classList.remove('active');
     });
-    document.getElementById('page-'+page).classList.remove('hidden');
-    document.getElementById('nav-'+page).classList.add('active');
+    const pageEl = document.getElementById('page-'+page);
+    if (pageEl) pageEl.classList.remove('hidden');
+    const navEl = document.getElementById('nav-'+page);
+    if (navEl) navEl.classList.add('active');
+    if (page === 'week') loadWeek();
   };
 
   window.setStatus = function(id, msg, isError) {
@@ -570,8 +671,8 @@
         createdAt: serverTimestamp()
       });
     } catch (e) {
+      // Message already shown optimistically — no need to re-append (avoids duplicates).
       console.error("Failed to save message:", e);
-      appendChatMsg(text, sender, timeString);
     }
   }
 
@@ -620,7 +721,6 @@
       const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       
-      // Note: Removed the "break into paragraphs" instruction to stop double-texting on short answers
       const systemMsg = { 
         role: 'system', 
         content: `You are a warm, friendly, human nutritionist texting with your client, ${p.name}. The current date is ${dateString} and the time is ${timeString}. She has eaten ${calTotal} cal today. 
@@ -645,15 +745,12 @@
       
       chatHistory.push({ role: 'assistant', content: reply });
 
-      // DIALED BACK DOUBLE TEXTING LOGIC:
       // Only split into two bubbles if the message is long (> 180 characters)
-      // AND it contains a newline or a period to split on.
       let chunks = [reply]; 
       
       if (reply.length > 180) {
         let split = reply.split(/\n\n+/);
         if (split.length === 1) {
-          // Try splitting by sentences instead
           const sentences = reply.match(/[^.!?]+[.!?]+/g) || [reply];
           if (sentences.length > 1) {
             const mid = Math.ceil(sentences.length / 2);
@@ -663,13 +760,11 @@
             ];
           }
         }
-        // If we successfully split, use the chunks (max 2 chunks to avoid spam)
         if (split.length > 1) {
           chunks = split.slice(0, 2).map(c => c.trim()).filter(c => c.length > 0);
         }
       }
       
-      // Loop through chunks (either 1 or 2 messages)
       for (let i = 0; i < chunks.length; i++) {
         const chunk = chunks[i];
         
@@ -686,7 +781,7 @@
         saveChatMessage(chunk, 'ai', getTimeString());
         
         if (i < chunks.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 800)); // Short pause between texts
+          await new Promise(resolve => setTimeout(resolve, 800));
         }
       }
 
@@ -756,6 +851,7 @@
           protein: parsed.protein || 0,
           carbs: parsed.carbs || 0,
           fat: parsed.fat || 0,
+          mealType: defaultMealType(),
           dateKey: todayKey(),
           createdAt: serverTimestamp()
         });
@@ -818,7 +914,6 @@
         
         const parsed = JSON.parse(match[0]);
 
-        // Store for modal
         pendingScanData = {
           description: parsed.meal || 'Scanned Meal',
           calories: parsed.calories || 0,
@@ -836,8 +931,8 @@
         document.getElementById('scanCarb').textContent = parsed.carbs + 'g';
         document.getElementById('scanFat').textContent = parsed.fat + 'g';
         document.getElementById('scanAdvice').textContent = parsed.advice;
+        document.getElementById('scanType').value = defaultMealType();
 
-        // Show Modal
         document.getElementById('scanModal').classList.add('show');
         setStatus('photoStatus', '');
 
@@ -852,9 +947,11 @@
   // SAVE SCANNED MEAL FROM MODAL
   window.saveScannedMeal = async function() {
     if (!pendingScanData || !currentUser) return;
+    const typeEl = document.getElementById('scanType');
     try {
       await addDoc(collection(db, 'meals', currentUser.uid, 'items'), {
         ...pendingScanData,
+        mealType: (typeEl && typeEl.value) || defaultMealType(),
         createdAt: serverTimestamp()
       });
       document.getElementById('scanModal').classList.remove('show');
@@ -870,14 +967,20 @@
     pendingScanData = null;
   };
 
+  // Lightweight markdown (bold / italic) so AI replies read nicely
+  function formatChatText(s) {
+    return escapeHtml(s)
+      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,!?]|$)/g, '$1<em>$2</em>');
+  }
+
   function appendChatMsg(text, sender, time) {
     const container = document.getElementById('chatMessages');
     const wrapper = document.createElement('div');
     wrapper.className = `msg-wrapper ${sender}`;
-    wrapper.innerHTML = `<div class="msg-time">${time}</div><div class="chat-msg ${sender}">${escapeHtml(text)}</div>`;
+    wrapper.innerHTML = `<div class="msg-time">${escapeHtml(time)}</div><div class="chat-msg ${sender}">${formatChatText(text)}</div>`;
     container.appendChild(wrapper);
     
-    // Force scroll to bottom
     container.scrollTop = container.scrollHeight;
   }
 
@@ -964,6 +1067,7 @@
   };
 
   async function loadTodayData() {
+    activeDayKey = todayKey();
     try { const wSnap = await getDoc(doc(db, 'water', currentUser.uid, 'days', todayKey())); todaysWater = wSnap.exists() ? (wSnap.data().glasses || 0) : 0; } catch (e) { todaysWater = 0; }
     if (unsubMeals) unsubMeals();
     try {
@@ -983,13 +1087,24 @@
   window.removeWater = async function() { todaysWater = Math.max(0, todaysWater - 1); updateRings(); try { await setDoc(doc(db, 'water', currentUser.uid, 'days', todayKey()), { glasses: todaysWater, updatedAt: serverTimestamp() }, { merge: true }); } catch (e) {} };
 
   window.addMeal = async function() {
-    const descEl = document.getElementById('mealDesc'); const calEl = document.getElementById('mealCal');
-    const description = descEl.value.trim(); const calories = parseInt(calEl.value) || null;
+    const descEl = document.getElementById('mealDesc');
+    const calEl = document.getElementById('mealCal');
+    const typeEl = document.getElementById('mealType');
+    const description = descEl.value.trim();
+    const calories = parseInt(calEl.value) || null;
     if (!description) { setStatus('mealStatus', 'Please write what you ate.', true); return; }
     setStatus('mealStatus', 'Saving…');
     try {
-      await addDoc(collection(db, 'meals', currentUser.uid, 'items'), { description, calories, dateKey: todayKey(), createdAt: serverTimestamp() });
-      descEl.value = ''; calEl.value = ''; setStatus('mealStatus', '✅ Logged!');
+      await addDoc(collection(db, 'meals', currentUser.uid, 'items'), {
+        description,
+        calories,
+        mealType: (typeEl && typeEl.value) || defaultMealType(),
+        dateKey: todayKey(),
+        createdAt: serverTimestamp()
+      });
+      descEl.value = ''; calEl.value = '';
+      if (typeEl) typeEl.value = defaultMealType();
+      setStatus('mealStatus', '✅ Logged!');
       setTimeout(() => setStatus('mealStatus', ''), 1500);
     } catch (e) { setStatus('mealStatus', '❌ ' + e.message, true); }
   };
@@ -1001,7 +1116,14 @@
     const calTotal = todaysMeals.reduce((s, m) => s + (m.calories || 0), 0);
     const calCountEl = document.getElementById('calCount'); if (calCountEl) calCountEl.textContent = calTotal;
     if (!todaysMeals.length) { list.innerHTML = '<li class="empty">Nothing logged yet — that\'s okay.</li>'; return; }
-    list.innerHTML = todaysMeals.map(m => `<li><div><div>${escapeHtml(m.description)}</div>${m.calories ? `<div class="meal-meta">${m.calories} cal</div>` : ''}</div><button class="del" onclick="deleteMeal('${m.id}')" aria-label="Delete">🗑</button></li>`).join('');
+    list.innerHTML = todaysMeals.map(m => {
+      const t = MEAL_TYPE_MAP[m.mealType];
+      const bits = [];
+      if (t) bits.push(t.icon + ' ' + t.label);
+      if (m.calories) bits.push(m.calories + ' cal');
+      if (m.protein) bits.push(Math.round(m.protein) + 'g protein');
+      return `<li><div><div>${escapeHtml(m.description)}</div>${bits.length ? `<div class="meal-meta">${bits.join(' · ')}</div>` : ''}</div><button class="del" onclick="deleteMeal('${m.id}')" aria-label="Delete">🗑</button></li>`;
+    }).join('');
   }
 
   function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -1018,11 +1140,91 @@
     const cText = document.getElementById('calRingText'); if (cText) cText.textContent = calTotal;
     const cCount = document.getElementById('calCount'); if (cCount) cCount.textContent = calTotal;
     const cGoal = document.getElementById('calGoal'); if (cGoal) cGoal.textContent = calGoal;
+
+    const proteinTotal = todaysMeals.reduce((s, m) => s + (Number(m.protein) || 0), 0);
+    const pCount = document.getElementById('proteinCount'); if (pCount) pCount.textContent = Math.round(proteinTotal);
+    const pGoal = document.getElementById('proteinGoal'); if (pGoal) pGoal.textContent = t.proteinTarget || '—';
   }
 
-  window.switchTab = function(name) {
-    ['today','cook','ask'].forEach(n => { document.getElementById('tab-'+n).classList.toggle('hidden', n !== name); document.getElementById('tab'+n.charAt(0).toUpperCase()+n.slice(1)).classList.toggle('active', n === name); });
-  };
+  // ---------- WEEK VIEW ----------
+  function lastNDays(n) {
+    const out = [];
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      out.push(d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'));
+    }
+    return out;
+  }
+
+  async function loadWeek() {
+    const listEl = document.getElementById('weekList');
+    const summaryEl = document.getElementById('weekSummary');
+    if (!listEl || !currentUser) return;
+    listEl.innerHTML = '<div class="empty">Loading…</div>';
+    summaryEl.textContent = '—';
+
+    try {
+      const keys = lastNDays(7);
+
+      // Water: one small read per day
+      const waterMap = {};
+      await Promise.all(keys.map(async k => {
+        try {
+          const s = await getDoc(doc(db, 'water', currentUser.uid, 'days', k));
+          waterMap[k] = s.exists() ? (s.data().glasses || 0) : 0;
+        } catch (e) { waterMap[k] = 0; }
+      }));
+
+      // Meals: one query for the whole week
+      const calMap = {};
+      keys.forEach(k => calMap[k] = 0);
+      try {
+        const q = query(collection(db, 'meals', currentUser.uid, 'items'), where('dateKey', 'in', keys));
+        const snap = await getDocs(q);
+        snap.forEach(d => {
+          const m = d.data();
+          if (calMap[m.dateKey] !== undefined) calMap[m.dateKey] += (m.calories || 0);
+        });
+      } catch (e) { console.error('Week meals query failed:', e); }
+
+      renderWeek(keys, calMap, waterMap);
+    } catch (e) {
+      listEl.innerHTML = '<div class="empty">Could not load your week just now.</div>';
+    }
+  }
+
+  function renderWeek(keys, calMap, waterMap) {
+    const listEl = document.getElementById('weekList');
+    const summaryEl = document.getElementById('weekSummary');
+    const target = currentProfile?.targets?.calorieTarget || 2000;
+    const waterGoal = currentProfile?.targets?.waterGoal || 8;
+    const today = todayKey();
+
+    let totalCal = 0, daysLogged = 0, totalWater = 0;
+
+    const rows = keys.map(k => {
+      const d = new Date(k + 'T12:00:00');
+      const label = d.toLocaleDateString([], { weekday: 'short' }) + ' ' + d.getDate();
+      const cal = calMap[k] || 0;
+      const water = waterMap[k] || 0;
+      totalCal += cal; if (cal > 0) daysLogged++;
+      totalWater += water;
+      const pct = cal > 0 ? Math.max(4, Math.min(100, Math.round((cal / target) * 100))) : 0;
+
+      return `<div class="week-row${k === today ? ' today' : ''}">
+        <div class="week-top"><span>${label}${k === today ? ' · today' : ''}</span><span>${cal ? cal + ' cal' : '—'}</span></div>
+        <div class="week-bar-wrap"><div class="week-bar" style="width:${pct}%"></div></div>
+        <div class="week-sub">💧 ${water} of ${waterGoal} glasses</div>
+      </div>`;
+    }).join('');
+
+    listEl.innerHTML = rows;
+    const avg = daysLogged ? Math.round(totalCal / daysLogged) : 0;
+    summaryEl.innerHTML = `<strong>${daysLogged}</strong> of 7 days logged · average <strong>${avg}</strong> cal on logged days · <strong>${totalWater}</strong> glasses of water 💧`;
+  }
+
+  window.switchTab = undefined; // (removed legacy dead code)
 
   window.quickCook = function(prompt) { document.getElementById('cookPrompt').value = prompt; cookNow(); };
 
@@ -1056,10 +1258,11 @@
   const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
 
   function renderDashboard() {
-    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V34)</span>';
+    document.getElementById('greeting').innerHTML = 'Hi, ' + escapeHtml(currentProfile.name) + ' 🌿 <span class="version-tag">(' + APP_VERSION + ')</span>';
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
-    renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
+    const typeEl = document.getElementById('mealType'); if (typeEl) typeEl.value = defaultMealType();
+    renderMeals(); updateRings(); renderRecipes(); switchMainPage('home'); showScreen('dashScreen');
   }
 
   window.editProfile = function() {
@@ -1080,7 +1283,9 @@
   };
 
   window.askAI = async function(prompt) {
-    const box = document.getElementById('aiSuggestion'); box.classList.add('thinking'); box.textContent = 'Thinking…';
+    const box = document.getElementById('aiSuggestion');
+    if (!box || !currentProfile) return;
+    box.classList.add('thinking'); box.textContent = 'Thinking…';
     const p = currentProfile; const mealSummary = todaysMeals.length ? todaysMeals.map(m => `- ${m.description}${m.calories ? ` (${m.calories} cal)` : ''}`).join('\n') : '(nothing yet today)';
     const t = p.targets || {}; const remaining = (t.calorieTarget || 0) - todaysMeals.reduce((s,m)=>s+(m.calories||0),0);
     const now = new Date();
@@ -1122,6 +1327,17 @@
       
     } catch (e) { alert('Something went wrong clearing data: ' + e.message); }
   };
+
+  // Midnight rollover: if the app is left open, quietly start the new day
+  setInterval(() => {
+    const k = todayKey();
+    if (k !== activeDayKey) {
+      activeDayKey = k;
+      if (currentUser && currentProfile) {
+        loadTodayData().then(() => { renderMeals(); updateRings(); });
+      }
+    }
+  }, 60000);
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) { showScreen('loginScreen'); return; }
