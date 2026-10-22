@@ -13,7 +13,6 @@
     --line: #ebe4d8; --shadow: 0 4px 20px rgba(120, 100, 70, 0.08);
   }
   * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
-  /* Added safe-area-inset-top for iPhone notch and 100dvh for iPhone bottom bar */
   body { margin: 0; padding: env(safe-area-inset-top) 0 90px 0; background: var(--cream); color: var(--ink); min-height: 100vh; min-height: 100dvh; }
   .wrap { max-width: 500px; margin: 0 auto; padding: 0 16px; }
   .app-header { position: sticky; top: 0; z-index: 10; background: rgba(251,247,240,0.95); backdrop-filter: blur(8px); padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--line); }
@@ -110,12 +109,11 @@
   .chat-send-btn { background: var(--sage); color: white; }
 
   /* Typing Indicator */
-  .typing-indicator { display: flex; gap: 6px; padding: 12px 16px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; align-items: center; height: 44px; }
-  .typing-text { font-size: 13px; color: var(--ink-soft); font-style: italic; margin-right: 4px; }
-  .typing-dots { display: flex; gap: 3px; }
-  .typing-dots span { display: block; width: 5px; height: 5px; background: var(--ink-soft); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
-  .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
-  .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
+  .typing-indicator { display: flex; gap: 4px; padding: 14px 18px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; align-items: center; height: 44px; }
+  .typing-dots { display: flex; gap: 4px; }
+  .typing-dots span { display: block; width: 6px; height: 6px; background: var(--ink-soft); border-radius: 50%; animation: bounce 1.2s infinite ease-in-out both; }
+  .typing-dots span:nth-child(1) { animation-delay: -0.24s; }
+  .typing-dots span:nth-child(2) { animation-delay: -0.12s; }
   @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
   /* Bottom Nav */
@@ -547,7 +545,6 @@
       const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       
-      // NEW: Human-like system prompt
       const systemMsg = { 
         role: 'system', 
         content: `You are a warm, friendly, human nutritionist texting with your client, ${p.name}. The current date is ${dateString} and the time is ${timeString}. She has eaten ${calTotal} cal today. 
@@ -569,14 +566,13 @@
       if (!res.ok) throw new Error(data.error || "API Error");
       const reply = data.choices?.[0]?.message?.content || "I didn't quite catch that.";
       
-      removeTypingIndicator();
-      
       // NEW: Proportional typing delay based on message length
       const baseDelay = 1000;
-      const typingSpeed = reply.length * 30; // 30ms per character
+      const typingSpeed = reply.length * 25; // 25ms per character
       const delay = Math.min(baseDelay + typingSpeed, 6000); // Cap at 6 seconds max
       
       setTimeout(async () => {
+        removeTypingIndicator();
         appendChatMsg(reply, 'ai', getTimeString());
         chatHistory.push({ role: 'assistant', content: reply });
         saveChatMessage(reply, 'ai', getTimeString());
@@ -649,9 +645,9 @@
 
         const replyText = `that looks like **${parsed.meal}**! 😋\n\n📊 calories: ${parsed.calories}\n🥩 protein: ${parsed.protein}g\n🍞 carbs: ${parsed.carbs}g\n🥑 fat: ${parsed.fat}g\n\n💡 *${parsed.advice}*\n\nwould you like me to suggest a healthy side dish to go with this?`;
         
-        removeTypingIndicator();
-        const delay = Math.floor(Math.random() * 2000) + 2000; // 2-4 sec delay for photo analysis
+        const delay = Math.floor(Math.random() * 2000) + 2000;
         setTimeout(async () => {
+          removeTypingIndicator();
           appendChatMsg(replyText, 'ai', getTimeString());
           saveChatMessage(replyText, 'ai', getTimeString());
           isChatting = false;
@@ -667,7 +663,7 @@
     reader.readAsDataURL(file);
   };
 
-  // NEW: WhatsApp-style typing indicator
+  // NEW: Just the 3 bouncing bubbles, no text
   function showTypingIndicator() {
     const loadingId = 'thinking-' + Date.now();
     const wrapper = document.createElement('div');
@@ -676,7 +672,6 @@
     wrapper.innerHTML = `
       <div class="msg-time">${getTimeString()}</div>
       <div class="typing-indicator">
-        <span class="typing-text">Dietitian is typing</span>
         <div class="typing-dots">
           <span></span><span></span><span></span>
         </div>
