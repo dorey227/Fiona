@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Fiona's Kitchen</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="https://via.placeholder.com/192/8ba888/ffffff?text=F">
 <style>
   :root {
     --cream: #fbf7f0; --card: #ffffff; --sage: #8ba888; --sage-dark: #6b8a68;
@@ -718,7 +720,6 @@
   window.openSettings = function() { document.getElementById('settingsSheet').classList.add('open'); document.getElementById('sheetOverlay').classList.add('open'); };
   window.closeSettings = function() { document.getElementById('settingsSheet').classList.remove('open'); document.getElementById('sheetOverlay').classList.remove('open'); };
 
-  // FIXED RESET FUNCTION
   window.startFresh = async function() {
     if (!currentUser) return;
     if (!confirm('Start fresh?\n\nThis clears everything on this device — your profile, meals, water and saved recipes.')) return;
@@ -735,8 +736,6 @@
       currentProfile = null; todaysMeals = []; todaysWater = 0; savedRecipes = [];
       
       await signOut(auth);
-      
-      // Force a page reload to guarantee a clean slate
       window.location.reload(); 
       
     } catch (e) { alert('Something went wrong clearing data: ' + e.message); }
@@ -768,6 +767,30 @@
       setStatus('status', 'Error: ' + e.message, true); 
     }
   });
+
+  // --- PWA INSTALL LOGIC ---
+  let deferredPrompt;
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Show the install button if the event fires (Android/Chrome)
+    const btn = document.getElementById('installBtn');
+    if (btn) btn.style.display = 'block';
+  });
+
+  window.triggerInstall = async function() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      document.getElementById('installBtn').style.display = 'none';
+    }
+    deferredPrompt = null;
+  };
 </script>
+
+<!-- Install Button (Hidden by default) -->
+<button id="installBtn" style="display:none; position:fixed; bottom:80px; right:20px; z-index:99; width:auto; padding:10px 16px; font-size:14px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);" onclick="triggerInstall()">📲 Install App</button>
+
 </body>
 </html>
