@@ -264,7 +264,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V19)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V20)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -540,8 +540,6 @@
     
     // Show indicator and FORCE the browser to render it before the delay
     const loadingId = showTypingIndicator();
-    
-    // The magic pause to let the browser paint the dots
     await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
@@ -574,9 +572,9 @@
       if (!res.ok) throw new Error(data.error || "API Error");
       const reply = data.choices?.[0]?.message?.content || "I didn't quite catch that.";
       
-      const baseDelay = 1000;
-      const typingSpeed = reply.length * 25; 
-      const delay = Math.min(baseDelay + typingSpeed, 6000); 
+      // RANDOM FIXED DELAY (3, 5, or 7 seconds)
+      const delays = [3000, 5000, 7000];
+      const randomDelay = delays[Math.floor(Math.random() * delays.length)];
       
       setTimeout(async () => {
         document.getElementById(loadingId)?.remove();
@@ -584,7 +582,7 @@
         chatHistory.push({ role: 'assistant', content: reply });
         saveChatMessage(reply, 'ai', getTimeString());
         isChatting = false;
-      }, delay);
+      }, randomDelay);
 
     } catch (e) {
       document.getElementById(loadingId)?.remove();
@@ -653,13 +651,16 @@
 
         const replyText = `that looks like **${parsed.meal}**! 😋\n\n📊 calories: ${parsed.calories}\n🥩 protein: ${parsed.protein}g\n🍞 carbs: ${parsed.carbs}g\n🥑 fat: ${parsed.fat}g\n\n💡 *${parsed.advice}*\n\nwould you like me to suggest a healthy side dish to go with this?`;
         
-        const delay = Math.floor(Math.random() * 2000) + 2000;
+        // RANDOM FIXED DELAY for photo analysis
+        const delays = [3000, 5000, 7000];
+        const randomDelay = delays[Math.floor(Math.random() * delays.length)];
+        
         setTimeout(async () => {
           document.getElementById(loadingId)?.remove();
           appendChatMsg(replyText, 'ai', getTimeString());
           saveChatMessage(replyText, 'ai', getTimeString());
           isChatting = false;
-        }, delay);
+        }, randomDelay);
 
       } catch (err) {
         console.error(err);
@@ -933,7 +934,7 @@
   const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
 
   function renderDashboard() {
-    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V19)</span>';
+    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V20)</span>';
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
     renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
