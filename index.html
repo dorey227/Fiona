@@ -79,20 +79,12 @@
   .chat-overlay.open { display: flex; }
   .chat-header { background: var(--card); padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top)); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
   .chat-close { background: transparent; color: var(--ink-soft); font-size: 24px; border: none; cursor: pointer; padding: 4px; width: auto; margin: 0; }
-  
-  /* Chat Welcome Banner */
-  .chat-welcome-banner { 
-    background: linear-gradient(135deg, #fdf7ec 0%, #f7f0e2 100%); 
-    border-bottom: 1px solid var(--line); 
-    padding: 20px 24px; 
-    text-align: center; 
-    color: var(--terra-dark);
-    font-size: 14px;
-    line-height: 1.6;
-  }
-  .chat-welcome-banner strong { display: block; font-size: 16px; color: var(--ink); margin-bottom: 6px; }
 
+  /* HIDE SCROLLBAR */
   .chat-messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 8px; max-width: 500px; margin: 0 auto; width: 100%; }
+  .chat-messages::-webkit-scrollbar { display: none; } /* Safari and Chrome */
+  .chat-messages { -ms-overflow-style: none; scrollbar-width: none; } /* IE and Firefox */
+
   .msg-wrapper { display: flex; flex-direction: column; width: 100%; margin-bottom: 8px; }
   .msg-wrapper.user { align-items: flex-end; }
   .msg-wrapper.ai { align-items: flex-start; }
@@ -190,12 +182,6 @@
     <button class="chat-close" onclick="closeChat()">×</button>
   </div>
   
-  <!-- CHAT WELCOME MESSAGE -->
-  <div class="chat-welcome-banner">
-    <strong>Welcome to the 21 Questions room! 😄</strong>
-    This room is your personal assistant to help with any questions you may have—whether that be diet-related or other interests. Feel free to ask away! Also, if you ever wish to delete the chats, you can do so inside the app settings.
-  </div>
-
   <div class="chat-messages" id="chatMessages"></div>
   <div class="chat-input-area">
     <!-- Hidden Camera Input for Chat -->
@@ -369,7 +355,9 @@
   let currentProfile = null, currentUser = null, todaysMeals = [], todaysWater = 0, savedRecipes = [];
   let unsubMeals = null, unsubRecipes = null, unsubChat = null, isChatting = false;
   
-  let chatHistory = [{ role: "assistant", content: "Hi Fiona 🌿 I'm here if you want to chat. What's on your mind?" }];
+  const WELCOME_MSG = "Welcome to the 21 Questions room! 😄 This room is your personal assistant to help with any questions you may have—whether that be diet-related or other interests. Feel free to ask away! Also, if you ever wish to delete the chats, you can do so inside the app settings.";
+
+  let chatHistory = [{ role: "assistant", content: WELCOME_MSG }];
 
   const RING_CIRC = 2 * Math.PI * 42;
 
@@ -448,7 +436,15 @@
   }
   function todayKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 
-  window.openChat = function() { document.getElementById('chatOverlay').classList.add('open'); setTimeout(() => document.getElementById('chatInput').focus(), 100); };
+  window.openChat = function() { 
+    document.getElementById('chatOverlay').classList.add('open'); 
+    setTimeout(() => {
+      const container = document.getElementById('chatMessages');
+      container.scrollTop = container.scrollHeight;
+      document.getElementById('chatInput').focus();
+    }, 100); 
+  };
+  
   window.closeChat = function() { document.getElementById('chatOverlay').classList.remove('open'); };
 
   // LOAD CHAT HISTORY FROM FIREBASE
@@ -465,9 +461,12 @@
         document.getElementById('chatMessages').innerHTML = ''; 
         chatHistory = []; 
         
-        chatHistory.push({ role: "assistant", content: "Hi Fiona 🌿 I'm here if you want to chat. What's on your mind?" });
-
-        if (snap.empty) return;
+        // If there are no messages, just show the welcome message
+        if (snap.empty) {
+          appendChatMsg(WELCOME_MSG, 'ai', getTimeString());
+          chatHistory.push({ role: "assistant", content: WELCOME_MSG });
+          return;
+        }
 
         snap.forEach(docSnap => {
           const msg = docSnap.data();
@@ -513,7 +512,8 @@
       for (const d of snap.docs) await deleteDoc(d.ref);
       
       document.getElementById('chatMessages').innerHTML = '';
-      chatHistory = [{ role: "assistant", content: "Hi Fiona 🌿 I'm here if you want to chat. What's on your mind?" }];
+      appendChatMsg(WELCOME_MSG, 'ai', getTimeString());
+      chatHistory = [{ role: "assistant", content: WELCOME_MSG }];
       
       closeSettings();
     } catch (e) {
@@ -566,10 +566,9 @@
       if (!res.ok) throw new Error(data.error || "API Error");
       const reply = data.choices?.[0]?.message?.content || "I didn't quite catch that.";
       
-      // NEW: Proportional typing delay based on message length
       const baseDelay = 1000;
-      const typingSpeed = reply.length * 25; // 25ms per character
-      const delay = Math.min(baseDelay + typingSpeed, 6000); // Cap at 6 seconds max
+      const typingSpeed = reply.length * 25; 
+      const delay = Math.min(baseDelay + typingSpeed, 6000); 
       
       setTimeout(async () => {
         removeTypingIndicator();
@@ -663,7 +662,6 @@
     reader.readAsDataURL(file);
   };
 
-  // NEW: Just the 3 bouncing bubbles, no text
   function showTypingIndicator() {
     const loadingId = 'thinking-' + Date.now();
     const wrapper = document.createElement('div');
