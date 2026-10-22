@@ -523,8 +523,9 @@
         showScreen('welcomeScreen');
       }
     } catch (e) { 
+      console.error("Firebase Error:", e); 
       showScreen('loginScreen'); 
-      setStatus('status', 'Could not load profile.', true); 
+      setStatus('status', 'Error: ' + e.message, true); 
     }
   });
 </script>
