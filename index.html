@@ -696,18 +696,27 @@
   window.openSettings = function() { document.getElementById('settingsSheet').classList.add('open'); document.getElementById('sheetOverlay').classList.add('open'); };
   window.closeSettings = function() { document.getElementById('settingsSheet').classList.remove('open'); document.getElementById('sheetOverlay').classList.remove('open'); };
 
+  // FIXED RESET FUNCTION
   window.startFresh = async function() {
     if (!currentUser) return;
     if (!confirm('Start fresh?\n\nThis clears everything on this device — your profile, meals, water and saved recipes.')) return;
     const uid = currentUser.uid;
     try {
+      // Delete all data
       await deleteDoc(doc(db, 'profiles', uid));
       const mealsSnap = await getDocs(collection(db, 'meals', uid, 'items')); for (const d of mealsSnap.docs) await deleteDoc(d.ref);
       const waterSnap = await getDocs(collection(db, 'water', uid, 'days')); for (const d of waterSnap.docs) await deleteDoc(d.ref);
       const recSnap = await getDocs(collection(db, 'recipes', uid, 'items')); for (const d of recSnap.docs) await deleteDoc(d.ref);
-      closeSettings(); if (unsubMeals) { unsubMeals(); unsubMeals = null; } if (unsubRecipes) { unsubRecipes(); unsubRecipes = null; }
+      
+      // Clean up UI and state
+      closeSettings(); 
+      if (unsubMeals) { unsubMeals(); unsubMeals = null; } 
+      if (unsubRecipes) { unsubRecipes(); unsubRecipes = null; }
       currentProfile = null; todaysMeals = []; todaysWater = 0; savedRecipes = [];
+      
+      // Force sign out which will trigger the login screen
       await signOut(auth);
+      
     } catch (e) { alert('Something went wrong clearing data: ' + e.message); }
   };
 
