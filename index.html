@@ -100,7 +100,8 @@
   .photo-btn:hover { background: #ebe2ce; border-color: var(--sage); }
 
   /* WELCOME ONBOARDING SEQUENCE */
-  .welcome-overlay { position: fixed; inset: 0; background: var(--cream); z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center; }
+  .welcome-overlay { position: fixed; inset: 0; background: var(--cream); z-index: 300; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center; }
+  .welcome-overlay.show { display: flex; }
   .welcome-card { background: var(--card); border-radius: 24px; padding: 40px 24px; max-width: 450px; width: 100%; box-shadow: var(--shadow); animation: fadeSlideUp 0.5s ease forwards; opacity: 0; transform: translateY(20px); }
   .welcome-icon { font-size: 48px; margin-bottom: 20px; }
   .welcome-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; color: var(--ink); }
@@ -116,7 +117,7 @@
 <div id="globalError" style="display:none; position:fixed; top:0; left:0; right:0; background:#e74c3c; color:white; padding:16px; z-index:9999; font-size:14px;"></div>
 
 <!-- WELCOME ONBOARDING -->
-<div class="welcome-overlay hidden" id="welcomeScreen">
+<div class="welcome-overlay" id="welcomeScreen">
   <div class="welcome-card" id="welcomeCard">
     <div class="welcome-icon" id="welcomeIcon">🌿</div>
     <div class="welcome-title" id="welcomeTitle">Welcome, Fiona</div>
@@ -321,10 +322,20 @@
   window.showScreen = function(id) {
     ['loadingScreen','loginScreen','signupScreen','dashScreen', 'welcomeScreen'].forEach(s => {
       const el = document.getElementById(s);
-      if (el) el.style.display = 'none';
+      if (el) {
+        el.style.display = 'none';
+        el.classList.remove('show'); // Ensure the welcome screen hides its flex layout
+      }
     });
     const target = document.getElementById(id);
-    if (target) target.style.display = (id === 'welcomeScreen') ? 'flex' : 'block';
+    if (target) {
+      if (id === 'welcomeScreen') {
+        target.style.display = 'flex';
+        target.classList.add('show');
+      } else {
+        target.style.display = 'block';
+      }
+    }
     
     document.getElementById('bottomNav').style.display = (id === 'dashScreen') ? 'flex' : 'none';
     window.scrollTo(0,0);
@@ -702,20 +713,20 @@
     if (!confirm('Start fresh?\n\nThis clears everything on this device — your profile, meals, water and saved recipes.')) return;
     const uid = currentUser.uid;
     try {
-      // Delete all data
       await deleteDoc(doc(db, 'profiles', uid));
       const mealsSnap = await getDocs(collection(db, 'meals', uid, 'items')); for (const d of mealsSnap.docs) await deleteDoc(d.ref);
       const waterSnap = await getDocs(collection(db, 'water', uid, 'days')); for (const d of waterSnap.docs) await deleteDoc(d.ref);
       const recSnap = await getDocs(collection(db, 'recipes', uid, 'items')); for (const d of recSnap.docs) await deleteDoc(d.ref);
       
-      // Clean up UI and state
       closeSettings(); 
       if (unsubMeals) { unsubMeals(); unsubMeals = null; } 
       if (unsubRecipes) { unsubRecipes(); unsubRecipes = null; }
       currentProfile = null; todaysMeals = []; todaysWater = 0; savedRecipes = [];
       
-      // Force sign out which will trigger the login screen
       await signOut(auth);
+      
+      // Force a page reload to guarantee a clean slate
+      window.location.reload(); 
       
     } catch (e) { alert('Something went wrong clearing data: ' + e.message); }
   };
