@@ -20,6 +20,7 @@
   .card h3 { margin: 0 0 12px; font-size: 15px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
   .hello { font-size: 26px; font-weight: 700; margin: 20px 0 4px; }
   .hello-sub { color: var(--ink-soft); font-size: 15px; margin-bottom: 20px; }
+  .pill { display: inline-block; background: #f3ede1; color: var(--terra-dark); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 18px; }
   .rings-row { display: flex; gap: 14px; }
   .ring-card { flex: 1; background: var(--card); border-radius: 20px; padding: 18px 14px; text-align: center; box-shadow: var(--shadow); }
   .ring-svg { width: 90px; height: 90px; margin: 0 auto 8px; display: block; }
@@ -214,6 +215,7 @@
   <div id="page-home">
     <div class="hello" id="greeting">Hi</div>
     <p class="hello-sub">Here's how today's going.</p>
+    <div class="pill" id="goalBadge">Goal</div>
     
     <div class="rings-row" style="margin-bottom: 20px;">
       <div class="ring-card">
@@ -308,7 +310,6 @@
 
   const RING_CIRC = 2 * Math.PI * 42;
 
-  // WELCOME SEQUENCE DATA
   const welcomeData = [
     { icon: "👋", title: "Hello, Fiona!", text: "I'm so glad you're here. I'm your personal nutritionist. Think of this little app as your very own kitchen companion. My goal isn't to put you on a strict diet—it's simply to help you feel your best and keep your energy up." },
     { icon: "💧", title: "Tracking Made Easy", text: "Sometimes it's hard to remember exactly what we've eaten or how much water we've had. This app makes it incredibly easy. You can just tap to log a glass of water, or type in a meal. It will quietly keep track of your calories in the background, so you never have to do the math." },
@@ -372,7 +373,6 @@
   function getTimeString() { return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); }
   function todayKey() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
 
-  // CHAT
   window.openChat = function() { document.getElementById('chatOverlay').classList.add('open'); setTimeout(() => document.getElementById('chatInput').focus(), 100); };
   window.closeChat = function() { document.getElementById('chatOverlay').classList.remove('open'); };
 
@@ -427,7 +427,6 @@
     container.scrollTop = container.scrollHeight;
   }
 
-  // PHOTO UPLOAD
   window.handlePhotoUpload = async function(event) {
     const file = event.target.files[0];
     if (!file || !currentUser) return;
@@ -484,7 +483,6 @@
     reader.readAsDataURL(file);
   };
 
-  // AUTH & LOAD
   window.signInWithGoogle = async function() {
     try { 
       await signInWithPopup(auth, new GoogleAuthProvider()); 
@@ -500,8 +498,6 @@
   window.logout = async function() {
     closeSettings(); await signOut(auth);
   };
-
-  // --- NEWLY ADDED CORE FUNCTIONS ---
 
   window.toggleGoalWeight = function() {
     const g = document.getElementById('goal').value;
