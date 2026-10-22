@@ -264,7 +264,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V16)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V17)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -558,7 +558,7 @@
         1. Text like a real person. Use lowercase letters mostly, natural emojis, and short sentences. 
         2. Be informative but very friendly. 
         3. Always ask a follow-up question at the end to check if she understands or needs help with anything else.
-        4. If she mentions a restaurant or a menu you don't know, or asks about a specific food, suggest she use the 📷 camera button to take a photo of it so you can read it.
+        4. If she mentions a specific restaurant, a menu, or a food you don't know the exact details of, you MUST immediately suggest she use the 📷 camera button to take a photo of it so you can read it for her. Do not try to guess the menu.
         5. Never mention being an AI. Never use bullet points for casual chat.` 
       };
 
@@ -931,7 +931,7 @@
   const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
 
   function renderDashboard() {
-    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V16)</span>';
+    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V17)</span>';
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
     renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
