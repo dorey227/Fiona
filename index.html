@@ -20,7 +20,11 @@
   .icon-btn { background: transparent; border: none; font-size: 22px; cursor: pointer; padding: 6px; border-radius: 10px; color: var(--ink-soft); }
   .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 14px; box-shadow: var(--shadow); }
   .card h3 { margin: 0 0 12px; font-size: 15px; color: var(--ink-soft); font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px; }
-  .hello { font-size: 26px; font-weight: 700; margin: 20px 0 4px; }
+  
+  /* GREETING STYLE with VERSION */
+  .hello { font-size: 26px; font-weight: 700; margin: 20px 0 4px; display: flex; align-items: center; gap: 6px; }
+  .version-tag { font-size: 14px; color: #c0392b; font-weight: 700; }
+  
   .hello-sub { color: var(--ink-soft); font-size: 15px; margin-bottom: 20px; }
   .pill { display: inline-block; background: #f3ede1; color: var(--terra-dark); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 18px; }
   .rings-row { display: flex; gap: 14px; }
@@ -82,8 +86,8 @@
 
   /* HIDE SCROLLBAR */
   .chat-messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 8px; max-width: 500px; margin: 0 auto; width: 100%; }
-  .chat-messages::-webkit-scrollbar { display: none; } /* Safari and Chrome */
-  .chat-messages { -ms-overflow-style: none; scrollbar-width: none; } /* IE and Firefox */
+  .chat-messages::-webkit-scrollbar { display: none; }
+  .chat-messages { -ms-overflow-style: none; scrollbar-width: none; }
 
   .msg-wrapper { display: flex; flex-direction: column; width: 100%; margin-bottom: 8px; }
   .msg-wrapper.user { align-items: flex-end; }
@@ -260,7 +264,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi</div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V15)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     <div class="pill" id="goalBadge">Goal</div>
     
@@ -461,7 +465,6 @@
         document.getElementById('chatMessages').innerHTML = ''; 
         chatHistory = []; 
         
-        // If there are no messages, just show the welcome message
         if (snap.empty) {
           appendChatMsg(WELCOME_MSG, 'ai', getTimeString());
           chatHistory.push({ role: "assistant", content: WELCOME_MSG });
@@ -497,7 +500,6 @@
       });
     } catch (e) {
       console.error("Failed to save message:", e);
-      // If it fails, still show it on screen so it doesn't feel broken
       appendChatMsg(text, sender, timeString);
     }
   }
@@ -928,7 +930,7 @@
   const goalLabels = { lose_weight: '🎯 Losing weight', maintain: '⚖️ Feeling good', heart_health: '❤️ Heart health', diabetes: '🩸 Blood sugar', energy: '⚡ More energy' };
 
   function renderDashboard() {
-    document.getElementById('greeting').textContent = 'Hi, ' + currentProfile.name + ' 🌿';
+    document.getElementById('greeting').innerHTML = 'Hi, ' + currentProfile.name + ' 🌿 <span class="version-tag">(V15)</span>';
     document.getElementById('helloSub').textContent = 'Here\'s how today\'s going.';
     document.getElementById('goalBadge').textContent = goalLabels[currentProfile.goal] || 'Goal';
     renderMeals(); updateRings(); renderRecipes(); showScreen('dashScreen');
