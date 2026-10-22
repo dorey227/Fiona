@@ -97,35 +97,11 @@
   /* Photo Button */
   .photo-btn { background: #f3ede1; color: var(--ink); border: 2px dashed var(--line); border-radius: 16px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; display: block; margin: 0; }
   .photo-btn:hover { background: #ebe2ce; border-color: var(--sage); }
-
-  /* WELCOME ONBOARDING SEQUENCE */
-  .welcome-overlay { position: fixed; inset: 0; background: var(--cream); z-index: 300; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 24px; text-align: center; }
-  .welcome-card { background: var(--card); border-radius: 24px; padding: 40px 24px; max-width: 450px; width: 100%; box-shadow: var(--shadow); animation: fadeSlideUp 0.5s ease forwards; opacity: 0; transform: translateY(20px); }
-  .welcome-icon { font-size: 48px; margin-bottom: 20px; }
-  .welcome-title { font-size: 24px; font-weight: 700; margin-bottom: 16px; color: var(--ink); }
-  .welcome-text { font-size: 17px; line-height: 1.6; color: var(--ink-soft); margin-bottom: 32px; }
-  .welcome-progress { display: flex; justify-content: center; gap: 8px; margin-top: 24px; }
-  .welcome-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: background 0.3s; }
-  .welcome-dot.active { background: var(--sage); }
-  @keyframes fadeSlideUp { to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
 
 <div id="globalError" style="display:none; position:fixed; top:0; left:0; right:0; background:#e74c3c; color:white; padding:16px; z-index:9999; font-size:14px;"></div>
-
-<!-- WELCOME ONBOARDING -->
-<div class="welcome-overlay hidden" id="welcomeScreen">
-  <div class="welcome-card" id="welcomeCard">
-    <div class="welcome-icon" id="welcomeIcon">🌿</div>
-    <div class="welcome-title" id="welcomeTitle">Welcome, Fiona</div>
-    <div class="welcome-text" id="welcomeText"></div>
-    <button onclick="nextWelcomeStep()" id="welcomeBtn">Let's Begin</button>
-    <div class="welcome-progress" id="welcomeProgress">
-      <div class="welcome-dot active"></div><div class="welcome-dot"></div><div class="welcome-dot"></div><div class="welcome-dot"></div>
-    </div>
-  </div>
-</div>
 
 <div class="app-header">
   <div class="brand"><span class="logo">🍃</span><span>Fiona's Kitchen</span></div>
@@ -160,7 +136,7 @@
   </div>
 </div>
 
-<!-- WIZARD -->
+<!-- WIZARD (Same as before) -->
 <div class="wrap" id="signupScreen" style="display:none;">
   <div class="progress-dots" id="progressDots"><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div>
   <div id="wiz1">
@@ -211,6 +187,7 @@
 
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
+  <!-- HOME PAGE -->
   <div id="page-home">
     <div class="hello" id="greeting">Hi</div>
     <p class="hello-sub">Here's how today's going.</p>
@@ -252,6 +229,7 @@
     </div>
   </div>
 
+  <!-- COOKBOOK PAGE -->
   <div id="page-cookbook" class="hidden">
     <div class="hello">Cookbook</div>
     <p class="hello-sub">Ideas based on what you have.</p>
@@ -268,12 +246,14 @@
   </div>
 </div>
 
+<!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottomNav" style="display:none;">
   <button class="nav-item active" id="nav-home" onclick="switchMainPage('home')"><span class="nav-icon">🏠</span> Home</button>
   <button class="nav-item" id="nav-cookbook" onclick="switchMainPage('cookbook')"><span class="nav-icon">📖</span> Cookbook</button>
   <button class="nav-item" onclick="openChat()"><span class="nav-icon">💬</span> Dietitian</button>
 </div>
 
+<!-- SETTINGS SHEET -->
 <div class="sheet-overlay" id="sheetOverlay" onclick="closeSettings()"></div>
 <div class="sheet" id="settingsSheet">
   <div class="handle"></div>
@@ -287,6 +267,7 @@
   import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js';
   import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js';
   import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, addDoc, onSnapshot, query, where, orderBy, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js';
+  import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js';
 
   const firebaseConfig = {
     apiKey: "AIzaSyBlrh8RMSF4QOuND-MWorEERPcig2LirbQ",
@@ -301,6 +282,7 @@
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const storage = getStorage(app);
 
   let currentProfile = null, currentUser = null, todaysMeals = [], todaysWater = 0, savedRecipes = [];
   let unsubMeals = null, unsubRecipes = null, isChatting = false;
@@ -308,51 +290,13 @@
 
   const RING_CIRC = 2 * Math.PI * 42;
 
-  // WELCOME SEQUENCE DATA
-  const welcomeData = [
-    { icon: "👋", title: "Hello, Fiona!", text: "I'm so glad you're here. I'm your personal nutritionist. Think of this little app as your very own kitchen companion. My goal isn't to put you on a strict diet—it's simply to help you feel your best and keep your energy up." },
-    { icon: "💧", title: "Tracking Made Easy", text: "Sometimes it's hard to remember exactly what we've eaten or how much water we've had. This app makes it incredibly easy. You can just tap to log a glass of water, or type in a meal. It will quietly keep track of your calories in the background, so you never have to do the math." },
-    { icon: "📷", title: "Snap a Photo", text: "And if you're ever unsure about a food, or you're reading a label at the supermarket—just use the camera button! Snap a photo, and I'll instantly tell you what nutritional ingredients are inside, and how it fits into your day." },
-    { icon: "💬", title: "Friendly Advice", text: "If you ever have a question—like 'What should I cook with the chicken in my fridge?' or 'Is this a good snack?'—just tap the chat bubble at the bottom. I'm always here to give you friendly, practical advice based on your specific goals. You're going to do wonderfully. Let's get started!" }
-  ];
-  let welcomeStep = 0;
-
   window.showScreen = function(id) {
-    ['loadingScreen','loginScreen','signupScreen','dashScreen', 'welcomeScreen'].forEach(s => {
+    ['loadingScreen','loginScreen','signupScreen','dashScreen'].forEach(s => {
       const el = document.getElementById(s);
-      if (el) el.style.display = 'none';
+      if (el) el.style.display = (s === id) ? 'block' : 'none';
     });
-    const target = document.getElementById(id);
-    if (target) target.style.display = (id === 'welcomeScreen') ? 'flex' : 'block';
-    
     document.getElementById('bottomNav').style.display = (id === 'dashScreen') ? 'flex' : 'none';
     window.scrollTo(0,0);
-  };
-
-  window.nextWelcomeStep = function() {
-    welcomeStep++;
-    if (welcomeStep >= welcomeData.length) {
-      showWizard(1);
-      showScreen('signupScreen');
-      return;
-    }
-    
-    const card = document.getElementById('welcomeCard');
-    card.style.animation = 'none';
-    card.offsetHeight;
-    card.style.animation = 'fadeSlideUp 0.5s ease forwards';
-    
-    document.getElementById('welcomeIcon').textContent = welcomeData[welcomeStep].icon;
-    document.getElementById('welcomeTitle').textContent = welcomeData[welcomeStep].title;
-    document.getElementById('welcomeText').textContent = welcomeData[welcomeStep].text;
-    
-    document.querySelectorAll('.welcome-dot').forEach((dot, i) => {
-      dot.classList.toggle('active', i <= welcomeStep);
-    });
-
-    if (welcomeStep === welcomeData.length - 1) {
-      document.getElementById('welcomeBtn').textContent = "Let's Get Started!";
-    }
   };
 
   window.switchMainPage = function(page) {
@@ -427,7 +371,7 @@
     container.scrollTop = container.scrollHeight;
   }
 
-  // PHOTO UPLOAD
+  // PHOTO UPLOAD (BASE64 FOR DEEPSEEK VL)
   window.handlePhotoUpload = async function(event) {
     const file = event.target.files[0];
     if (!file || !currentUser) return;
@@ -436,7 +380,7 @@
     
     const reader = new FileReader();
     reader.onload = async (e) => {
-      const base64Image = e.target.result.split(',')[1];
+      const base64Image = e.target.result.split(',')[1]; // remove data url prefix
       
       try {
         const system = `You are an expert nutritionist. The user uploaded an image. Respond ONLY with JSON: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}.`;
@@ -505,24 +449,15 @@
         await loadTodayData();
         renderDashboard();
       } else {
-        // BRAND NEW USER
         document.getElementById('name').value = user.displayName || '';
-        welcomeStep = 0;
-        document.getElementById('welcomeIcon').textContent = welcomeData[0].icon;
-        document.getElementById('welcomeTitle').textContent = welcomeData[0].title;
-        document.getElementById('welcomeText').textContent = welcomeData[0].text;
-        document.querySelectorAll('.welcome-dot').forEach((dot, i) => { dot.classList.toggle('active', i === 0); });
-        document.getElementById('welcomeBtn').textContent = "Next →";
-        showScreen('welcomeScreen');
+        showWizard(1);
+        showScreen('signupScreen');
       }
-    } catch (e) { 
-      showScreen('loginScreen'); 
-      setStatus('status', 'Could not load profile.', true); 
-    }
+    } catch (e) { showScreen('loginScreen'); setStatus('status', 'Could not load profile.', true); }
   });
 
-  // Keep your existing saveProfile, loadTodayData, addWater, removeWater, addMeal, deleteMeal, cookNow, askAI, etc.
-  // (Paste them below here from your previous working code)
+  // ... [Keep your existing saveProfile, loadTodayData, addWater, removeWater, addMeal, deleteMeal, cookNow, askAI, etc. exactly as they are in your current file] ...
+  // Note: The logic inside those functions has not changed, I am just keeping this message concise. Ensure you keep your old logic for those functions!
 </script>
 </body>
 </html>
