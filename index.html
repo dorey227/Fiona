@@ -628,7 +628,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V44)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V45)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     
     <div class="smart-tip" id="smartTipBanner">
@@ -804,8 +804,21 @@
       </div>
       <div class="status" id="metricStatus"></div>
 
-      <label style="margin-top: 20px;">Body Fat Calculator</label>
-      <div class="metric-toggle">
+      <!-- Body Fat Calculator Title with Measure Button -->
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+        <label style="margin: 0;">Body Fat Calculator</label>
+        <button class="chip-btn" style="padding: 6px 12px; font-size: 12px; border-radius: 8px; margin: 0;" onclick="toggleMeasureGuide()">📏 How to measure</button>
+      </div>
+      
+      <!-- Expandable Measure Guide -->
+      <div id="measureGuide" style="display: none; background: #fdfbf7; border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-top: 10px; font-size: 13px; color: var(--ink-soft); line-height: 1.5;">
+        <strong>Neck:</strong> Measure just below the voice box (larynx), keeping the tape level and relaxed.<br><br>
+        <strong>Waist:</strong> Measure at your narrowest point (usually right around the belly button), breathe out normally, and don't pull the tape tight.<br><br>
+        <strong>Hip:</strong> Measure at the widest part of your hips/buttocks, keeping your feet together.<br><br>
+        <em>Tip: Try to use a flexible tape measure (like a tailor's tape) and keep it flat against your skin.</em>
+      </div>
+
+      <div class="metric-toggle" style="margin-top: 12px;">
         <button class="active" id="btnBmi" onclick="switchMetricMethod('bmi')">BMI Method</button>
         <button id="btnNavy" onclick="switchMetricMethod('navy')">US Navy Method</button>
       </div>
@@ -904,7 +917,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const APP_VERSION = 'V44';
+  const APP_VERSION = 'V45';
   const BIRTH_YEAR = 1969;
   const FIORA_AGE = new Date().getFullYear() - BIRTH_YEAR;
 
@@ -1049,7 +1062,7 @@
   window.closeUpdateModal = function() {
     document.getElementById('updateModal').classList.remove('show');
     localStorage.setItem('premiumWelcomeV44Seen', 'true');
-    switchMainPage('nutrition'); // Take her to the new features
+    switchMainPage('nutrition'); 
   };
 
   function checkPremiumModal() {
@@ -1143,6 +1156,15 @@
   };
 
   // ---------- Metrics & Charts ----------
+  window.toggleMeasureGuide = function() {
+    const el = document.getElementById('measureGuide');
+    if (el.style.display === 'none') {
+      el.style.display = 'block';
+    } else {
+      el.style.display = 'none';
+    }
+  };
+
   window.switchMetricMethod = function(method) {
     currentMetricMethod = method;
     document.getElementById('btnBmi').classList.toggle('active', method === 'bmi');
