@@ -29,7 +29,6 @@
   .hello-sub { color: var(--ink-soft); font-size: 15px; margin-bottom: 20px; }
   .pill { display: inline-block; background: #f3ede1; color: var(--terra-dark); padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; margin-bottom: 18px; }
   
-  /* Smart Tip Banner */
   .smart-tip { background: #fdf7ec; border-left: 4px solid var(--terra); padding: 14px 16px; border-radius: 12px; font-size: 14px; color: var(--ink); line-height: 1.5; margin-bottom: 20px; position: relative; display: none; box-shadow: var(--shadow); }
   .smart-tip.show { display: block; animation: fadeSlideUp 0.4s ease; }
   .smart-tip .close-tip { position: absolute; top: 8px; right: 12px; background: none; border: none; color: var(--ink-soft); font-size: 16px; cursor: pointer; padding: 4px; width: auto; margin: 0; }
@@ -80,10 +79,19 @@
   .progress-dots .dot { width: 10px; height: 10px; border-radius: 50%; background: #e5ddcd; }
   .progress-dots .dot.active { background: var(--sage); }
   
-  /* FIXED WIZARD FOOTER */
   .wizard-footer { display: flex; gap: 10px; margin-top: 20px; width: 100%; align-items: stretch; }
   .wizard-footer button { width: auto; margin-top: 0; flex: 1; padding: 15px 5px; min-width: 0; font-size: 15px; }
   .wizard-footer .back { flex: 0.6; background: #f3ede1; color: var(--ink); }
+
+  /* Slider Specific */
+  .slider-container { background: #fdfbf7; border: 1.5px solid var(--line); border-radius: 16px; padding: 20px; margin: 16px 0; text-align: center; }
+  .slider-val { font-size: 36px; font-weight: 700; color: var(--terra-dark); line-height: 1; margin-bottom: 4px; }
+  .slider-label { font-size: 13px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 16px; }
+  input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+  input[type=range]:focus { outline: none; }
+  input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 8px; cursor: pointer; background: #ebe4d8; border-radius: 4px; }
+  input[type=range]::-webkit-slider-thumb { height: 24px; width: 24px; border-radius: 50%; background: var(--sage); cursor: pointer; -webkit-appearance: none; margin-top: -8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); border: 2px solid white; }
+  .deficit-box { background: #e8f0e8; border-radius: 12px; padding: 14px; font-size: 14px; color: var(--sage-dark); line-height: 1.5; margin-top: 16px; text-align: left; }
   
   .ai-box { background: linear-gradient(135deg, #fdf7ec 0%, #f7f0e2 100%); border-left: 4px solid var(--terra); padding: 16px; border-radius: 14px; font-size: 15px; line-height: 1.55; min-height: 60px; }
   .ai-box.thinking { color: var(--ink-soft); font-style: italic; }
@@ -367,7 +375,9 @@
 
 <!-- WIZARD -->
 <div class="wrap" id="signupScreen" style="display:none;">
-  <div class="progress-dots" id="progressDots"><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div>
+  <div class="progress-dots" id="progressDots">
+    <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+  </div>
   
   <div id="wiz1">
     <div class="hello">A little about you</div>
@@ -426,7 +436,32 @@
     <label>Exercise</label><select id="exercise"><option value="none">None</option><option value="light" selected>Light</option><option value="2-3">2-3x</option><option value="4+">4+x</option></select>
     <label>Why now?</label><textarea id="motivation" rows="2"></textarea>
     
-    <div class="wizard-footer"><button class="back" onclick="wizBack(3)">← Back</button><button id="saveBtn" onclick="saveProfile()">Save ✓</button></div>
+    <div class="wizard-footer"><button class="back" onclick="wizBack(3)">← Back</button><button onclick="wizNext(3)">Next →</button></div>
+  </div>
+
+  <div id="wiz4" class="hidden">
+    <div class="hello">Understanding calories</div>
+    <div class="wizard-note">
+      Calories are just energy. To lose weight, we need a gentle <strong>deficit</strong>—eating slightly less energy than your body burns each day.
+    </div>
+    
+    <div class="slider-container">
+      <div class="slider-label">Daily Calorie Target</div>
+      <div class="slider-val" id="sliderDisplay">1800</div>
+      <input type="range" id="calSlider" min="1200" max="2500" step="50" value="1800" oninput="updateSliderUI(this.value)">
+      <div class="deficit-box" id="deficitBox">
+        Adjust the slider to see your deficit.
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px;">
+      <h3>🍎 Dietitian Tip</h3>
+      <p style="font-size: 14px; color: var(--ink-soft); line-height: 1.5; margin: 0;">
+        It's easier to stick to your calories if you feel full! Focus on <strong>protein</strong> (chicken, fish, eggs, yogurt) and <strong>fibre</strong> (vegetables, oats, beans). They take longer to digest, keeping hunger away.
+      </p>
+    </div>
+
+    <div class="wizard-footer"><button class="back" onclick="wizBack(4)">← Back</button><button id="saveBtn" onclick="saveProfile()">Save ✓</button></div>
     <div class="status" id="formStatus"></div>
   </div>
 </div>
@@ -434,7 +469,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V38)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V39)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     
     <div class="smart-tip" id="smartTipBanner">
@@ -588,7 +623,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const APP_VERSION = 'V38';
+  const APP_VERSION = 'V39';
   const BIRTH_YEAR = 1969;
   const FIORA_AGE = new Date().getFullYear() - BIRTH_YEAR;
 
@@ -598,6 +633,7 @@
   let activeDayKey = todayKey();
   let allSnaps = []; 
   let showSmartTips = true;
+  let calculatedTDEE = 2000; // Calculated in computeTargets
 
   const WELCOME_MSG = "Hi Fiona! 🌿 I'm your personal dietitian. I'm here to help you hit your goals. Here's how to get the most out of me: 1. Tap the camera to scan meals. 2. Tap the water ring to log glasses. 3. Ask me anything about food, cravings, or what's in your fridge!";
 
@@ -741,6 +777,25 @@
     }
   };
 
+  // ---------- Slider (Educational Page) ----------
+  window.updateSliderUI = function(val) {
+    val = parseInt(val);
+    document.getElementById('sliderDisplay').textContent = val;
+    
+    const deficit = calculatedTDEE - val;
+    const box = document.getElementById('deficitBox');
+    
+    if (deficit > 0) {
+      // 500 cal deficit is ~0.45kg per week. 1 kg = 7700 calories.
+      const kgPerWeek = ((deficit * 7) / 7700).toFixed(2);
+      box.innerHTML = `This creates a gentle deficit of <strong>${deficit} calories</strong> a day.<br><br>Roughly, this should lead to about <strong>${kgPerWeek} kg</strong> of weight loss per week.`;
+    } else if (deficit === 0) {
+      box.innerHTML = `This is your maintenance level. You won't lose weight here, but you won't gain any either. A great place to practice healthy habits!`;
+    } else {
+      box.innerHTML = `This is a surplus of <strong>${Math.abs(deficit)} calories</strong> a day. You would likely gain weight at this level.`;
+    }
+  };
+
   // ---------- Smart Tips ----------
   const tips = [
     "Did you know you can snap a photo of a supermarket label to instantly see the macros?",
@@ -762,7 +817,6 @@
     
     const randomTip = tips[Math.floor(Math.random() * tips.length)];
     
-    // Add context-aware tip based on day
     if (todaysMeals.length > 0 && Math.random() > 0.5) {
       const calTotal = todaysMeals.reduce((s, m) => s + (m.calories || 0), 0);
       const target = currentProfile?.targets?.calorieTarget || 2000;
@@ -780,11 +834,7 @@
 
   window.toggleSmartTips = function() {
     showSmartTips = document.getElementById('toggleTips').checked;
-    if (!showSmartTips) {
-      dismissTip();
-    } else {
-      showRandomTip();
-    }
+    if (!showSmartTips) { dismissTip(); } else { showRandomTip(); }
   };
 
   // ---------- Chat & AI ----------
@@ -1091,7 +1141,6 @@
     reader.readAsDataURL(file);
   };
 
-  // Log scanned to diary (updates rings)
   window.logScannedMeal = async function() {
     if (!pendingScanData || !currentUser) return;
     const typeEl = document.getElementById('scanType');
@@ -1104,12 +1153,9 @@
       document.getElementById('scanModal').classList.remove('show');
       pendingScanData = null;
       document.getElementById('fileCamera').value = '';
-    } catch (err) {
-      alert("Failed to save meal: " + err.message);
-    }
+    } catch (err) { alert("Failed to save meal: " + err.message); }
   };
 
-  // Save scanned to cookbook ONLY (does not affect daily calories)
   window.saveScannedToCookbook = async function() {
     if (!pendingScanData || !currentUser) return;
     try {
@@ -1125,9 +1171,7 @@
       pendingScanData = null;
       document.getElementById('fileCamera').value = '';
       alert("Saved to Cookbook!");
-    } catch (err) {
-      alert("Failed to save to cookbook: " + err.message);
-    }
+    } catch (err) { alert("Failed to save to cookbook: " + err.message); }
   };
 
   window.discardScannedMeal = function() {
@@ -1170,7 +1214,6 @@
     }
     container.innerHTML = html;
 
-    // AI Insight (Local generation to avoid API lag)
     let insight = "You're doing great! Keep logging your meals to see your progress.";
     if (calTotal === 0) {
       insight = "You haven't logged anything yet today. Snap a photo of your next meal to get started!";
@@ -1291,39 +1334,44 @@
   };
 
   window.showWizard = function(step) {
-    [1,2,3].forEach(n => document.getElementById('wiz'+n).classList.toggle('hidden', n !== step));
+    [1,2,3,4].forEach(n => document.getElementById('wiz'+n).classList.toggle('hidden', n !== step));
     document.querySelectorAll('#progressDots .dot').forEach((d,i) => { d.classList.toggle('active', i < step); });
     window.scrollTo(0,0);
     if (step === 2) updateActivityHelp();
   };
 
-  window.wizNext = function(step) { showWizard(step + 1); };
+  window.wizNext = function(step) {
+    if (step === 3) {
+      // Transition from step 3 to step 4: calculate base TDEE and setup slider
+      const p = buildProfileObj(); // temporary object
+      const targets = computeTargets(p);
+      calculatedTDEE = targets.tdee || 2000;
+      
+      let initialTarget = targets.calorieTarget || 1800;
+      if (currentProfile && currentProfile.targets) {
+        initialTarget = currentProfile.targets.calorieTarget || initialTarget;
+      }
+      
+      // Slider bounds
+      document.getElementById('calSlider').min = Math.max(1200, Math.round((targets.bmr || 1200) / 10) * 10);
+      document.getElementById('calSlider').max = Math.round((calculatedTDEE + 500) / 50) * 50;
+      document.getElementById('calSlider').value = initialTarget;
+      
+      updateSliderUI(initialTarget);
+    }
+    showWizard(step + 1);
+  };
+  
   window.wizBack = function(step) { showWizard(step - 1); };
 
   document.querySelectorAll('.chip input').forEach(cb => {
     cb.addEventListener('change', () => cb.closest('.chip').classList.toggle('on', cb.checked));
   });
 
-  function computeTargets(p) {
-    const w = p.currentWeightKg, h = p.heightCm, a = FIORA_AGE;
-    if (!w || !h) return { bmr: null, calorieTarget: null, proteinTarget: null, waterGoal: 8 };
-    const bmr = Math.round(10*w + 6.25*h - 5*a - 161);
-    const actMultiplier = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725 }[p.activityLevel] || 1.375;
-    const tdee = bmr * actMultiplier;
-    const paceAdjust = { gentle: -250, steady: -500, faster: -750, na: 0 }[p.pace] || 0;
-    let calorieTarget = p.goal === 'lose_weight' ? tdee + paceAdjust : tdee;
-    calorieTarget = Math.max(1200, Math.round(calorieTarget / 10) * 10);
-    const proteinTarget = Math.round(w * 1.2);
-    const waterGoal = Math.max(8, (p.waterNow || 4) + 2);
-    return { bmr, calorieTarget, proteinTarget, waterGoal };
-  }
-
-  window.saveProfile = async function() {
-    const btn = document.getElementById('saveBtn');
+  function buildProfileObj() {
     const meds = Array.from(document.querySelectorAll('.med:checked')).map(cb => cb.value);
-    const profile = {
-      name: 'Fiona',
-      age: FIORA_AGE,
+    return {
+      name: 'Fiona', age: FIORA_AGE,
       heightCm: parseFloat(document.getElementById('heightCm').value) || null,
       currentWeightKg: parseFloat(document.getElementById('currentWeightKg').value) || null,
       goalWeightKg: parseFloat(document.getElementById('goalWeightKg').value) || null,
@@ -1332,10 +1380,39 @@
       medicalConditions: meds.length ? meds : ['none'], allergies: document.getElementById('allergies').value.trim(), dislikes: document.getElementById('dislikes').value.trim(),
       typicalBreakfast: document.getElementById('typicalBreakfast').value.trim(), typicalLunch: document.getElementById('typicalLunch').value.trim(), typicalDinner: document.getElementById('typicalDinner').value.trim(),
       snacking: document.getElementById('snacking').value, waterNow: parseInt(document.getElementById('waterNow').value) || 4, alcohol: document.getElementById('alcohol').value,
-      exercise: document.getElementById('exercise').value, motivation: document.getElementById('motivation').value.trim(), email: currentUser.email || null,
-      createdAt: new Date().toISOString(), setupComplete: true
+      exercise: document.getElementById('exercise').value, motivation: document.getElementById('motivation').value.trim(), email: currentUser?.email || null
     };
+  }
+
+  function computeTargets(p) {
+    const w = p.currentWeightKg, h = p.heightCm, a = FIORA_AGE;
+    if (!w || !h) return { bmr: 1200, calorieTarget: 1800, proteinTarget: 60, waterGoal: 8, tdee: 2000 };
+    const bmr = Math.round(10*w + 6.25*h - 5*a - 161);
+    const actMultiplier = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725 }[p.activityLevel] || 1.375;
+    const tdee = Math.round(bmr * actMultiplier);
+    const paceAdjust = { gentle: -250, steady: -500, faster: -750, na: 0 }[p.pace] || 0;
+    let calorieTarget = p.goal === 'lose_weight' ? tdee + paceAdjust : tdee;
+    calorieTarget = Math.max(1200, Math.round(calorieTarget / 10) * 10);
+    const proteinTarget = Math.round(w * 1.2);
+    const waterGoal = Math.max(8, (p.waterNow || 4) + 2);
+    return { bmr, calorieTarget, proteinTarget, waterGoal, tdee };
+  }
+
+  window.saveProfile = async function() {
+    const btn = document.getElementById('saveBtn');
+    const profile = buildProfileObj();
+    profile.createdAt = new Date().toISOString();
+    profile.setupComplete = true;
+    
+    // Base targets calculation
     profile.targets = computeTargets(profile);
+    
+    // Override calorie target with the slider value
+    const sliderVal = parseInt(document.getElementById('calSlider').value);
+    if (!isNaN(sliderVal)) {
+      profile.targets.calorieTarget = sliderVal;
+    }
+
     btn.disabled = true; setStatus('formStatus', 'Saving…');
     try {
       await setDoc(doc(db, 'profiles', currentUser.uid), profile);
@@ -1350,8 +1427,6 @@
     activeDayKey = todayKey();
     try { const wSnap = await getDoc(doc(db, 'water', currentUser.uid, 'days', todayKey())); todaysWater = wSnap.exists() ? (wSnap.data().glasses || 0) : 0; } catch (e) { todaysWater = 0; }
     
-    // CRITICAL FIX: Removed orderBy('createdAt', 'asc') to prevent needing a Firebase Composite Index.
-    // We now fetch by date only and sort locally in JavaScript.
     if (unsubMeals) unsubMeals();
     try {
       const q = query(collection(db, 'meals', currentUser.uid, 'items'), where('dateKey', '==', todayKey()));
