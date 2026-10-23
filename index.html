@@ -93,6 +93,9 @@
   input[type=range]::-webkit-slider-thumb { height: 24px; width: 24px; border-radius: 50%; background: var(--sage); cursor: pointer; -webkit-appearance: none; margin-top: -8px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); border: 2px solid white; }
   .deficit-box { background: #e8f0e8; border-radius: 12px; padding: 14px; font-size: 14px; color: var(--sage-dark); line-height: 1.5; margin-top: 16px; text-align: left; }
   
+  .teaser-card { background: #fdf7ec; border: 1px dashed var(--terra); }
+  .teaser-card h3 { color: var(--terra-dark); display: flex; align-items: center; gap: 6px; }
+  
   .ai-box { background: linear-gradient(135deg, #fdf7ec 0%, #f7f0e2 100%); border-left: 4px solid var(--terra); padding: 16px; border-radius: 14px; font-size: 15px; line-height: 1.55; min-height: 60px; }
   .ai-box.thinking { color: var(--ink-soft); font-style: italic; }
   .meal-list { list-style: none; padding: 0; margin: 0; }
@@ -125,6 +128,20 @@
   .snap-info { flex: 1; min-width: 0; }
   .snap-desc { font-weight: 600; font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .snap-card .del { background: #f5e1da; color: #b45435; border: none; width: 34px; height: 34px; border-radius: 10px; font-size: 15px; padding: 0; margin: 0; cursor: pointer; flex-shrink: 0; }
+
+  /* Nutrition Page Styles */
+  .nut-category { margin-bottom: 20px; }
+  .nut-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .nut-text { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 12px; }
+  .nut-list { list-style-type: none; padding: 0; margin: 0; background: #fdfbf7; border-radius: 14px; border: 1px solid var(--line); overflow: hidden; }
+  .nut-list li { padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 14px; display: flex; justify-content: space-between; }
+  .nut-list li:last-child { border-bottom: none; }
+  .nut-list strong { color: var(--sage-dark); }
+
+  /* Coach Mark */
+  .coach-mark { position: fixed; bottom: 160px; right: 20px; z-index: 96; background: var(--card); padding: 14px 16px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); font-size: 14px; color: var(--ink); line-height: 1.4; width: 220px; border: 1.5px solid var(--terra); display: none; animation: fadeSlideUp 0.5s ease forwards; }
+  .coach-mark.show { display: block; }
+  .coach-mark::after { content: ''; position: absolute; bottom: -8px; right: 30px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-top: 8px solid var(--terra); }
 
   .loading { text-align: center; padding: 60px 20px; color: var(--ink-soft); }
   .spinner { display: inline-block; width: 32px; height: 32px; border: 3px solid var(--line); border-top-color: var(--sage); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
@@ -190,9 +207,10 @@
   .macro-label { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; margin-top: 2px; }
   .scan-advice { font-size: 14px; color: var(--ink-soft); font-style: italic; background: #fdf7ec; padding: 12px; border-radius: 12px; border-left: 3px solid var(--terra); margin-bottom: 16px; }
   
-  /* Allergy Alert */
-  .allergy-alert { background: #fdeded; border-left: 4px solid #e74c3c; padding: 12px 16px; border-radius: 12px; font-size: 14px; color: #c0392b; margin-bottom: 16px; line-height: 1.5; }
-  .allergy-alert strong { color: #e74c3c; }
+  /* Allergy Warning */
+  .allergy-warning { background: #fce4e4; border-left: 4px solid #d9534f; padding: 12px; border-radius: 10px; font-size: 13px; color: #b52b27; line-height: 1.5; margin-bottom: 16px; display: none; }
+  .allergy-warning strong { color: #8a1f1b; }
+  .allergy-warning.show { display: block; animation: fadeSlideUp 0.3s; }
 
   /* Daily Breakdown Styles */
   .bd-header { text-align: center; margin-bottom: 20px; }
@@ -208,7 +226,7 @@
   .bd-meal-item:last-child { border-bottom: none; }
 
   .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 0 max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); z-index: 50; box-shadow: 0 -4px 20px rgba(0,0,0,0.03); }
-  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 11px; color: var(--ink-soft); cursor: pointer; font-weight: 600; background: none; border: none; flex: 1; padding: 0; margin: 0; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 10px; color: var(--ink-soft); cursor: pointer; font-weight: 600; background: none; border: none; flex: 1; padding: 0; margin: 0; }
   .nav-item.active { color: var(--sage-dark); }
   .nav-icon { font-size: 20px; margin-bottom: 4px; }
 
@@ -240,6 +258,11 @@
 <button class="floating-chat-btn" id="floatingChatBtn" onclick="openChat()" aria-label="Chat with your dietitian">
   💬
 </button>
+
+<!-- COACH MARK -->
+<div class="coach-mark" id="chatCoachMark" onclick="dismissCoachMark()">
+  Hi Fiona! 👋 I'm right here if you need any advice or have questions about your meals. Just tap here!
+</div>
 
 <!-- WELCOME ONBOARDING -->
 <div class="welcome-overlay" id="welcomeScreen">
@@ -291,9 +314,8 @@
     <img id="scanPreview" class="scan-img" src="" alt="Food scan">
     <h3 class="scan-title" id="scanDesc">Analyzing...</h3>
     
-    <div class="allergy-alert hidden" id="scanAllergyAlert">
-      <strong>⚠️ Allergy Alert</strong>
-      <div id="scanAllergyText" style="margin-top:4px;"></div>
+    <div class="allergy-warning" id="scanAllergyWarning">
+      <!-- Injected via JS -->
     </div>
 
     <div class="macro-grid">
@@ -450,9 +472,8 @@
 
   <div id="wiz4" class="hidden">
     <div class="hello">Understanding calories</div>
-    
-    <div class="wizard-note" id="calorieIntroText">
-      Loading your personalized recommendation...
+    <div class="wizard-note" id="wiz4Note">
+      I've looked at your height, weight, age, and daily activity. Based on this, your body naturally burns about <strong id="wizTdee">2000</strong> calories a day just keeping you alive and moving. To lose weight, we need to eat slightly less than that—this is called a <strong>deficit</strong>.
     </div>
     
     <div class="slider-container">
@@ -464,10 +485,17 @@
       </div>
     </div>
 
-    <div class="card" style="margin-top: 20px;">
+    <div class="card" style="margin-top: 20px;" id="wizDietitianTip">
       <h3>🍎 Dietitian Tip</h3>
-      <p style="font-size: 14px; color: var(--ink-soft); line-height: 1.5; margin: 0;" id="wizDietitianTip">
-        Loading...
+      <p style="font-size: 14px; color: var(--ink-soft); line-height: 1.5; margin: 0;">
+        It's easier to stick to your calories if you feel full! Focus on <strong>protein</strong> and <strong>fibre</strong>. They take longer to digest, keeping hunger away.
+      </p>
+    </div>
+    
+    <div class="card teaser-card" style="margin-top: 14px;">
+      <h3>📖 Want to learn more?</h3>
+      <p style="font-size: 14px; color: var(--ink-soft); line-height: 1.5; margin: 0;">
+        Once you finish setting up, tap the <strong>Nutrition</strong> tab at the bottom of the screen. I've put together a complete guide explaining protein, fibre, and how to build a balanced plate just for you.
       </p>
     </div>
 
@@ -575,6 +603,35 @@
     </div>
   </div>
 
+  <div id="page-nutrition" class="hidden">
+    <div class="hello">Nutrition Guide</div>
+    <p class="hello-sub">Your personalized guide to a balanced plate.</p>
+    
+    <div class="card nut-category">
+      <div class="nut-title">🍗 Protein: The Builder</div>
+      <div class="nut-text">Protein keeps your muscles strong and stops you feeling hungry. Try to include a source of protein with every meal.</div>
+      <ul class="nut-list" id="nutProteinList"></ul>
+    </div>
+
+    <div class="card nut-category">
+      <div class="nut-title">🥣 Fibre: The Digestive Helper</div>
+      <div class="nut-text"><strong>Soluble Fibre</strong> dissolves in water (like oats and beans). It keeps you full and helps lower cholesterol.<br><br><strong>Insoluble Fibre</strong> doesn't dissolve (like whole grains and nuts). It keeps things moving through your gut.</div>
+      <ul class="nut-list" id="nutFibreList"></ul>
+    </div>
+
+    <div class="card nut-category">
+      <div class="nut-title">🦴 Bones & Muscles</div>
+      <div class="nut-text">Calcium and Magnesium are crucial for keeping your bones dense and your muscles relaxed as you get older.</div>
+      <ul class="nut-list" id="nutBoneList"></ul>
+    </div>
+
+    <div class="card nut-category">
+      <div class="nut-title">🌈 Eat the Rainbow</div>
+      <div class="nut-text">Different coloured vegetables have different vitamins. Aim to get a mix of colours on your plate!</div>
+      <ul class="nut-list" id="nutVegList"></ul>
+    </div>
+  </div>
+
   <div id="page-week" class="hidden">
     <div class="hello">Your week</div>
     <p class="hello-sub">A gentle look at the last 7 days.</p>
@@ -594,6 +651,7 @@
   <button class="nav-item active" id="nav-home" onclick="switchMainPage('home')"><span class="nav-icon">🏠</span> Home</button>
   <button class="nav-item" id="nav-snaps" onclick="switchMainPage('snaps')"><span class="nav-icon">📸</span> Snaps</button>
   <button class="nav-item" id="nav-cookbook" onclick="switchMainPage('cookbook')"><span class="nav-icon">📖</span> Cookbook</button>
+  <button class="nav-item" id="nav-nutrition" onclick="switchMainPage('nutrition')"><span class="nav-icon">🥗</span> Nutrition</button>
   <button class="nav-item" id="nav-week" onclick="switchMainPage('week')"><span class="nav-icon">📊</span> Week</button>
 </div>
 
@@ -645,7 +703,7 @@
   let showSmartTips = true;
   let calculatedTDEE = 2000;
 
-  const WELCOME_MSG = "Hi Fiona! 🌿 I'm your personal dietitian. I'm here to help you hit your goals. Here's how to get the most out of me: 1. Tap the camera to scan meals. 2. Tap the water ring to log glasses. 3. Ask me anything about food, cravings, or what's in your fridge!";
+  const WELCOME_MSG = "Welcome, Fiona! 🌿 Think of this as our little check-in space. Feel free to share whatever's on your mind—your goals, your health, or any specific nutritional needs you have. Just so you know, I can already see the food snaps you save here in the app and the recipes in your cookbook, so I'm always up to speed on what you've been eating. Feel free to ask me anything!";
 
   let chatHistory = [{ role: "assistant", content: WELCOME_MSG }];
 
@@ -726,7 +784,7 @@
   };
 
   window.switchMainPage = function(page) {
-    ['home', 'snaps', 'cookbook', 'week'].forEach(p => {
+    ['home', 'snaps', 'cookbook', 'nutrition', 'week'].forEach(p => {
       const el = document.getElementById('page-'+p);
       if (el) el.classList.add('hidden');
       const nav = document.getElementById('nav-'+p);
@@ -736,7 +794,9 @@
     if (pageEl) pageEl.classList.remove('hidden');
     const navEl = document.getElementById('nav-'+page);
     if (navEl) navEl.classList.add('active');
+    
     if (page === 'week') loadWeek();
+    if (page === 'nutrition') renderNutritionPage();
   };
 
   window.setStatus = function(id, msg, isError) {
@@ -770,6 +830,66 @@
     });
   }
 
+  // ---------- Nutrition Page Logic ----------
+  function getSafeFoods(category) {
+    const allergies = (currentProfile?.allergies || '').toLowerCase();
+    const dislikes = (currentProfile?.dislikes || '').toLowerCase();
+    
+    // Helper to check if a food is safe
+    const isSafe = (food) => {
+      const f = food.toLowerCase();
+      if (allergies && allergies.split(',').some(a => f.includes(a.trim()))) return false;
+      if (dislikes && dislikes.split(',').some(d => f.includes(d.trim()))) return false;
+      return true;
+    };
+
+    const lists = {
+      protein: ['Greek Yogurt', 'Lentils', 'Chickpeas', 'Tofu', 'Lean Beef', 'Turkey', 'Cottage Cheese', 'Quinoa', 'Almonds', 'Salmon', 'Eggs', 'Chicken', 'Tuna', 'Pork', 'Beans'],
+      fibre: ['Oats', 'Apples', 'Carrots', 'Broccoli', 'Whole Wheat Bread', 'Brown Rice', 'Nuts', 'Seeds', 'Berries', 'Cauliflower', 'Potatoes with skin'],
+      bone: ['Spinach', 'Kale', 'Almonds', 'Sesame Seeds', 'Dairy Milk', 'Fortified Plant Milk', 'Sardines', 'Greek Yogurt', 'Broccoli'],
+      veg: ['Spinach', 'Carrots', 'Red Peppers', 'Broccoli', 'Sweet Potatoes', 'Zucchini', 'Green Beans', 'Tomatoes', 'Cauliflower', 'Beets']
+    };
+
+    return lists[category].filter(isSafe);
+  }
+
+  window.renderNutritionPage = function() {
+    if (!currentProfile) return;
+    
+    // Helper to render list items
+    const renderList = (elementId, items) => {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      if (items.length === 0) {
+        el.innerHTML = '<li>Ask your dietitian in the chat for safe alternatives!</li>';
+      } else {
+        el.innerHTML = items.map(item => `<li><strong>${item}</strong></li>`).join('');
+      }
+    };
+
+    renderList('nutProteinList', getSafeFoods('protein').slice(0, 6)); // Top 6
+    renderList('nutFibreList', getSafeFoods('fibre').slice(0, 8)); // Top 8
+    renderList('nutBoneList', getSafeFoods('bone').slice(0, 6)); // Top 6
+    renderList('nutVegList', getSafeFoods('veg').slice(0, 8)); // Top 8
+  };
+
+
+  // ---------- Coach Mark ----------
+  window.dismissCoachMark = function() {
+    const el = document.getElementById('chatCoachMark');
+    if (el) el.classList.remove('show');
+    localStorage.setItem('hasSeenChatCoachMark', 'true');
+  };
+
+  function showCoachMark() {
+    if (!localStorage.getItem('hasSeenChatCoachMark')) {
+      setTimeout(() => {
+        const el = document.getElementById('chatCoachMark');
+        if (el) el.classList.add('show');
+      }, 1500); // Small delay so it doesn't pop up instantly
+    }
+  }
+
   // ---------- Activity Level Helper ----------
   const activityDesc = {
     sedentary: "💡 Mostly sitting — office work, reading, TV. Very little walking.",
@@ -797,7 +917,7 @@
     
     if (deficit > 0) {
       const kgPerWeek = ((deficit * 7) / 7700).toFixed(2);
-      box.innerHTML = `This creates a gentle deficit of <strong>${deficit} calories</strong> a day.<br><br>Roughly, this should lead to about <strong>${kgPerWeek} kg</strong> of weight loss per week.`;
+      box.innerHTML = `I recommend aiming for about <strong>${val} calories</strong> to start. This leaves enough room for delicious, filling meals while still helping you lose weight at a safe pace (roughly <strong>${kgPerWeek} kg</strong> a week).<br><br>Don't worry about getting this perfect right now. You can always adjust this in Settings later!`;
     } else if (deficit === 0) {
       box.innerHTML = `This is your maintenance level. You won't lose weight here, but you won't gain any either. A great place to practice healthy habits!`;
     } else {
@@ -806,31 +926,33 @@
   };
 
   // ---------- Smart Tips ----------
-  const tips = [
-    "Did you know you can snap a photo of a supermarket label to instantly see the macros?",
-    "Struggling with a sweet craving? A square of dark chocolate or a handful of berries often does the trick for under 100 calories.",
-    "Drinking a glass of water before a meal can help you feel fuller and prevent overeating.",
-    "Protein keeps you full! If you're peckish, a hard-boiled egg or a small Greek yogurt is a great choice.",
-    "You can ask me to suggest a healthy recipe based on whatever is left in your fridge. Just open the chat!"
-  ];
-
-  window.dismissTip = function() {
-    document.getElementById('smartTipBanner').classList.remove('show');
-  };
-
   function showRandomTip() {
-    if (!showSmartTips) return;
+    if (!showSmartTips || !currentProfile) return;
     const banner = document.getElementById('smartTipBanner');
     const textEl = document.getElementById('smartTipText');
     if (!banner || !textEl) return;
     
+    const p = currentProfile;
+    const allergies = (p.allergies || '').toLowerCase();
+    let safeProtein = "a hard-boiled egg or a small Greek yogurt";
+    if (allergies.includes('egg')) safeProtein = "a small Greek yogurt or a handful of almonds";
+    if (allergies.includes('yogurt') || allergies.includes('dairy')) safeProtein = "a handful of almonds or some roasted chickpeas";
+    
+    const tips = [
+      `Did you know you can snap a photo of a supermarket label to instantly see the macros?`,
+      `Struggling with a sweet craving? A square of dark chocolate or a handful of berries often does the trick for under 100 calories.`,
+      `Drinking a glass of water before a meal can help you feel fuller and prevent overeating.`,
+      `Protein keeps you full! If you're peckish, ${safeProtein} is a great choice.`,
+      `You can ask me to suggest a healthy recipe based on whatever is left in your fridge. Just open the chat!`
+    ];
+
     const randomTip = tips[Math.floor(Math.random() * tips.length)];
     
     if (todaysMeals.length > 0 && Math.random() > 0.5) {
       const calTotal = todaysMeals.reduce((s, m) => s + (m.calories || 0), 0);
-      const target = currentProfile?.targets?.calorieTarget || 2000;
+      const target = p.targets?.calorieTarget || 2000;
       if (calTotal < target - 300) {
-        textEl.innerHTML = `💡 <strong>Dietitian Tip:</strong> You have about <strong>${target - calTotal} calories</strong> left today. A filling snack like an apple with peanut butter is perfect right now.`;
+        textEl.innerHTML = `💡 <strong>Dietitian Tip:</strong> You have about <strong>${target - calTotal} calories</strong> left today. ${safeProtein} would make a perfect filling snack right now.`;
       } else {
         textEl.innerHTML = `💡 <strong>Dietitian Tip:</strong> ${randomTip}`;
       }
@@ -843,12 +965,17 @@
 
   window.toggleSmartTips = function() {
     showSmartTips = document.getElementById('toggleTips').checked;
-    if (!showSmartTips) { dismissTip(); } else { showRandomTip(); }
+    if (!showSmartTips) {
+      document.getElementById('smartTipBanner').classList.remove('show');
+    } else {
+      showRandomTip();
+    }
   };
 
   // ---------- Chat & AI ----------
   window.openChat = function() { 
     document.getElementById('chatOverlay').classList.add('open'); 
+    dismissCoachMark(); // Hide coach mark once chat is opened
     setTimeout(() => {
       const container = document.getElementById('chatMessages');
       container.scrollTop = container.scrollHeight;
@@ -949,21 +1076,21 @@
       const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       const snapsSummary = buildSnapsSummary(8);
+      const recipeTitles = savedRecipes.map(r => r.title).join(', ') || 'None';
       
-      const allergies = p.allergies ? `CRITICAL ALLERGY WARNING: The user is severely allergic to: ${p.allergies}. You MUST NEVER suggest, recommend, or mention foods containing these ingredients.` : '';
-      const dislikes = p.dislikes ? `USER DISLIKES: ${p.dislikes}. Try to avoid these.` : '';
+      const allergies = p.allergies || 'None';
+      const dislikes = p.dislikes || 'None';
 
       const systemMsg = { 
         role: 'system', 
         content: `You are a warm, friendly, human nutritionist texting with your client, ${p.name}. The current date is ${dateString} and the time is ${timeString}. She has eaten ${calTotal} cal today. 
         
-        ${allergies}
-        ${dislikes}
+        CRITICAL ALLERGY GUARDRAIL: She is severely allergic to: ${allergies}. She dislikes: ${dislikes}. You MUST NEVER suggest foods, recipes, or snacks containing these. If she asks for a food containing an allergen, tell her gently and suggest a safe alternative.
         
         She keeps a photo food diary inside the app. Her most recent logged food snaps are:
         ${snapsSummary}
         
-        If she asks about a past meal, or wants to know what she ate yesterday/earlier, use the snaps list above. She can also open the "Snaps" tab to see them herself.
+        She has these recipes saved in her Cookbook: ${recipeTitles}
         
         IMPORTANT RULES:
         1. Text like a real person. Use lowercase letters mostly, natural emojis, and short sentences. 
@@ -1040,22 +1167,8 @@
       container.scrollTop = container.scrollHeight;
 
       try {
-        const p = currentProfile || {};
-        const allergies = p.allergies ? `CRITICAL ALLERGY WARNING: The user is severely allergic to: ${p.allergies}. You MUST NEVER recommend foods containing these.` : '';
-        
-        const system = `You are an expert nutritionist. The user uploaded an image. 
-        ${allergies}
-        Analyze the meal. Respond ONLY with a valid JSON object (no markdown, no extra text) with this exact structure:
-        {
-          "meal": "description",
-          "calories": 000,
-          "protein": 00,
-          "carbs": 00,
-          "fat": 00,
-          "advice": "1 short sentence",
-          "allergyWarning": "If it contains any of her allergens, write a short warning here. Otherwise null.",
-          "safeAlternative": "If allergyWarning is present, write a brief safe alternative idea. Otherwise null."
-        }`;
+        const allergies = currentProfile?.allergies || 'none';
+        const system = `You are an expert nutritionist. The user uploaded an image. She is allergic to: ${allergies}. Look at the image, estimate the meal, and respond with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence", "allergyWarning": "If it contains any allergen from the list, explain it here. Else null.", "alternative": "If it contains an allergen, suggest a safe alternative here. Else null."}. Do not add any extra text outside the JSON.`;
         
         const res = await fetch('/api/chat', {
           method: 'POST',
@@ -1095,10 +1208,10 @@
 
         let replyText = `that looks like **${parsed.meal}**! 😋\n\n📊 calories: ${parsed.calories}\n🥩 protein: ${parsed.protein}g\n🍞 carbs: ${parsed.carbs}g\n🥑 fat: ${parsed.fat}g\n\n💡 *${parsed.advice}*\n\nI've saved it to your food diary too — you'll find the photo in the 📸 Snaps tab.`;
         
-        if (parsed.allergyWarning && parsed.allergyWarning !== "null") {
-          replyText = `⚠️ **Allergy Alert:** ${parsed.allergyWarning}\n\n💡 **Safe Alternative:** ${parsed.safeAlternative}\n\nI've logged the photo, but please be careful!`;
+        if (parsed.allergyWarning && parsed.allergyWarning !== 'null') {
+           replyText += `\n\n⚠️ **ALLERGY WARNING:** ${parsed.allergyWarning}\n\n**Safe Alternative:** ${parsed.alternative}`;
         }
-        
+
         typingWrapper.classList.remove('show');
         appendChatMsg(replyText, 'ai', getTimeString());
         saveChatMessage(replyText, 'ai', getTimeString());
@@ -1122,22 +1235,8 @@
     reader.onload = async (e) => {
       const base64Image = e.target.result; 
       try {
-        const p = currentProfile || {};
-        const allergies = p.allergies ? `CRITICAL ALLERGY WARNING: The user is severely allergic to: ${p.allergies}. You MUST NEVER recommend foods containing these.` : '';
-        
-        const system = `You are an expert nutritionist. The user uploaded an image. 
-        ${allergies}
-        Analyze the meal. Respond ONLY with a valid JSON object (no markdown, no extra text) with this exact structure:
-        {
-          "meal": "description",
-          "calories": 000,
-          "protein": 00,
-          "carbs": 00,
-          "fat": 00,
-          "advice": "1 short sentence",
-          "allergyWarning": "If it contains any of her allergens, write a short warning here. Otherwise null.",
-          "safeAlternative": "If allergyWarning is present, write a brief safe alternative idea. Otherwise null."
-        }`;
+        const allergies = currentProfile?.allergies || 'none';
+        const system = `You are an expert nutritionist. The user uploaded an image. She is allergic to: ${allergies}. Respond ONLY with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence", "allergyWarning": "If it contains any allergen from the list, explain it here. Else null.", "alternative": "If it contains an allergen, suggest a safe alternative here. Else null."}. Do not add any extra text.`;
         
         const res = await fetch('/api/chat', {
           method: 'POST',
@@ -1181,14 +1280,13 @@
         document.getElementById('scanFat').textContent = parsed.fat + 'g';
         document.getElementById('scanAdvice').textContent = parsed.advice;
         document.getElementById('scanType').value = defaultMealType();
-        
-        const alertBox = document.getElementById('scanAllergyAlert');
-        const alertText = document.getElementById('scanAllergyText');
-        if (parsed.allergyWarning && parsed.allergyWarning !== "null") {
-          alertText.innerHTML = `${parsed.allergyWarning}<br><br><strong>Safe Alternative:</strong> ${parsed.safeAlternative}`;
-          alertBox.classList.remove('hidden');
+
+        const warningEl = document.getElementById('scanAllergyWarning');
+        if (parsed.allergyWarning && parsed.allergyWarning !== 'null') {
+           warningEl.innerHTML = `⚠️ <strong>Allergy Alert:</strong> ${parsed.allergyWarning}<br><br><strong>Safe Alternative:</strong> ${parsed.alternative}`;
+           warningEl.classList.add('show');
         } else {
-          alertBox.classList.add('hidden');
+           warningEl.classList.remove('show');
         }
 
         document.getElementById('scanModal').classList.add('show');
@@ -1282,7 +1380,7 @@
       if (remaining < 0) {
         insight = "You've gone slightly over your target today. Don't stress—tomorrow is a new day. A gentle walk tonight might help you feel better.";
       } else if (proTotal < 30 && remaining > 300) {
-        insight = `You have ${remaining} calories left, but could use more protein. Try a Greek yogurt or a handful of nuts for a filling snack.`;
+        insight = `You have ${remaining} calories left, but could use more protein. Try a safe, high-protein snack!`;
       } else {
         insight = `You have about ${remaining} calories left today. You're doing a great job keeping track!`;
       }
@@ -1402,36 +1500,31 @@
 
   window.wizNext = function(step) {
     if (step === 3) {
-      // Calculate base TDEE and setup slider
       const p = buildProfileObj(); 
       const targets = computeTargets(p);
       calculatedTDEE = targets.tdee || 2000;
+      document.getElementById('wizTdee').textContent = calculatedTDEE;
       
       let initialTarget = targets.calorieTarget || 1800;
       if (currentProfile && currentProfile.targets) {
         initialTarget = currentProfile.targets.calorieTarget || initialTarget;
       }
       
-      // Update Intro Text
-      const introText = document.getElementById('calorieIntroText');
-      introText.innerHTML = `I've looked at your height, weight, age, and daily activity. Based on this, your body naturally burns about <strong>${calculatedTDEE} calories</strong> a day just keeping you alive and moving. To lose weight, we need to eat slightly less than that—this is called a <strong>deficit</strong>.`;
-      
-      // Update Dietitian Tip based on allergies
-      const tipText = document.getElementById('wizDietitianTip');
-      const allergiesVal = document.getElementById('allergies').value.trim();
-      if (allergiesVal) {
-        tipText.innerHTML = `It's easier to stick to your calories if you feel full! Since you're avoiding <strong>${escapeHtml(allergiesVal)}</strong>, focus on getting your filling protein and fibre from safe sources like lentils, beans, oats, or vegetables. They take longer to digest, keeping hunger away.`;
-      } else {
-        tipText.innerHTML = `It's easier to stick to your calories if you feel full! Focus on <strong>protein</strong> (chicken, fish, eggs, yogurt) and <strong>fibre</strong> (vegetables, oats, beans). They take longer to digest, keeping hunger away.`;
-      }
-      
-      // Slider bounds
-      const slider = document.getElementById('calSlider');
-      slider.min = Math.max(1200, Math.round((targets.bmr || 1200) / 10) * 10);
-      slider.max = Math.round((calculatedTDEE + 500) / 50) * 50;
-      slider.value = initialTarget;
+      document.getElementById('calSlider').min = Math.max(1200, Math.round((targets.bmr || 1200) / 10) * 10);
+      document.getElementById('calSlider').max = Math.round((calculatedTDEE + 500) / 50) * 50;
+      document.getElementById('calSlider').value = initialTarget;
       
       updateSliderUI(initialTarget);
+      
+      // Dynamic tip check for the wizard
+      const tipEl = document.getElementById('wizDietitianTip');
+      const allergies = (p.allergies || '').toLowerCase();
+      let safeProtein = "chicken, fish, or eggs";
+      if (allergies.includes('chicken') || allergies.includes('fish') || allergies.includes('egg')) {
+         safeProtein = "lentils, beans, or tofu";
+      }
+      
+      tipEl.innerHTML = `<h3>🍎 Dietitian Tip</h3><p style="font-size: 14px; color: var(--ink-soft); line-height: 1.5; margin: 0;">It's easier to stick to your calories if you feel full! Focus on <strong>protein</strong> (like ${safeProtein}) and <strong>fibre</strong>. They take longer to digest, keeping hunger away.</p>`;
     }
     showWizard(step + 1);
   };
@@ -1672,10 +1765,10 @@
     setStatus('cookStatus', 'Creating a recipe…');
     const p = currentProfile; const t = p.targets || {}; const remainingCal = Math.max(200, (t.calorieTarget || 2000) - todaysMeals.reduce((s,m)=>s+(m.calories||0),0));
     
-    const allergies = p.allergies ? `CRITICAL ALLERGY WARNING: The user is severely allergic to: ${p.allergies}. You MUST NEVER include these ingredients.` : '';
-    const dislikes = p.dislikes ? `USER DISLIKES: ${p.dislikes}. Try to avoid these.` : '';
+    const allergies = p.allergies || 'None';
+    const dislikes = p.dislikes || 'None';
     
-    const system = `You are a warm, encouraging cookbook author helping ${p.name}. ${allergies} ${dislikes} She wants roughly ${remainingCal} calories for this meal. Keep sodium moderate unless she has blood pressure concerns.\nRespond ONLY with a JSON object: {"title": "short recipe name", "ingredients": "line-separated list", "steps": "numbered steps, short"}. No extra text.`;
+    const system = `You are a warm, encouraging cookbook author helping ${p.name}. Dietary needs: ${(p.medicalConditions||[]).join(', ')}. ALLERGIES: ${allergies}. DISLIKES: ${dislikes}. She wants roughly ${remainingCal} calories for this meal. CRITICAL: NEVER include allergens in the recipe. Keep sodium moderate unless she has blood pressure concerns.\nRespond ONLY with a JSON object: {"title": "short recipe name", "ingredients": "line-separated list", "steps": "numbered steps, short"}. No extra text.`;
     try {
       const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }) });
       const rawText = await res.text(); let data;
@@ -1715,6 +1808,7 @@
     const typeEl = document.getElementById('mealType'); if (typeEl) typeEl.value = defaultMealType();
     renderMeals(); updateRings(); renderRecipes(); renderSnaps(); switchMainPage('home'); showScreen('dashScreen');
     showRandomTip();
+    showCoachMark();
   }
 
   window.editProfile = function() {
@@ -1743,10 +1837,11 @@
     const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     const snapsSummary = buildSnapsSummary(6);
-    const allergies = p.allergies ? `CRITICAL ALLERGY WARNING: The user is severely allergic to: ${p.allergies}. You MUST NEVER suggest foods containing these.` : '';
-    const dislikes = p.dislikes ? `USER DISLIKES: ${p.dislikes}. Avoid these.` : '';
+    const recipeTitles = savedRecipes.map(r => r.title).join(', ') || 'None';
+    const allergies = p.allergies || 'None';
+    const dislikes = p.dislikes || 'None';
     
-    const system = `You are a warm, encouraging dietitian for ${p.name}, age ${p.age}. The current date is ${dateString}. Goal: ${p.goal}. Targets: ${t.calorieTarget||'?'} cal.\n${allergies}\n${dislikes}\nToday she has eaten:\n${mealSummary}\nWater: ${todaysWater} glasses. Remaining calories: ~${remaining}.\nHer recent food snaps (photo diary):\n${snapsSummary}\nBe warm. 2-4 sentences. Practical and specific. Never mention being an AI.`;
+    const system = `You are a warm, encouraging dietitian for ${p.name}, age ${p.age}. The current date is ${dateString} and the time is ${timeString}. Goal: ${p.goal}. Targets: ${t.calorieTarget||'?'} cal.\n\nCRITICAL ALLERGY GUARDRAIL: She is severely allergic to: ${allergies}. She dislikes: ${dislikes}. You MUST NEVER suggest foods, recipes, or snacks containing these. If she asks for a food containing an allergen, tell her gently and suggest a safe alternative.\n\nToday she has eaten:\n${mealSummary}\nWater: ${todaysWater} glasses. Remaining calories: ~${remaining}.\nHer recent food snaps (photo diary):\n${snapsSummary}\nHer saved recipes: ${recipeTitles}\n\nBe warm. 2-4 sentences. Practical and specific. Never mention being an AI.`;
     try {
       const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }) });
       const rawText = await res.text(); let data;
