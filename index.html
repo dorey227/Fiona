@@ -134,13 +134,55 @@
   .snap-card .del { background: #f5e1da; color: #b45435; border: none; width: 34px; height: 34px; border-radius: 10px; font-size: 15px; padding: 0; margin: 0; cursor: pointer; flex-shrink: 0; }
 
   /* Nutrition Page Styles */
-  .nut-category { margin-bottom: 20px; }
-  .nut-title { font-size: 18px; font-weight: 700; color: var(--ink); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .target-card { background: linear-gradient(135deg, #fdf7ec 0%, #f7f0e2 100%); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-bottom: 20px; text-align: center; }
+  .target-card h3 { margin: 0 0 10px; font-size: 18px; color: var(--terra-dark); font-weight: 700; text-transform: none; letter-spacing: 0; }
+  .target-pills { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+  .target-pill { background: white; border-radius: 12px; padding: 10px 14px; font-size: 14px; font-weight: 600; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid var(--line); }
+  .target-pill span { color: var(--sage-dark); font-weight: 700; }
+
+  details.accordion { background: var(--card); border-radius: 16px; margin-bottom: 12px; box-shadow: var(--shadow); overflow: hidden; border: 1px solid var(--line); }
+  details.accordion summary { padding: 16px 20px; font-size: 16px; font-weight: 700; color: var(--ink); cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  details.accordion summary::-webkit-details-marker { display: none; }
+  details.accordion summary::after { content: '+'; font-size: 20px; color: var(--sage-dark); font-weight: 400; }
+  details.accordion[open] summary::after { content: '−'; }
+  .accordion-content { padding: 0 20px 20px; }
   .nut-text { font-size: 14px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 12px; }
-  .nut-list { list-style-type: none; padding: 0; margin: 0; background: #fdfbf7; border-radius: 14px; border: 1px solid var(--line); overflow: hidden; }
+  .nut-list { list-style-type: none; padding: 0; margin: 0; background: #fdfbf7; border-radius: 12px; border: 1px solid var(--line); overflow: hidden; }
   .nut-list li { padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 14px; display: flex; justify-content: space-between; }
   .nut-list li:last-child { border-bottom: none; }
   .nut-list strong { color: var(--sage-dark); }
+
+  /* Metric Tracker */
+  .metric-toggle { display: flex; background: #f3ede1; border-radius: 12px; overflow: hidden; margin-bottom: 16px; }
+  .metric-toggle button { flex: 1; border-radius: 0; background: transparent; color: var(--ink-soft); margin: 0; padding: 12px; font-size: 14px; }
+  .metric-toggle button.active { background: var(--sage); color: white; }
+  .navy-inputs { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .navy-inputs input { padding: 10px; font-size: 14px; text-align: center; }
+  .navy-inputs label { text-align: center; margin: 4px 0 0; font-size: 11px; }
+
+  .result-box { background: #e8f0e8; border-radius: 12px; padding: 16px; margin-top: 16px; border-left: 4px solid var(--sage); display: none; }
+  .result-box.show { display: block; }
+  .result-title { font-size: 24px; font-weight: 700; color: var(--sage-dark); margin-bottom: 8px; }
+  .result-desc { font-size: 13px; color: var(--ink); line-height: 1.5; }
+  .result-range { font-size: 12px; color: var(--ink-soft); margin-top: 8px; display: block; border-top: 1px solid #d5e0d5; padding-top: 8px; }
+
+  /* Chart */
+  .chart-container { background: var(--card); border-radius: 16px; padding: 16px; box-shadow: var(--shadow); margin-top: 16px; border: 1px solid var(--line); }
+  .chart-toggle { display: flex; gap: 10px; margin-bottom: 16px; }
+  .chart-toggle button { background: #f3ede1; color: var(--ink-soft); margin: 0; padding: 8px 12px; width: auto; font-size: 13px; }
+  .chart-toggle button.active { background: var(--sage); color: white; }
+  .svg-chart { width: 100%; height: 150px; overflow: visible; }
+  .chart-line { fill: none; stroke: var(--terra); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+  .chart-dot { fill: var(--terra); stroke: white; stroke-width: 2; cursor: pointer; }
+  .chart-axis { stroke: var(--line); stroke-width: 1; }
+  .chart-labels { font-size: 10px; fill: var(--ink-soft); }
+
+  .timeline { margin-top: 16px; }
+  .timeline-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .timeline-item:last-child { border-bottom: none; }
+  .timeline-date { font-weight: 600; color: var(--ink); width: 90px; }
+  .timeline-val { color: var(--sage-dark); font-weight: 700; flex: 1; text-align: right; padding-right: 12px; }
+  .timeline-del { background: #f5e1da; color: #b45435; border: none; width: 28px; height: 28px; border-radius: 8px; font-size: 12px; padding: 0; margin: 0; cursor: pointer; }
 
   /* Coach Mark */
   .coach-mark { position: fixed; bottom: 160px; right: 20px; z-index: 96; background: var(--card); padding: 14px 16px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); font-size: 14px; color: var(--ink); line-height: 1.4; width: 220px; border: 1.5px solid var(--terra); display: none; animation: fadeSlideUp 0.5s ease forwards; }
@@ -251,12 +293,43 @@
   .welcome-progress { display: flex; justify-content: center; gap: 8px; margin-top: 24px; }
   .welcome-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--line); transition: background 0.3s; }
   .welcome-dot.active { background: var(--sage); }
+  
+  /* Premium Update Modal */
+  #updateModal { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+  #updateModal.show { display: flex; }
+  .update-card { background: var(--card); border-radius: 24px; padding: 30px 24px; max-width: 400px; width: 100%; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; animation: fadeSlideUp 0.5s ease forwards; }
+  .update-icon { font-size: 48px; margin-bottom: 16px; }
+  .update-title { font-size: 24px; font-weight: 700; color: var(--terra-dark); margin-bottom: 12px; }
+  .update-text { font-size: 15px; color: var(--ink-soft); line-height: 1.6; margin-bottom: 20px; text-align: left; }
+  .update-list { text-align: left; padding-left: 20px; margin-bottom: 24px; font-size: 14px; line-height: 1.6; color: var(--ink); }
+  .update-list li { margin-bottom: 10px; }
+  .update-list strong { color: var(--sage-dark); }
+  
   @keyframes fadeSlideUp { to { opacity: 1; transform: translateY(0); } }
 </style>
 </head>
 <body>
 
 <div id="globalError" style="display:none; position:fixed; top:0; left:0; right:0; background:#e74c3c; color:white; padding:16px; z-index:9999; font-size:14px;"></div>
+
+<!-- PREMIUM UPDATE MODAL -->
+<div id="updateModal">
+  <div class="update-card">
+    <div class="update-icon">🚀</div>
+    <div class="update-title">Big News: Premium Unlocked!</div>
+    <div class="update-text">
+      Fiona's Kitchen just received a massive upgrade! Because the app is expanding we need help from you :), we're rolling out our new Premium features. As one of our earliest users, <strong>your account has been upgraded completely free.</strong>
+    </div>
+    <ul class="update-list">
+      <li>🥗 <strong>The Full Nutrition Guide:</strong> A new tab explaining protein, fibre, and exactly what your daily targets should be.</li>
+      <li>⚖️ <strong>Advanced Progress Tracking:</strong> Log your weight and calculate your body fat % (using the US Navy method or BMI).</li>
+      <li>🧠 <strong>A Smarter Dietitian:</strong> The chat can now see your weight trends and full food history to give you even better advice.</li>
+      <li>💡 <strong>Direct Line to the Developers:</strong> Found a bug or have an idea? Use the new "Suggest a Feature" button in Settings to tell us directly!</li>
+      <li>📸 <strong>Unlimited AI Scans:</strong> Keep snapping photos to your heart's content.</li>
+    </ul>
+    <button class="btn-terra" onclick="closeUpdateModal()" style="margin-top: 0;">✨ Explore My New Features</button>
+  </div>
+</div>
 
 <!-- FLOATING CHAT BUTTON -->
 <button class="floating-chat-btn" id="floatingChatBtn" onclick="openChat()" aria-label="Chat with your dietitian">
@@ -362,6 +435,30 @@
     <button class="btn-terra" onclick="logScannedMeal()">✓ Log to Today's Diary</button>
     <button class="btn-soft" onclick="saveScannedToCookbook()">📖 Save to Cookbook</button>
     <button class="btn-soft" onclick="discardScannedMeal()" style="background: transparent; color: var(--ink-soft); margin-top: 4px;">✕ Discard</button>
+  </div>
+</div>
+
+<!-- FEEDBACK MODAL -->
+<div class="scan-modal-overlay" id="feedbackModal">
+  <div class="scan-modal-card">
+    <h3 class="scan-title" style="text-align: center;">💡 Help us improve!</h3>
+    <p style="font-size: 14px; color: var(--ink-soft); margin-bottom: 16px; text-align: center;">
+      Have an idea for a new feature? Found something that isn't working quite right? Let us know! Your feedback goes straight to the developers.
+    </p>
+    
+    <label>What kind of feedback is this?</label>
+    <select id="feedbackType">
+      <option value="idea">💡 Idea / Feature Request</option>
+      <option value="bug">🐛 Bug Report (Something's not working)</option>
+      <option value="general">💬 General Feedback</option>
+    </select>
+
+    <label>Your message</label>
+    <textarea id="feedbackText" rows="4" placeholder="Tell us what's on your mind..."></textarea>
+
+    <button class="btn-terra" onclick="submitFeedback()">Send to Developers</button>
+    <button class="btn-soft" onclick="document.getElementById('feedbackModal').classList.remove('show')">Cancel</button>
+    <div class="status" id="feedbackStatus"></div>
   </div>
 </div>
 
@@ -531,7 +628,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V42)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V44)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     
     <div class="smart-tip" id="smartTipBanner">
@@ -631,37 +728,119 @@
     <div class="hello">Nutrition Guide</div>
     <p class="hello-sub">Your personalized guide to a balanced plate.</p>
     
-    <div class="card nut-category">
-      <div class="nut-title">🍗 Protein: The Builder</div>
-      <div class="nut-text">Protein keeps your muscles strong and stops you feeling hungry. Try to include a source of protein with every meal.</div>
-      <ul class="nut-list" id="nutProteinList"></ul>
+    <div class="target-card">
+      <h3>🎯 Your Daily Targets</h3>
+      <p style="font-size: 13px; color: var(--ink-soft); margin-bottom: 16px;">Based on your profile and gentle deficit, here is what I recommend you aim for each day:</p>
+      <div class="target-pills">
+        <div class="target-pill">Protein: <span id="targetProtein">—</span></div>
+        <div class="target-pill">Fibre: <span id="targetFibre">—</span></div>
+        <div class="target-pill">Water: <span id="targetWater">8</span></div>
+      </div>
     </div>
 
-    <div class="card nut-category">
-      <div class="nut-title">🥣 Fibre: The Digestive Helper</div>
-      <div class="nut-text"><strong>Soluble Fibre</strong> dissolves in water (like oats and beans). It keeps you full and helps lower cholesterol.<br><br><strong>Insoluble Fibre</strong> doesn't dissolve (like whole grains and nuts). It keeps things moving through your gut.</div>
-      <ul class="nut-list" id="nutFibreList"></ul>
-    </div>
+    <details class="accordion">
+      <summary>🍗 Protein: The Builder</summary>
+      <div class="accordion-content">
+        <div class="nut-text">Protein keeps your muscles strong and stops you feeling hungry. Try to include a source of protein with every meal.</div>
+        <ul class="nut-list" id="nutProteinList"></ul>
+      </div>
+    </details>
 
-    <div class="card nut-category">
-      <div class="nut-title">🥑 Fats: The Good, The Bad</div>
-      <div class="nut-text">Don't be scared of fats—avocado, olive oil, and nuts have <strong>healthy unsaturated fats</strong> that keep your heart strong. Just watch out for <strong>Saturated fats</strong> (like in pastries or processed meats), as these can raise cholesterol.</div>
-      <ul class="nut-list">
-        <li><strong>Healthy Fats:</strong> Olive oil, Avocado, Nuts, Seeds</li>
-        <li><strong>Limit:</strong> Butter, Pastries, Processed Meats</li>
-      </ul>
-    </div>
+    <details class="accordion">
+      <summary>🥣 Fibre: The Digestive Helper</summary>
+      <div class="accordion-content">
+        <div class="nut-text"><strong>Soluble Fibre</strong> dissolves in water (like oats and beans). It keeps you full and helps lower cholesterol.<br><br><strong>Insoluble Fibre</strong> doesn't dissolve (like whole grains and nuts). It keeps things moving through your gut.</div>
+        <ul class="nut-list" id="nutFibreList"></ul>
+      </div>
+    </details>
 
-    <div class="card nut-category">
-      <div class="nut-title">🦴 Bones & Muscles</div>
-      <div class="nut-text">Calcium and Magnesium are crucial for keeping your bones dense and your muscles relaxed as you get older.</div>
-      <ul class="nut-list" id="nutBoneList"></ul>
-    </div>
+    <details class="accordion">
+      <summary>🥑 Fats: The Good, The Bad</summary>
+      <div class="accordion-content">
+        <div class="nut-text">Don't be scared of fats—avocado, olive oil, and nuts have <strong>healthy unsaturated fats</strong> that keep your heart strong. Just watch out for <strong>Saturated fats</strong> (like in pastries or processed meats), as these can raise cholesterol.</div>
+        <ul class="nut-list">
+          <li><strong>Healthy Fats:</strong> Olive oil, Avocado, Nuts, Seeds</li>
+          <li><strong>Limit:</strong> Butter, Pastries, Processed Meats</li>
+        </ul>
+      </div>
+    </details>
 
-    <div class="card nut-category">
-      <div class="nut-title">🌈 Eat the Rainbow</div>
-      <div class="nut-text">Different coloured vegetables have different vitamins. Aim to get a mix of colours on your plate!</div>
-      <ul class="nut-list" id="nutVegList"></ul>
+    <details class="accordion">
+      <summary>🦴 Bones & Muscles</summary>
+      <div class="accordion-content">
+        <div class="nut-text">Calcium and Magnesium are crucial for keeping your bones dense and your muscles relaxed as you get older.</div>
+        <ul class="nut-list" id="nutBoneList"></ul>
+      </div>
+    </details>
+
+    <details class="accordion">
+      <summary>🌈 Eat the Rainbow</summary>
+      <div class="accordion-content">
+        <div class="nut-text">Different coloured vegetables have different vitamins. Aim to get a mix of colours on your plate!</div>
+        <ul class="nut-list" id="nutVegList"></ul>
+      </div>
+    </details>
+
+    <details class="accordion">
+      <summary>🔄 Simple Swaps</summary>
+      <div class="accordion-content">
+        <div class="nut-text">Small changes add up. Try these easy swaps:</div>
+        <ul class="nut-list">
+          <li><span>White toast</span> <strong style="color:var(--sage)">→</strong> <span>Wholegrain toast</span></li>
+          <li><span>Crisps</span> <strong style="color:var(--sage)">→</strong> <span>A handful of nuts</span></li>
+          <li><span>Sweet yogurts</span> <strong style="color:var(--sage)">→</strong> <span>Greek yogurt with berries</span></li>
+        </ul>
+      </div>
+    </details>
+
+    <!-- PROGRESS & METRICS -->
+    <div class="card" style="margin-top: 24px;">
+      <h3>⚖️ My Progress</h3>
+      
+      <label>Log New Weight (kg)</label>
+      <div style="display: flex; gap: 8px;">
+        <input type="number" id="newWeightInput" step="0.1" placeholder="e.g. 72.5" style="flex: 1;">
+        <button onclick="saveMetric()" style="margin-top: 0; width: auto; padding: 0 24px;">Log</button>
+      </div>
+      <div class="status" id="metricStatus"></div>
+
+      <label style="margin-top: 20px;">Body Fat Calculator</label>
+      <div class="metric-toggle">
+        <button class="active" id="btnBmi" onclick="switchMetricMethod('bmi')">BMI Method</button>
+        <button id="btnNavy" onclick="switchMetricMethod('navy')">US Navy Method</button>
+      </div>
+
+      <div id="navyInputs" class="navy-inputs hidden">
+        <div>
+          <input type="number" id="neckCm" placeholder="e.g. 33">
+          <label>Neck (cm)</label>
+        </div>
+        <div>
+          <input type="number" id="waistCm" placeholder="e.g. 80">
+          <label>Waist (cm)</label>
+        </div>
+        <div>
+          <input type="number" id="hipCm" placeholder="e.g. 95">
+          <label>Hip (cm)</label>
+        </div>
+      </div>
+      
+      <button class="btn-soft" onclick="calculateBodyFat()" style="margin-top: 12px;">Calculate Body Fat</button>
+
+      <div class="result-box" id="bodyFatResult">
+        <div class="result-title" id="bfPercentage">28.4%</div>
+        <div class="result-desc" id="bfDescription">You are in the healthy range!</div>
+        <div class="result-range" id="bfRange">...</div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-toggle">
+          <button class="active" id="chartBtnWeight" onclick="switchChart('weight')">Weight</button>
+          <button id="chartBtnFat" onclick="switchChart('fat')">Body Fat %</button>
+        </div>
+        <svg class="svg-chart" id="progressChart"></svg>
+        <div class="timeline" id="metricTimeline"></div>
+      </div>
     </div>
   </div>
 
@@ -700,6 +879,7 @@
     <input type="checkbox" id="toggleTips" checked onchange="toggleSmartTips()" style="width:24px; height:24px; accent-color:var(--sage); cursor:pointer;">
   </div>
   
+  <button class="btn-soft" onclick="openFeedbackModal()" style="margin-top:12px;">💡 Suggest a Feature / Report a Bug</button>
   <button class="btn-soft" onclick="clearChatHistory()" style="margin-top:12px;">🗑️ Clear Chat History</button>
   <button class="btn-soft" onclick="logout()">🚪 Sign out</button>
   <button class="btn-danger" onclick="startFresh()">🔄 Start fresh</button>
@@ -724,7 +904,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const APP_VERSION = 'V42';
+  const APP_VERSION = 'V44';
   const BIRTH_YEAR = 1969;
   const FIORA_AGE = new Date().getFullYear() - BIRTH_YEAR;
 
@@ -735,6 +915,8 @@
   let allSnaps = []; 
   let showSmartTips = true;
   let calculatedTDEE = 2000;
+  let currentChartMode = 'weight'; // 'weight' or 'fat'
+  let currentMetricMethod = 'bmi'; // 'bmi' or 'navy'
 
   const WELCOME_MSG = "Welcome, Fiona! 🌿 Think of this as our little check-in space. Feel free to share whatever's on your mind—your goals, your health, or any specific nutritional needs you have. Just so you know, I can already see the food snaps you save here in the app and the recipes in your cookbook, so I'm always up to speed on what you've been eating. Feel free to ask me anything!";
 
@@ -863,6 +1045,55 @@
     });
   }
 
+  // ---------- Premium Update Modal ----------
+  window.closeUpdateModal = function() {
+    document.getElementById('updateModal').classList.remove('show');
+    localStorage.setItem('premiumWelcomeV44Seen', 'true');
+    switchMainPage('nutrition'); // Take her to the new features
+  };
+
+  function checkPremiumModal() {
+    if (!localStorage.getItem('premiumWelcomeV44Seen')) {
+      setTimeout(() => {
+        document.getElementById('updateModal').classList.add('show');
+      }, 500);
+    }
+  }
+
+  // ---------- Feedback Modal ----------
+  window.openFeedbackModal = function() {
+    closeSettings();
+    document.getElementById('feedbackModal').classList.add('show');
+  };
+
+  window.submitFeedback = async function() {
+    const type = document.getElementById('feedbackType').value;
+    const text = document.getElementById('feedbackText').value.trim();
+    
+    if (!text) { setStatus('feedbackStatus', 'Please write a message first.', true); return; }
+    
+    setStatus('feedbackStatus', 'Sending...');
+    try {
+      await addDoc(collection(db, 'feedback'), {
+        name: currentProfile?.name || 'Fiona',
+        type: type,
+        message: text,
+        createdAt: serverTimestamp()
+      });
+      
+      setStatus('feedbackStatus', '✅ Sent! Thank you.');
+      document.getElementById('feedbackText').value = '';
+      
+      setTimeout(() => {
+        document.getElementById('feedbackModal').classList.remove('show');
+        setStatus('feedbackStatus', '');
+      }, 2000);
+      
+    } catch (e) {
+      setStatus('feedbackStatus', '❌ Error: ' + e.message, true);
+    }
+  };
+
   // ---------- Nutrition Page Logic ----------
   function getSafeFoods(category) {
     const allergies = (currentProfile?.allergies || '').toLowerCase();
@@ -887,7 +1118,12 @@
 
   window.renderNutritionPage = function() {
     if (!currentProfile) return;
+    const t = currentProfile.targets || {};
     
+    document.getElementById('targetProtein').textContent = (t.proteinTarget || '—') + 'g';
+    document.getElementById('targetFibre').textContent = (t.fibreTarget || '25') + 'g';
+    document.getElementById('targetWater').textContent = (t.waterGoal || 8) + ' glasses';
+
     const renderList = (elementId, items) => {
       const el = document.getElementById(elementId);
       if (!el) return;
@@ -902,7 +1138,217 @@
     renderList('nutFibreList', getSafeFoods('fibre').slice(0, 8)); 
     renderList('nutBoneList', getSafeFoods('bone').slice(0, 6)); 
     renderList('nutVegList', getSafeFoods('veg').slice(0, 8)); 
+
+    renderMetricsHistory();
   };
+
+  // ---------- Metrics & Charts ----------
+  window.switchMetricMethod = function(method) {
+    currentMetricMethod = method;
+    document.getElementById('btnBmi').classList.toggle('active', method === 'bmi');
+    document.getElementById('btnNavy').classList.toggle('active', method === 'navy');
+    document.getElementById('navyInputs').classList.toggle('hidden', method !== 'navy');
+  };
+
+  window.switchChart = function(mode) {
+    currentChartMode = mode;
+    document.getElementById('chartBtnWeight').classList.toggle('active', mode === 'weight');
+    document.getElementById('chartBtnFat').classList.toggle('active', mode === 'fat');
+    renderMetricsHistory();
+  };
+
+  window.saveMetric = async function() {
+    const wInput = document.getElementById('newWeightInput');
+    const weight = parseFloat(wInput.value);
+    if (!weight || weight <= 0) {
+      setStatus('metricStatus', 'Please enter a valid weight.', true);
+      return;
+    }
+
+    let bodyFat = 0;
+    const height = currentProfile.heightCm;
+    if (height) {
+      const bmi = weight / ((height/100) * (height/100));
+      bodyFat = (1.20 * bmi) + (0.23 * FIORA_AGE) - 5.4;
+      bodyFat = Math.max(5, bodyFat);
+    }
+
+    const entry = {
+      date: todayKey(),
+      timestamp: Date.now(),
+      weight: weight,
+      bodyFat: parseFloat(bodyFat.toFixed(1)),
+      method: 'bmi'
+    };
+
+    let history = currentProfile.weightHistory || [];
+    history = history.filter(h => h.date !== entry.date);
+    history.push(entry);
+    history.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    try {
+      const newProfile = { ...currentProfile, currentWeightKg: weight, weightHistory: history };
+      newProfile.targets = computeTargets(newProfile);
+      
+      await setDoc(doc(db, 'profiles', currentUser.uid), { 
+        currentWeightKg: weight, 
+        weightHistory: history,
+        targets: newProfile.targets
+      }, { merge: true });
+
+      currentProfile = newProfile;
+      setStatus('metricStatus', '✅ Logged successfully!');
+      wInput.value = '';
+      
+      updateRings(); 
+      renderNutritionPage();
+      
+      setTimeout(() => setStatus('metricStatus', ''), 2000);
+    } catch (e) {
+      setStatus('metricStatus', '❌ ' + e.message, true);
+    }
+  };
+
+  window.deleteMetricEntry = async function(dateStr) {
+    if (!confirm('Delete this entry?')) return;
+    let history = (currentProfile.weightHistory || []).filter(h => h.date !== dateStr);
+    
+    try {
+      await setDoc(doc(db, 'profiles', currentUser.uid), { weightHistory: history }, { merge: true });
+      currentProfile.weightHistory = history;
+      renderMetricsHistory();
+    } catch (e) { alert("Error deleting: " + e.message); }
+  };
+
+  window.calculateBodyFat = async function() {
+    const height = currentProfile.heightCm;
+    const weight = currentProfile.currentWeightKg;
+    if (!height || !weight) { alert("Missing height or weight profile data."); return; }
+
+    let bf = 0;
+    if (currentMetricMethod === 'bmi') {
+      const bmi = weight / ((height/100) * (height/100));
+      bf = (1.20 * bmi) + (0.23 * FIORA_AGE) - 5.4;
+    } else {
+      const neck = parseFloat(document.getElementById('neckCm').value);
+      const waist = parseFloat(document.getElementById('waistCm').value);
+      const hip = parseFloat(document.getElementById('hipCm').value);
+      
+      if (!neck || !waist || !hip) { alert("Please enter neck, waist and hip measurements."); return; }
+      
+      const neckIn = neck / 2.54;
+      const waistIn = waist / 2.54;
+      const hipIn = hip / 2.54;
+      const heightIn = height / 2.54;
+      
+      bf = 495 / (1.29579 - 0.35004 * Math.log10(waistIn + hipIn - neckIn) + 0.22100 * Math.log10(heightIn)) - 450;
+    }
+
+    bf = Math.max(5, Math.min(60, bf)); 
+    
+    let history = currentProfile.weightHistory || [];
+    const today = todayKey();
+    let existingIdx = history.findIndex(h => h.date === today);
+    
+    const entry = {
+      date: today,
+      timestamp: Date.now(),
+      weight: weight,
+      bodyFat: parseFloat(bf.toFixed(1)),
+      method: currentMetricMethod
+    };
+
+    if (existingIdx >= 0) {
+      history[existingIdx] = entry;
+    } else {
+      history.push(entry);
+      history.sort((a,b) => new Date(a.date) - new Date(b.date));
+    }
+
+    try {
+      await setDoc(doc(db, 'profiles', currentUser.uid), { weightHistory: history }, { merge: true });
+      currentProfile.weightHistory = history;
+
+      const box = document.getElementById('bodyFatResult');
+      document.getElementById('bfPercentage').textContent = entry.bodyFat + '%';
+      
+      let desc = "";
+      let range = "";
+      if (entry.bodyFat < 14) { desc = "Athletic range."; range = "Essential: 10-13% | Athletic: 14-20% | Fitness: 21-24% | Average: 25-31%"; }
+      else if (entry.bodyFat < 21) { desc = "Fitness range. Great work!"; range = "Essential: 10-13% | Athletic: 14-20% | Fitness: 21-24% | Average: 25-31%"; }
+      else if (entry.bodyFat < 25) { desc = "Healthy Fitness range."; range = "Essential: 10-13% | Athletic: 14-20% | Fitness: 21-24% | Average: 25-31%"; }
+      else if (entry.bodyFat < 32) { desc = "Average/Healthy range for women."; range = "Essential: 10-13% | Athletic: 14-20% | Fitness: 21-24% | Average: 25-31%"; }
+      else { desc = "Above average range."; range = "Essential: 10-13% | Athletic: 14-20% | Fitness: 21-24% | Average: 25-31%"; }
+
+      document.getElementById('bfDescription').textContent = desc;
+      document.getElementById('bfRange').innerHTML = `<strong>ACE Ranges:</strong><br>${range}`;
+      box.classList.add('show');
+
+      renderMetricsHistory();
+    } catch (e) { alert("Error saving body fat: " + e.message); }
+  };
+
+  function renderMetricsHistory() {
+    const history = currentProfile.weightHistory || [];
+    const chartSvg = document.getElementById('progressChart');
+    const timeline = document.getElementById('metricTimeline');
+    
+    if (history.length === 0) {
+      chartSvg.innerHTML = '';
+      timeline.innerHTML = '<div class="empty">No history yet. Log your weight above to start tracking!</div>';
+      return;
+    }
+
+    const data = history.map(h => currentChartMode === 'weight' ? h.weight : h.bodyFat);
+    const min = Math.min(...data) * 0.98;
+    const max = Math.max(...data) * 1.02;
+    const range = max - min || 1;
+    
+    const w = 300; 
+    const h = 150;
+    const padding = 20;
+    
+    let points = [];
+    data.forEach((val, i) => {
+      const x = padding + (i * ((w - padding * 2) / (data.length - 1 || 1)));
+      const y = h - padding - ((val - min) / range) * (h - padding * 2);
+      points.push({ x, y, val, date: history[i].date });
+    });
+
+    let pathD = "";
+    points.forEach((p, i) => {
+      pathD += (i === 0 ? "M" : "L") + `${p.x},${p.y} `;
+    });
+
+    let svgHtml = `
+      <line x1="0" y1="${h-padding}" x2="${w}" y2="${h-padding}" class="chart-axis" />
+      <path d="${pathD}" class="chart-line" />
+    `;
+    
+    points.forEach(p => {
+      svgHtml += `<circle cx="${p.x}" cy="${p.y}" r="4" class="chart-dot"><title>${p.date}: ${p.val}</title></circle>`;
+    });
+    
+    svgHtml += `<text x="${points[0].x}" y="${h-5}" class="chart-labels" text-anchor="middle">${points[0].date.slice(5)}</text>`;
+    if (points.length > 1) {
+      const last = points[points.length-1];
+      svgHtml += `<text x="${last.x}" y="${h-5}" class="chart-labels" text-anchor="middle">${last.date.slice(5)}</text>`;
+    }
+
+    chartSvg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    chartSvg.innerHTML = svgHtml;
+
+    const reversed = [...history].reverse(); 
+    timeline.innerHTML = reversed.map(entry => `
+      <div class="timeline-item">
+        <div class="timeline-date">${entry.date.slice(5)}</div>
+        <div class="timeline-val">
+          ${currentChartMode === 'weight' ? '⚖️ ' + entry.weight + ' kg' : '🧍 ' + entry.bodyFat + '%'}
+        </div>
+        <button class="timeline-del" onclick="deleteMetricEntry('${entry.date}')">✕</button>
+      </div>
+    `).join('');
+  }
 
   // ---------- Coach Mark ----------
   window.dismissCoachMark = function() {
@@ -1110,10 +1556,13 @@
       
       const allergies = p.allergies || 'None';
       const dislikes = p.dislikes || 'None';
+      const currentWeight = p.currentWeightKg || 'Unknown';
+      
+      const latestBodyFat = (p.weightHistory && p.weightHistory.length > 0) ? p.weightHistory[p.weightHistory.length-1].bodyFat : null;
 
       const systemMsg = { 
         role: 'system', 
-        content: `You are a warm, friendly, human nutritionist texting with your client, ${p.name}. The current date is ${dateString} and the time is ${timeString}. She has eaten ${calTotal} cal today. 
+        content: `You are a warm, friendly, human nutritionist texting with your client, ${p.name}. The current date is ${dateString} and the time is ${timeString}. She has eaten ${calTotal} cal today. Her current weight is ${currentWeight}kg${latestBodyFat ? ` and body fat is ${latestBodyFat}%` : ''}. 
         
         CRITICAL ALLERGY GUARDRAIL: She is severely allergic to: ${allergies}. She dislikes: ${dislikes}. You MUST NEVER suggest foods, recipes, or snacks containing these. If she asks for a food containing an allergen, tell her gently and suggest a safe alternative.
         
@@ -1588,13 +2037,14 @@
       medicalConditions: meds.length ? meds : ['none'], allergies: document.getElementById('allergies').value.trim(), dislikes: document.getElementById('dislikes').value.trim(),
       typicalBreakfast: document.getElementById('typicalBreakfast').value.trim(), typicalLunch: document.getElementById('typicalLunch').value.trim(), typicalDinner: document.getElementById('typicalDinner').value.trim(),
       snacking: document.getElementById('snacking').value, waterNow: parseInt(document.getElementById('waterNow').value) || 4, alcohol: document.getElementById('alcohol').value,
-      exercise: document.getElementById('exercise').value, motivation: document.getElementById('motivation').value.trim(), email: currentUser?.email || null
+      exercise: document.getElementById('exercise').value, motivation: document.getElementById('motivation').value.trim(), email: currentUser?.email || null,
+      weightHistory: currentProfile?.weightHistory || []
     };
   }
 
   function computeTargets(p) {
     const w = p.currentWeightKg, h = p.heightCm, a = FIORA_AGE;
-    if (!w || !h) return { bmr: 1200, calorieTarget: 1800, proteinTarget: 60, waterGoal: 8, tdee: 2000 };
+    if (!w || !h) return { bmr: 1200, calorieTarget: 1800, proteinTarget: 60, fibreTarget: 25, waterGoal: 8, tdee: 2000 };
     const bmr = Math.round(10*w + 6.25*h - 5*a - 161);
     const actMultiplier = { sedentary: 1.2, light: 1.375, moderate: 1.55, active: 1.725 }[p.activityLevel] || 1.375;
     const tdee = Math.round(bmr * actMultiplier);
@@ -1602,8 +2052,9 @@
     let calorieTarget = p.goal === 'lose_weight' ? tdee + paceAdjust : tdee;
     calorieTarget = Math.max(1200, Math.round(calorieTarget / 10) * 10);
     const proteinTarget = Math.round(w * 1.2);
+    const fibreTarget = Math.round((calorieTarget / 1000) * 14); 
     const waterGoal = Math.max(8, (p.waterNow || 4) + 2);
-    return { bmr, calorieTarget, proteinTarget, waterGoal, tdee };
+    return { bmr, calorieTarget, proteinTarget, fibreTarget, waterGoal, tdee };
   }
 
   window.saveProfile = async function() {
@@ -1617,11 +2068,12 @@
     const sliderVal = parseInt(document.getElementById('calSlider').value);
     if (!isNaN(sliderVal)) {
       profile.targets.calorieTarget = sliderVal;
+      profile.targets.fibreTarget = Math.round((sliderVal / 1000) * 14);
     }
 
     btn.disabled = true; setStatus('formStatus', 'Saving…');
     try {
-      await setDoc(doc(db, 'profiles', currentUser.uid), profile);
+      await setDoc(doc(db, 'profiles', currentUser.uid), profile, { merge: true });
       currentProfile = profile; setStatus('formStatus', '✅ All set!');
       await loadTodayData(); setTimeout(renderDashboard, 500);
     } catch (e) {
@@ -1850,6 +2302,7 @@
     renderMeals(); updateRings(); renderRecipes(); renderSnaps(); switchMainPage('home'); showScreen('dashScreen');
     showRandomTip();
     showCoachMark();
+    checkPremiumModal();
   }
 
   window.editProfile = function() {
@@ -1881,8 +2334,10 @@
     const recipeTitles = savedRecipes.map(r => r.title).join(', ') || 'None';
     const allergies = p.allergies || 'None';
     const dislikes = p.dislikes || 'None';
+    const currentWeight = p.currentWeightKg || 'Unknown';
+    const latestBodyFat = (p.weightHistory && p.weightHistory.length > 0) ? p.weightHistory[p.weightHistory.length-1].bodyFat : null;
     
-    const system = `You are a warm, encouraging dietitian for ${p.name}, age ${p.age}. The current date is ${dateString} and the time is ${timeString}. Goal: ${p.goal}. Targets: ${t.calorieTarget||'?'} cal.\n\nCRITICAL ALLERGY GUARDRAIL: She is severely allergic to: ${allergies}. She dislikes: ${dislikes}. You MUST NEVER suggest foods, recipes, or snacks containing these. If she asks for a food containing an allergen, tell her gently and suggest a safe alternative.\n\nToday she has eaten:\n${mealSummary}\nWater: ${todaysWater} glasses. Remaining calories: ~${remaining}.\nHer recent food snaps (photo diary):\n${snapsSummary}\nHer saved recipes: ${recipeTitles}\n\nBe warm. 2-4 sentences. Practical and specific. Never mention being an AI.`;
+    const system = `You are a warm, encouraging dietitian for ${p.name}, age ${p.age}. The current date is ${dateString} and the time is ${timeString}. Goal: ${p.goal}. Targets: ${t.calorieTarget||'?'} cal. Weight: ${currentWeight}kg ${latestBodyFat ? `(Body Fat: ${latestBodyFat}%)` : ''}.\n\nCRITICAL ALLERGY GUARDRAIL: She is severely allergic to: ${allergies}. She dislikes: ${dislikes}. You MUST NEVER suggest foods, recipes, or snacks containing these. If she asks for a food containing an allergen, tell her gently and suggest a safe alternative.\n\nToday she has eaten:\n${mealSummary}\nWater: ${todaysWater} glasses. Remaining calories: ~${remaining}.\nHer recent food snaps (photo diary):\n${snapsSummary}\nHer saved recipes: ${recipeTitles}\n\nBe warm. 2-4 sentences. Practical and specific. Never mention being an AI.`;
     try {
       const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }) });
       const rawText = await res.text(); let data;
