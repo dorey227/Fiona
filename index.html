@@ -189,6 +189,10 @@
   .macro-val { font-size: 18px; font-weight: 700; color: var(--sage-dark); }
   .macro-label { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; margin-top: 2px; }
   .scan-advice { font-size: 14px; color: var(--ink-soft); font-style: italic; background: #fdf7ec; padding: 12px; border-radius: 12px; border-left: 3px solid var(--terra); margin-bottom: 16px; }
+  
+  /* Allergy Alert */
+  .allergy-alert { background: #fdeded; border-left: 4px solid #e74c3c; padding: 12px 16px; border-radius: 12px; font-size: 14px; color: #c0392b; margin-bottom: 16px; line-height: 1.5; }
+  .allergy-alert strong { color: #e74c3c; }
 
   /* Daily Breakdown Styles */
   .bd-header { text-align: center; margin-bottom: 20px; }
@@ -287,6 +291,11 @@
     <img id="scanPreview" class="scan-img" src="" alt="Food scan">
     <h3 class="scan-title" id="scanDesc">Analyzing...</h3>
     
+    <div class="allergy-alert hidden" id="scanAllergyAlert">
+      <strong>⚠️ Allergy Alert</strong>
+      <div id="scanAllergyText" style="margin-top:4px;"></div>
+    </div>
+
     <div class="macro-grid">
       <div class="macro-item">
         <div class="macro-val" id="scanCal">0</div>
@@ -441,8 +450,9 @@
 
   <div id="wiz4" class="hidden">
     <div class="hello">Understanding calories</div>
-    <div class="wizard-note">
-      Calories are just energy. To lose weight, we need a gentle <strong>deficit</strong>—eating slightly less energy than your body burns each day.
+    
+    <div class="wizard-note" id="calorieIntroText">
+      Loading your personalized recommendation...
     </div>
     
     <div class="slider-container">
@@ -456,8 +466,8 @@
 
     <div class="card" style="margin-top: 20px;">
       <h3>🍎 Dietitian Tip</h3>
-      <p style="font-size: 14px; color: var(--ink-soft); line-height: 1.5; margin: 0;">
-        It's easier to stick to your calories if you feel full! Focus on <strong>protein</strong> (chicken, fish, eggs, yogurt) and <strong>fibre</strong> (vegetables, oats, beans). They take longer to digest, keeping hunger away.
+      <p style="font-size: 14px; color: var(--ink-soft); line-height: 1.5; margin: 0;" id="wizDietitianTip">
+        Loading...
       </p>
     </div>
 
@@ -469,7 +479,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V39)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V40)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     
     <div class="smart-tip" id="smartTipBanner">
@@ -623,7 +633,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const APP_VERSION = 'V39';
+  const APP_VERSION = 'V40';
   const BIRTH_YEAR = 1969;
   const FIORA_AGE = new Date().getFullYear() - BIRTH_YEAR;
 
@@ -633,7 +643,7 @@
   let activeDayKey = todayKey();
   let allSnaps = []; 
   let showSmartTips = true;
-  let calculatedTDEE = 2000; // Calculated in computeTargets
+  let calculatedTDEE = 2000;
 
   const WELCOME_MSG = "Hi Fiona! 🌿 I'm your personal dietitian. I'm here to help you hit your goals. Here's how to get the most out of me: 1. Tap the camera to scan meals. 2. Tap the water ring to log glasses. 3. Ask me anything about food, cravings, or what's in your fridge!";
 
@@ -786,7 +796,6 @@
     const box = document.getElementById('deficitBox');
     
     if (deficit > 0) {
-      // 500 cal deficit is ~0.45kg per week. 1 kg = 7700 calories.
       const kgPerWeek = ((deficit * 7) / 7700).toFixed(2);
       box.innerHTML = `This creates a gentle deficit of <strong>${deficit} calories</strong> a day.<br><br>Roughly, this should lead to about <strong>${kgPerWeek} kg</strong> of weight loss per week.`;
     } else if (deficit === 0) {
@@ -940,10 +949,16 @@
       const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
       const snapsSummary = buildSnapsSummary(8);
+      
+      const allergies = p.allergies ? `CRITICAL ALLERGY WARNING: The user is severely allergic to: ${p.allergies}. You MUST NEVER suggest, recommend, or mention foods containing these ingredients.` : '';
+      const dislikes = p.dislikes ? `USER DISLIKES: ${p.dislikes}. Try to avoid these.` : '';
 
       const systemMsg = { 
         role: 'system', 
         content: `You are a warm, friendly, human nutritionist texting with your client, ${p.name}. The current date is ${dateString} and the time is ${timeString}. She has eaten ${calTotal} cal today. 
+        
+        ${allergies}
+        ${dislikes}
         
         She keeps a photo food diary inside the app. Her most recent logged food snaps are:
         ${snapsSummary}
@@ -1025,7 +1040,23 @@
       container.scrollTop = container.scrollHeight;
 
       try {
-        const system = `You are an expert nutritionist. The user uploaded an image. Look at the image, estimate the meal, and respond with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}. Do not add any extra text outside the JSON.`;
+        const p = currentProfile || {};
+        const allergies = p.allergies ? `CRITICAL ALLERGY WARNING: The user is severely allergic to: ${p.allergies}. You MUST NEVER recommend foods containing these.` : '';
+        
+        const system = `You are an expert nutritionist. The user uploaded an image. 
+        ${allergies}
+        Analyze the meal. Respond ONLY with a valid JSON object (no markdown, no extra text) with this exact structure:
+        {
+          "meal": "description",
+          "calories": 000,
+          "protein": 00,
+          "carbs": 00,
+          "fat": 00,
+          "advice": "1 short sentence",
+          "allergyWarning": "If it contains any of her allergens, write a short warning here. Otherwise null.",
+          "safeAlternative": "If allergyWarning is present, write a brief safe alternative idea. Otherwise null."
+        }`;
+        
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1062,7 +1093,11 @@
           createdAt: serverTimestamp()
         });
 
-        const replyText = `that looks like **${parsed.meal}**! 😋\n\n📊 calories: ${parsed.calories}\n🥩 protein: ${parsed.protein}g\n🍞 carbs: ${parsed.carbs}g\n🥑 fat: ${parsed.fat}g\n\n💡 *${parsed.advice}*\n\nI've saved it to your food diary too — you'll find the photo in the 📸 Snaps tab.`;
+        let replyText = `that looks like **${parsed.meal}**! 😋\n\n📊 calories: ${parsed.calories}\n🥩 protein: ${parsed.protein}g\n🍞 carbs: ${parsed.carbs}g\n🥑 fat: ${parsed.fat}g\n\n💡 *${parsed.advice}*\n\nI've saved it to your food diary too — you'll find the photo in the 📸 Snaps tab.`;
+        
+        if (parsed.allergyWarning && parsed.allergyWarning !== "null") {
+          replyText = `⚠️ **Allergy Alert:** ${parsed.allergyWarning}\n\n💡 **Safe Alternative:** ${parsed.safeAlternative}\n\nI've logged the photo, but please be careful!`;
+        }
         
         typingWrapper.classList.remove('show');
         appendChatMsg(replyText, 'ai', getTimeString());
@@ -1087,7 +1122,23 @@
     reader.onload = async (e) => {
       const base64Image = e.target.result; 
       try {
-        const system = `You are an expert nutritionist. The user uploaded an image. Respond ONLY with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence"}. Do not add any extra text.`;
+        const p = currentProfile || {};
+        const allergies = p.allergies ? `CRITICAL ALLERGY WARNING: The user is severely allergic to: ${p.allergies}. You MUST NEVER recommend foods containing these.` : '';
+        
+        const system = `You are an expert nutritionist. The user uploaded an image. 
+        ${allergies}
+        Analyze the meal. Respond ONLY with a valid JSON object (no markdown, no extra text) with this exact structure:
+        {
+          "meal": "description",
+          "calories": 000,
+          "protein": 00,
+          "carbs": 00,
+          "fat": 00,
+          "advice": "1 short sentence",
+          "allergyWarning": "If it contains any of her allergens, write a short warning here. Otherwise null.",
+          "safeAlternative": "If allergyWarning is present, write a brief safe alternative idea. Otherwise null."
+        }`;
+        
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1130,6 +1181,15 @@
         document.getElementById('scanFat').textContent = parsed.fat + 'g';
         document.getElementById('scanAdvice').textContent = parsed.advice;
         document.getElementById('scanType').value = defaultMealType();
+        
+        const alertBox = document.getElementById('scanAllergyAlert');
+        const alertText = document.getElementById('scanAllergyText');
+        if (parsed.allergyWarning && parsed.allergyWarning !== "null") {
+          alertText.innerHTML = `${parsed.allergyWarning}<br><br><strong>Safe Alternative:</strong> ${parsed.safeAlternative}`;
+          alertBox.classList.remove('hidden');
+        } else {
+          alertBox.classList.add('hidden');
+        }
 
         document.getElementById('scanModal').classList.add('show');
         setStatus('photoStatus', '');
@@ -1342,8 +1402,8 @@
 
   window.wizNext = function(step) {
     if (step === 3) {
-      // Transition from step 3 to step 4: calculate base TDEE and setup slider
-      const p = buildProfileObj(); // temporary object
+      // Calculate base TDEE and setup slider
+      const p = buildProfileObj(); 
       const targets = computeTargets(p);
       calculatedTDEE = targets.tdee || 2000;
       
@@ -1352,10 +1412,24 @@
         initialTarget = currentProfile.targets.calorieTarget || initialTarget;
       }
       
+      // Update Intro Text
+      const introText = document.getElementById('calorieIntroText');
+      introText.innerHTML = `I've looked at your height, weight, age, and daily activity. Based on this, your body naturally burns about <strong>${calculatedTDEE} calories</strong> a day just keeping you alive and moving. To lose weight, we need to eat slightly less than that—this is called a <strong>deficit</strong>.`;
+      
+      // Update Dietitian Tip based on allergies
+      const tipText = document.getElementById('wizDietitianTip');
+      const allergiesVal = document.getElementById('allergies').value.trim();
+      if (allergiesVal) {
+        tipText.innerHTML = `It's easier to stick to your calories if you feel full! Since you're avoiding <strong>${escapeHtml(allergiesVal)}</strong>, focus on getting your filling protein and fibre from safe sources like lentils, beans, oats, or vegetables. They take longer to digest, keeping hunger away.`;
+      } else {
+        tipText.innerHTML = `It's easier to stick to your calories if you feel full! Focus on <strong>protein</strong> (chicken, fish, eggs, yogurt) and <strong>fibre</strong> (vegetables, oats, beans). They take longer to digest, keeping hunger away.`;
+      }
+      
       // Slider bounds
-      document.getElementById('calSlider').min = Math.max(1200, Math.round((targets.bmr || 1200) / 10) * 10);
-      document.getElementById('calSlider').max = Math.round((calculatedTDEE + 500) / 50) * 50;
-      document.getElementById('calSlider').value = initialTarget;
+      const slider = document.getElementById('calSlider');
+      slider.min = Math.max(1200, Math.round((targets.bmr || 1200) / 10) * 10);
+      slider.max = Math.round((calculatedTDEE + 500) / 50) * 50;
+      slider.value = initialTarget;
       
       updateSliderUI(initialTarget);
     }
@@ -1404,10 +1478,8 @@
     profile.createdAt = new Date().toISOString();
     profile.setupComplete = true;
     
-    // Base targets calculation
     profile.targets = computeTargets(profile);
     
-    // Override calorie target with the slider value
     const sliderVal = parseInt(document.getElementById('calSlider').value);
     if (!isNaN(sliderVal)) {
       profile.targets.calorieTarget = sliderVal;
@@ -1599,7 +1671,11 @@
     if (!prompt) { setStatus('cookStatus', 'Tell me what you have or what you fancy.', true); return; }
     setStatus('cookStatus', 'Creating a recipe…');
     const p = currentProfile; const t = p.targets || {}; const remainingCal = Math.max(200, (t.calorieTarget || 2000) - todaysMeals.reduce((s,m)=>s+(m.calories||0),0));
-    const system = `You are a warm, encouraging cookbook author helping ${p.name}. Dietary needs: ${(p.medicalConditions||[]).join(', ')}. Allergies: ${p.allergies||'none'}. Dislikes: ${p.dislikes||'none'}. She wants roughly ${remainingCal} calories for this meal. Keep sodium moderate unless she has blood pressure concerns.\nRespond ONLY with a JSON object: {"title": "short recipe name", "ingredients": "line-separated list", "steps": "numbered steps, short"}. No extra text.`;
+    
+    const allergies = p.allergies ? `CRITICAL ALLERGY WARNING: The user is severely allergic to: ${p.allergies}. You MUST NEVER include these ingredients.` : '';
+    const dislikes = p.dislikes ? `USER DISLIKES: ${p.dislikes}. Try to avoid these.` : '';
+    
+    const system = `You are a warm, encouraging cookbook author helping ${p.name}. ${allergies} ${dislikes} She wants roughly ${remainingCal} calories for this meal. Keep sodium moderate unless she has blood pressure concerns.\nRespond ONLY with a JSON object: {"title": "short recipe name", "ingredients": "line-separated list", "steps": "numbered steps, short"}. No extra text.`;
     try {
       const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }) });
       const rawText = await res.text(); let data;
@@ -1667,8 +1743,10 @@
     const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     const dateString = now.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     const snapsSummary = buildSnapsSummary(6);
+    const allergies = p.allergies ? `CRITICAL ALLERGY WARNING: The user is severely allergic to: ${p.allergies}. You MUST NEVER suggest foods containing these.` : '';
+    const dislikes = p.dislikes ? `USER DISLIKES: ${p.dislikes}. Avoid these.` : '';
     
-    const system = `You are a warm, encouraging dietitian for ${p.name}, age ${p.age}. The current date is ${dateString} and the time is ${timeString}. Goal: ${p.goal}. Targets: ${t.calorieTarget||'?'} cal.\nToday she has eaten:\n${mealSummary}\nWater: ${todaysWater} glasses. Remaining calories: ~${remaining}.\nHer recent food snaps (photo diary):\n${snapsSummary}\nBe warm. 2-4 sentences. Practical and specific. Never mention being an AI.`;
+    const system = `You are a warm, encouraging dietitian for ${p.name}, age ${p.age}. The current date is ${dateString}. Goal: ${p.goal}. Targets: ${t.calorieTarget||'?'} cal.\n${allergies}\n${dislikes}\nToday she has eaten:\n${mealSummary}\nWater: ${todaysWater} glasses. Remaining calories: ~${remaining}.\nHer recent food snaps (photo diary):\n${snapsSummary}\nBe warm. 2-4 sentences. Practical and specific. Never mention being an AI.`;
     try {
       const res = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: [{ role: 'system', content: system }, { role: 'user', content: prompt }] }) });
       const rawText = await res.text(); let data;
