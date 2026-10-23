@@ -216,7 +216,7 @@
   .bd-header { text-align: center; margin-bottom: 20px; }
   .bd-calories { font-size: 32px; font-weight: 700; color: var(--ink); line-height: 1; }
   .bd-calories span { font-size: 16px; color: var(--ink-soft); font-weight: 500; }
-  .bd-macros { display: flex; justify-content: center; gap: 16px; margin-top: 12px; }
+  .bd-macros-row { display: flex; justify-content: center; gap: 16px; margin-top: 12px; }
   .bd-macro { text-align: center; background: #fdfbf7; padding: 8px 16px; border-radius: 12px; border: 1px solid var(--line); flex: 1; }
   .bd-macro-val { font-size: 16px; font-weight: 700; color: var(--sage-dark); }
   .bd-macro-label { font-size: 11px; color: var(--ink-soft); text-transform: uppercase; }
@@ -335,6 +335,14 @@
         <div class="macro-val" id="scanFat">0g</div>
         <div class="macro-label">Fat</div>
       </div>
+      <div class="macro-item">
+        <div class="macro-val" id="scanFibre">0g</div>
+        <div class="macro-label">Fibre</div>
+      </div>
+      <div class="macro-item">
+        <div class="macro-val" id="scanSatFat">0g</div>
+        <div class="macro-label">Sat Fat</div>
+      </div>
     </div>
 
     <div class="scan-advice" id="scanAdvice">Loading advice...</div>
@@ -359,10 +367,18 @@
   <div class="handle"></div>
   <div class="bd-header">
     <div class="bd-calories" id="bdCalories">0 <span>/ 2000 cal</span></div>
-    <div class="bd-macros">
+    
+    <!-- Main Macros -->
+    <div class="bd-macros-row">
       <div class="bd-macro"><div class="bd-macro-val" id="bdProtein">0g</div><div class="bd-macro-label">Protein</div></div>
       <div class="bd-macro"><div class="bd-macro-val" id="bdCarbs">0g</div><div class="bd-macro-label">Carbs</div></div>
       <div class="bd-macro"><div class="bd-macro-val" id="bdFat">0g</div><div class="bd-macro-label">Fat</div></div>
+    </div>
+    
+    <!-- Secondary Details -->
+    <div class="bd-macros-row" style="margin-top: 8px;">
+      <div class="bd-macro"><div class="bd-macro-val" id="bdFibre">0g</div><div class="bd-macro-label">Fibre</div></div>
+      <div class="bd-macro"><div class="bd-macro-val" id="bdSatFat">0g</div><div class="bd-macro-label">Sat Fat</div></div>
     </div>
   </div>
   <div id="bdMealsContainer"></div>
@@ -375,12 +391,16 @@
   <div class="scan-modal-card">
     <img id="snapViewImg" class="scan-img" src="" alt="Food snap" style="height:220px;">
     <h3 class="scan-title" id="snapViewTitle">Meal</h3>
+    
     <div class="macro-grid">
       <div class="macro-item"><div class="macro-val" id="snapViewCal">0</div><div class="macro-label">Calories</div></div>
       <div class="macro-item"><div class="macro-val" id="snapViewPro">0g</div><div class="macro-label">Protein</div></div>
       <div class="macro-item"><div class="macro-val" id="snapViewCarb">0g</div><div class="macro-label">Carbs</div></div>
       <div class="macro-item"><div class="macro-val" id="snapViewFat">0g</div><div class="macro-label">Fat</div></div>
+      <div class="macro-item"><div class="macro-val" id="snapViewFibre">0g</div><div class="macro-label">Fibre</div></div>
+      <div class="macro-item"><div class="macro-val" id="snapViewSatFat">0g</div><div class="macro-label">Sat Fat</div></div>
     </div>
+
     <div class="scan-advice" id="snapViewMeta"></div>
     <button class="btn-soft" onclick="closeSnapView()">Close</button>
   </div>
@@ -507,7 +527,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V40)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V41)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     
     <div class="smart-tip" id="smartTipBanner">
@@ -620,6 +640,15 @@
     </div>
 
     <div class="card nut-category">
+      <div class="nut-title">🥑 Fats: The Good, The Bad</div>
+      <div class="nut-text">Don't be scared of fats—avocado, olive oil, and nuts have <strong>healthy unsaturated fats</strong> that keep your heart strong. Just watch out for <strong>Saturated fats</strong> (like in pastries or processed meats), as these can raise cholesterol.</div>
+      <ul class="nut-list">
+        <li><strong>Healthy Fats:</strong> Olive oil, Avocado, Nuts, Seeds</li>
+        <li><strong>Limit:</strong> Butter, Pastries, Processed Meats</li>
+      </ul>
+    </div>
+
+    <div class="card nut-category">
       <div class="nut-title">🦴 Bones & Muscles</div>
       <div class="nut-text">Calcium and Magnesium are crucial for keeping your bones dense and your muscles relaxed as you get older.</div>
       <ul class="nut-list" id="nutBoneList"></ul>
@@ -691,7 +720,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const APP_VERSION = 'V40';
+  const APP_VERSION = 'V41';
   const BIRTH_YEAR = 1969;
   const FIORA_AGE = new Date().getFullYear() - BIRTH_YEAR;
 
@@ -835,7 +864,6 @@
     const allergies = (currentProfile?.allergies || '').toLowerCase();
     const dislikes = (currentProfile?.dislikes || '').toLowerCase();
     
-    // Helper to check if a food is safe
     const isSafe = (food) => {
       const f = food.toLowerCase();
       if (allergies && allergies.split(',').some(a => f.includes(a.trim()))) return false;
@@ -856,7 +884,6 @@
   window.renderNutritionPage = function() {
     if (!currentProfile) return;
     
-    // Helper to render list items
     const renderList = (elementId, items) => {
       const el = document.getElementById(elementId);
       if (!el) return;
@@ -867,12 +894,11 @@
       }
     };
 
-    renderList('nutProteinList', getSafeFoods('protein').slice(0, 6)); // Top 6
-    renderList('nutFibreList', getSafeFoods('fibre').slice(0, 8)); // Top 8
-    renderList('nutBoneList', getSafeFoods('bone').slice(0, 6)); // Top 6
-    renderList('nutVegList', getSafeFoods('veg').slice(0, 8)); // Top 8
+    renderList('nutProteinList', getSafeFoods('protein').slice(0, 6)); 
+    renderList('nutFibreList', getSafeFoods('fibre').slice(0, 8)); 
+    renderList('nutBoneList', getSafeFoods('bone').slice(0, 6)); 
+    renderList('nutVegList', getSafeFoods('veg').slice(0, 8)); 
   };
-
 
   // ---------- Coach Mark ----------
   window.dismissCoachMark = function() {
@@ -886,7 +912,7 @@
       setTimeout(() => {
         const el = document.getElementById('chatCoachMark');
         if (el) el.classList.add('show');
-      }, 1500); // Small delay so it doesn't pop up instantly
+      }, 1500);
     }
   }
 
@@ -975,7 +1001,7 @@
   // ---------- Chat & AI ----------
   window.openChat = function() { 
     document.getElementById('chatOverlay').classList.add('open'); 
-    dismissCoachMark(); // Hide coach mark once chat is opened
+    dismissCoachMark();
     setTimeout(() => {
       const container = document.getElementById('chatMessages');
       container.scrollTop = container.scrollHeight;
@@ -1168,7 +1194,7 @@
 
       try {
         const allergies = currentProfile?.allergies || 'none';
-        const system = `You are an expert nutritionist. The user uploaded an image. She is allergic to: ${allergies}. Look at the image, estimate the meal, and respond with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence", "allergyWarning": "If it contains any allergen from the list, explain it here. Else null.", "alternative": "If it contains an allergen, suggest a safe alternative here. Else null."}. Do not add any extra text outside the JSON.`;
+        const system = `You are an expert nutritionist. The user uploaded an image. She is allergic to: ${allergies}. Look at the image, estimate the meal, and respond with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "fibre": 00, "satFat": 00, "advice": "1 short sentence", "allergyWarning": "If it contains any allergen from the list, explain it here. Else null.", "alternative": "If it contains an allergen, suggest a safe alternative here. Else null."}. Do not add any extra text outside the JSON.`;
         
         const res = await fetch('/api/chat', {
           method: 'POST',
@@ -1200,6 +1226,8 @@
           protein: parsed.protein || 0,
           carbs: parsed.carbs || 0,
           fat: parsed.fat || 0,
+          fibre: parsed.fibre || 0,
+          satFat: parsed.satFat || 0,
           mealType: defaultMealType(),
           photo: thumb,
           dateKey: todayKey(),
@@ -1236,7 +1264,7 @@
       const base64Image = e.target.result; 
       try {
         const allergies = currentProfile?.allergies || 'none';
-        const system = `You are an expert nutritionist. The user uploaded an image. She is allergic to: ${allergies}. Respond ONLY with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "advice": "1 short sentence", "allergyWarning": "If it contains any allergen from the list, explain it here. Else null.", "alternative": "If it contains an allergen, suggest a safe alternative here. Else null."}. Do not add any extra text.`;
+        const system = `You are an expert nutritionist. The user uploaded an image. She is allergic to: ${allergies}. Respond ONLY with a JSON object: {"meal": "description", "calories": 000, "protein": 00, "carbs": 00, "fat": 00, "fibre": 00, "satFat": 00, "advice": "1 short sentence", "allergyWarning": "If it contains any allergen from the list, explain it here. Else null.", "alternative": "If it contains an allergen, suggest a safe alternative here. Else null."}. Do not add any extra text.`;
         
         const res = await fetch('/api/chat', {
           method: 'POST',
@@ -1268,6 +1296,8 @@
           protein: parsed.protein || 0,
           carbs: parsed.carbs || 0,
           fat: parsed.fat || 0,
+          fibre: parsed.fibre || 0,
+          satFat: parsed.satFat || 0,
           photo: thumb,
           dateKey: todayKey()
         };
@@ -1278,6 +1308,8 @@
         document.getElementById('scanPro').textContent = parsed.protein + 'g';
         document.getElementById('scanCarb').textContent = parsed.carbs + 'g';
         document.getElementById('scanFat').textContent = parsed.fat + 'g';
+        document.getElementById('scanFibre').textContent = (parsed.fibre || 0) + 'g';
+        document.getElementById('scanSatFat').textContent = (parsed.satFat || 0) + 'g';
         document.getElementById('scanAdvice').textContent = parsed.advice;
         document.getElementById('scanType').value = defaultMealType();
 
@@ -1347,11 +1379,15 @@
     const proTotal = todaysMeals.reduce((s, m) => s + (Number(m.protein) || 0), 0);
     const carbTotal = todaysMeals.reduce((s, m) => s + (Number(m.carbs) || 0), 0);
     const fatTotal = todaysMeals.reduce((s, m) => s + (Number(m.fat) || 0), 0);
+    const fibreTotal = todaysMeals.reduce((s, m) => s + (Number(m.fibre) || 0), 0);
+    const satFatTotal = todaysMeals.reduce((s, m) => s + (Number(m.satFat) || 0), 0);
 
     document.getElementById('bdCalories').innerHTML = `${calTotal} <span>/ ${target} cal</span>`;
     document.getElementById('bdProtein').textContent = Math.round(proTotal) + 'g';
     document.getElementById('bdCarbs').textContent = Math.round(carbTotal) + 'g';
     document.getElementById('bdFat').textContent = Math.round(fatTotal) + 'g';
+    document.getElementById('bdFibre').textContent = Math.round(fibreTotal) + 'g';
+    document.getElementById('bdSatFat').textContent = Math.round(satFatTotal) + 'g';
 
     const container = document.getElementById('bdMealsContainer');
     let html = '';
@@ -1454,6 +1490,8 @@
     document.getElementById('snapViewPro').textContent = (m.protein || 0) + 'g';
     document.getElementById('snapViewCarb').textContent = (m.carbs || 0) + 'g';
     document.getElementById('snapViewFat').textContent = (m.fat || 0) + 'g';
+    document.getElementById('snapViewFibre').textContent = (m.fibre || 0) + 'g';
+    document.getElementById('snapViewSatFat').textContent = (m.satFat || 0) + 'g';
     const t = MEAL_TYPE_MAP[m.mealType];
     const meta = [];
     if (t) meta.push(t.icon + ' ' + t.label);
@@ -1516,7 +1554,6 @@
       
       updateSliderUI(initialTarget);
       
-      // Dynamic tip check for the wizard
       const tipEl = document.getElementById('wizDietitianTip');
       const allergies = (p.allergies || '').toLowerCase();
       let safeProtein = "chicken, fish, or eggs";
