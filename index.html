@@ -6,6 +6,10 @@
 <title>Fiona's Kitchen</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="https://via.placeholder.com/192/8ba888/ffffff?text=F">
+
+<!-- VERCEL ANALYTICS -->
+<script defer src="/_vercel/insights/script.js"></script>
+
 <style>
   :root {
     --cream: #fbf7f0; --card: #ffffff; --sage: #8ba888; --sage-dark: #6b8a68;
@@ -527,7 +531,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V41)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V42)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     
     <div class="smart-tip" id="smartTipBanner">
@@ -720,7 +724,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const APP_VERSION = 'V41';
+  const APP_VERSION = 'V42';
   const BIRTH_YEAR = 1969;
   const FIORA_AGE = new Date().getFullYear() - BIRTH_YEAR;
 
