@@ -12,7 +12,6 @@
 
 <style>
   :root {
-    /* Richer, deeper pastels for better contrast */
     --cream: #fbf8f3; 
     --card: #ffffff; 
     --sage: #9ac19b; 
@@ -272,13 +271,37 @@
   .recipe-body { font-size: 14px; color: var(--ink-soft); line-height: 1.5; white-space: pre-wrap; }
   .hidden { display: none !important; }
 
-  /* Chat Overlay */
-  .chat-overlay { position: fixed; inset: 0; background: var(--cream); z-index: 200; display: none; flex-direction: column; }
-  .chat-overlay.open { display: flex; }
-  .chat-header { background: var(--card); padding: 14px 16px; padding-top: max(14px, env(safe-area-inset-top)); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+  /* GLASSMORPHISM CHAT OVERLAY */
+  .chat-overlay { 
+    position: fixed; 
+    top: max(16px, env(safe-area-inset-top)); 
+    bottom: max(16px, env(safe-area-inset-bottom)); 
+    left: 16px;
+    right: 16px;
+    background: rgba(251, 248, 243, 0.85); 
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 200; 
+    display: flex; 
+    flex-direction: column; 
+    border-radius: 24px; 
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15); 
+    border: 1px solid rgba(255,255,255,0.6);
+    opacity: 0; 
+    pointer-events: none; 
+    transform: scale(0.95); 
+    transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    overflow: hidden;
+  }
+  .chat-overlay.open { opacity: 1; pointer-events: auto; transform: scale(1); }
+  
+  .chat-header { background: transparent; padding: 20px 20px 10px; border-bottom: 1px solid rgba(233, 226, 216, 0.5); display: flex; align-items: flex-start; justify-content: space-between; }
+  .chat-header h3 { margin: 0 0 4px; font-size: 18px; color: var(--ink); }
+  .chat-live-summary { font-size: 13px; color: var(--ink-soft); }
+  .chat-live-summary strong { color: var(--sage-dark); }
   .chat-close { background: transparent; color: var(--ink-soft); font-size: 24px; border: none; cursor: pointer; padding: 4px; width: auto; margin: 0; box-shadow: none; }
 
-  .chat-messages { flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 8px; max-width: 500px; margin: 0 auto; width: 100%; }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; width: 100%; }
   .chat-messages::-webkit-scrollbar { display: none; }
   .chat-messages { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -287,22 +310,31 @@
   .msg-wrapper.ai { align-items: flex-start; }
   .msg-time { font-size: 11px; color: #b0b0b0; margin-bottom: 4px; margin-left: 4px; margin-right: 4px; }
   .chat-msg { max-width: 85%; padding: 12px 16px; border-radius: 18px; font-size: 15px; line-height: 1.45; white-space: pre-wrap; }
-  .chat-msg.ai { background: var(--card); border: 1px solid var(--line); border-bottom-left-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); color: var(--ink); }
-  .chat-msg.user { background: linear-gradient(180deg, var(--sage) 0%, var(--sage-dark) 100%); color: white; border-bottom-right-radius: 4px; box-shadow: 0 2px 6px rgba(154, 193, 155, 0.2); }
+  .chat-msg.ai { background: #ffffff; border: 1px solid var(--line); border-bottom-left-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); color: var(--ink); }
+  .chat-msg.user { background: linear-gradient(180deg, var(--sage) 0%, var(--sage-dark) 100%); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 12px rgba(154, 193, 155, 0.3); }
   
-  .typing-wrapper { background: var(--cream); padding: 0 16px 8px 16px; max-width: 500px; margin: 0 auto; width: 100%; display: none; }
+  .typing-wrapper { background: transparent; padding: 0 20px 8px 20px; width: 100%; display: none; }
   .typing-wrapper.show { display: block; }
   
-  .typing-indicator { display: flex; gap: 4px; padding: 14px 18px; background: var(--card); border: 1px solid var(--line); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; align-items: center; height: 44px; }
+  .typing-indicator { display: flex; gap: 4px; padding: 14px 18px; background: #ffffff; border: 1px solid var(--line); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; align-items: center; height: 44px; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
   .typing-dots { display: flex; gap: 5px; }
   .typing-dots span { display: block; width: 6px; height: 6px; background: var(--ink-soft); border-radius: 50%; animation: bounce 1.2s infinite ease-in-out both; }
   .typing-dots span:nth-child(1) { animation-delay: -0.24s; }
   .typing-dots span:nth-child(2) { animation-delay: -0.12s; }
   @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
 
-  .chat-input-area { background: var(--card); padding: 8px 12px max(8px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); display: flex; gap: 8px; max-width: 500px; margin: 0 auto; width: 100%; align-items: center; }
-  .chat-input-area input { flex: 1; border-radius: 20px; padding: 12px 16px; margin: 0; font-size: 15px; background: #fdfbf9; border: 1.5px solid var(--line); }
-  .chat-input-area button { width: 44px; height: 44px; margin: 0; padding: 0; border-radius: 50%; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 18px; box-shadow: none; }
+  /* Floating Quick Chips */
+  .chat-quick-chips { display: flex; gap: 8px; padding: 0 20px 12px; overflow-x: auto; white-space: nowrap; width: 100%; }
+  .chat-quick-chips::-webkit-scrollbar { display: none; }
+  .chat-quick-chips .chip-btn { background: rgba(255,255,255,0.8); backdrop-filter: blur(4px); font-size: 13px; padding: 8px 14px; }
+
+  /* Floating Input Area */
+  .chat-input-area { padding: 0 20px 20px; width: 100%; }
+  .chat-input-container { display: flex; gap: 8px; background: #ffffff; border: 1.5px solid var(--line); border-radius: 24px; padding: 6px 6px 6px 16px; align-items: center; box-shadow: 0 8px 24px rgba(0,0,0,0.08); width: 100%; }
+  .chat-input-container input { flex: 1; border: none; background: transparent; padding: 8px 0; font-size: 15px; box-shadow: none; }
+  .chat-input-container input:focus { border: none; box-shadow: none; }
+  
+  .chat-input-container button { width: 40px; height: 40px; margin: 0; padding: 0; border-radius: 50%; flex-shrink: 0; display: flex; justify-content: center; align-items: center; font-size: 18px; box-shadow: none; }
   .chat-camera-btn { background: #f2ebe1; color: var(--ink); }
   .chat-send-btn { background: linear-gradient(180deg, var(--sage) 0%, var(--sage-dark) 100%); color: white; box-shadow: 0 2px 8px rgba(154, 193, 155, 0.3); }
 
@@ -447,10 +479,13 @@
   <div class="header-actions"><button class="icon-btn" onclick="openSettings()">⚙️</button></div>
 </div>
 
-<!-- CHAT OVERLAY -->
+<!-- GLASSMORPHISM CHAT OVERLAY -->
 <div class="chat-overlay" id="chatOverlay">
   <div class="chat-header">
-    <h3>🍃 Dietitian</h3>
+    <div>
+      <h3>🍃 Your Dietitian</h3>
+      <div class="chat-live-summary" id="chatLiveSummary">Looking at your day...</div>
+    </div>
     <button class="chat-close" onclick="closeChat()">×</button>
   </div>
   
@@ -464,12 +499,20 @@
     </div>
   </div>
 
+  <div class="chat-quick-chips" id="chatQuickChips">
+    <button class="chip-btn" onclick="sendQuickChat('What should I have for dinner tonight?')">Dinner ideas</button>
+    <button class="chip-btn" onclick="sendQuickChat('How am I doing today?')">Review my day</button>
+    <button class="chip-btn" onclick="sendQuickChat('I am feeling hungry, what can I snack on?')">Snack ideas</button>
+  </div>
+
   <div class="chat-input-area">
-    <input type="file" id="chatFileCamera" accept="image/*" capture="environment" onchange="handleChatPhoto(event)" style="display:none;">
-    <button class="chat-camera-btn" onclick="document.getElementById('chatFileCamera').click()" aria-label="Send photo">📷</button>
-    
-    <input type="text" id="chatInput" placeholder="Ask a question…" onkeypress="if(event.key==='Enter') sendChat()">
-    <button class="chat-send-btn" onclick="sendChat()" aria-label="Send">↑</button>
+    <div class="chat-input-container">
+      <input type="file" id="chatFileCamera" accept="image/*" capture="environment" onchange="handleChatPhoto(event)" style="display:none;">
+      <button class="chat-camera-btn" onclick="document.getElementById('chatFileCamera').click()" aria-label="Send photo">📷</button>
+      
+      <input type="text" id="chatInput" placeholder="Ask me anything..." onkeypress="if(event.key==='Enter') sendChat()">
+      <button class="chat-send-btn" onclick="sendChat()" aria-label="Send">↑</button>
+    </div>
   </div>
 </div>
 
@@ -716,7 +759,7 @@
 <!-- DASHBOARD -->
 <div class="wrap" id="dashScreen" style="display:none;">
   <div id="page-home">
-    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V47)</span></div>
+    <div class="hello" id="greeting">Hi, Fiona 🌿 <span class="version-tag">(V49)</span></div>
     <p class="hello-sub" id="helloSub">Here's how today's going.</p>
     
     <div class="smart-tip" id="smartTipBanner">
@@ -1014,7 +1057,7 @@
   const auth = getAuth(app);
   const db = getFirestore(app);
 
-  const APP_VERSION = 'V47';
+  const APP_VERSION = 'V49';
   const BIRTH_YEAR = 1969;
   const FIORA_AGE = new Date().getFullYear() - BIRTH_YEAR;
 
@@ -1204,373 +1247,11 @@
     }
   };
 
-  // ---------- Nutrition Page Logic ----------
-  function getSafeFoods(category) {
-    const allergies = (currentProfile?.allergies || '').toLowerCase();
-    const dislikes = (currentProfile?.dislikes || '').toLowerCase();
-    
-    const isSafe = (food) => {
-      const f = food.toLowerCase();
-      if (allergies && allergies.split(',').some(a => f.includes(a.trim()))) return false;
-      if (dislikes && dislikes.split(',').some(d => f.includes(d.trim()))) return false;
-      return true;
-    };
-
-    const lists = {
-      protein: ['Greek Yogurt', 'Lentils', 'Chickpeas', 'Tofu', 'Lean Beef', 'Turkey', 'Cottage Cheese', 'Quinoa', 'Almonds', 'Salmon', 'Eggs', 'Chicken', 'Tuna', 'Pork', 'Beans'],
-      fibre: ['Oats', 'Apples', 'Carrots', 'Broccoli', 'Whole Wheat Bread', 'Brown Rice', 'Nuts', 'Seeds', 'Berries', 'Cauliflower', 'Potatoes with skin'],
-      bone: ['Spinach', 'Kale', 'Almonds', 'Sesame Seeds', 'Dairy Milk', 'Fortified Plant Milk', 'Sardines', 'Greek Yogurt', 'Broccoli'],
-      veg: ['Spinach', 'Carrots', 'Red Peppers', 'Broccoli', 'Sweet Potatoes', 'Zucchini', 'Green Beans', 'Tomatoes', 'Cauliflower', 'Beets']
-    };
-
-    return lists[category].filter(isSafe);
-  }
-
-  window.renderNutritionPage = function() {
-    if (!currentProfile) return;
-    const t = currentProfile.targets || {};
-    
-    document.getElementById('targetProtein').textContent = (t.proteinTarget || '—') + 'g';
-    document.getElementById('targetFibre').textContent = (t.fibreTarget || '25') + 'g';
-    document.getElementById('targetWater').textContent = (t.waterGoal || 8) + ' glasses';
-
-    const renderList = (elementId, items) => {
-      const el = document.getElementById(elementId);
-      if (!el) return;
-      if (items.length === 0) {
-        el.innerHTML = '<li>Ask your dietitian in the chat for safe alternatives!</li>';
-      } else {
-        el.innerHTML = items.map(item => `<li><strong>${item}</strong></li>`).join('');
-      }
-    };
-
-    renderList('nutProteinList', getSafeFoods('protein').slice(0, 6)); 
-    renderList('nutFibreList', getSafeFoods('fibre').slice(0, 8)); 
-    renderList('nutBoneList', getSafeFoods('bone').slice(0, 6)); 
-    renderList('nutVegList', getSafeFoods('veg').slice(0, 8)); 
-
-    renderMetricsHistory();
-  };
-
-  // ---------- Metrics & Charts ----------
-  window.toggleMeasureGuide = function() {
-    const el = document.getElementById('measureGuide');
-    if (el.style.display === 'none') {
-      el.style.display = 'block';
-    } else {
-      el.style.display = 'none';
-    }
-  };
-
-  window.switchMetricMethod = function(method) {
-    currentMetricMethod = method;
-    document.getElementById('btnBmi').classList.toggle('active', method === 'bmi');
-    document.getElementById('btnNavy').classList.toggle('active', method === 'navy');
-    document.getElementById('navyInputs').classList.toggle('hidden', method !== 'navy');
-  };
-
-  window.switchChart = function(mode) {
-    currentChartMode = mode;
-    document.getElementById('chartBtnWeight').classList.toggle('active', mode === 'weight');
-    document.getElementById('chartBtnFat').classList.toggle('active', mode === 'fat');
-    renderMetricsHistory();
-  };
-
-  window.saveMetric = async function() {
-    const wInput = document.getElementById('newWeightInput');
-    const weight = parseFloat(wInput.value);
-    if (!weight || weight <= 0) {
-      setStatus('metricStatus', 'Please enter a valid weight.', true);
-      return;
-    }
-
-    let bodyFat = 0;
-    const height = currentProfile.heightCm;
-    if (height) {
-      const bmi = weight / ((height/100) * (height/100));
-      bodyFat = (1.20 * bmi) + (0.23 * FIORA_AGE) - 5.4;
-      bodyFat = Math.max(5, bodyFat);
-    }
-
-    const entry = {
-      date: todayKey(),
-      timestamp: Date.now(),
-      weight: weight,
-      bodyFat: parseFloat(bodyFat.toFixed(1)),
-      method: 'bmi'
-    };
-
-    let history = currentProfile.weightHistory || [];
-    history = history.filter(h => h.date !== entry.date);
-    history.push(entry);
-    history.sort((a,b) => new Date(a.date) - new Date(b.date));
-
-    try {
-      const newProfile = { ...currentProfile, currentWeightKg: weight, weightHistory: history };
-      newProfile.targets = computeTargets(newProfile);
-      
-      await setDoc(doc(db, 'profiles', currentUser.uid), { 
-        currentWeightKg: weight, 
-        weightHistory: history,
-        targets: newProfile.targets
-      }, { merge: true });
-
-      currentProfile = newProfile;
-      setStatus('metricStatus', '✅ Logged successfully!');
-      wInput.value = '';
-      
-      updateRings(); 
-      renderNutritionPage();
-      
-      setTimeout(() => setStatus('metricStatus', ''), 2000);
-    } catch (e) {
-      setStatus('metricStatus', '❌ ' + e.message, true);
-    }
-  };
-
-  window.deleteMetricEntry = async function(dateStr) {
-    if (!confirm('Delete this entry?')) return;
-    let history = (currentProfile.weightHistory || []).filter(h => h.date !== dateStr);
-    
-    try {
-      await setDoc(doc(db, 'profiles', currentUser.uid), { weightHistory: history }, { merge: true });
-      currentProfile.weightHistory = history;
-      renderMetricsHistory();
-    } catch (e) { alert("Error deleting: " + e.message); }
-  };
-
-  window.calculateBodyFat = async function() {
-    const height = currentProfile.heightCm;
-    const weight = currentProfile.currentWeightKg;
-    if (!height || !weight) { alert("Missing height or weight profile data."); return; }
-
-    let bf = 0;
-    if (currentMetricMethod === 'bmi') {
-      const bmi = weight / ((height/100) * (height/100));
-      bf = (1.20 * bmi) + (0.23 * FIORA_AGE) - 5.4;
-    } else {
-      const neck = parseFloat(document.getElementById('neckCm').value);
-      const waist = parseFloat(document.getElementById('waistCm').value);
-      const hip = parseFloat(document.getElementById('hipCm').value);
-      
-      if (!neck || !waist || !hip) { alert("Please enter neck, waist and hip measurements."); return; }
-      
-      const neckIn = neck / 2.54;
-      const waistIn = waist / 2.54;
-      const hipIn = hip / 2.54;
-      const heightIn = height / 2.54;
-      
-      bf = 495 / (1.29579 - 0.35004 * Math.log10(waistIn + hipIn - neckIn) + 0.22100 * Math.log10(heightIn)) - 450;
-    }
-
-    bf = Math.max(5, Math.min(60, bf)); 
-    
-    let history = currentProfile.weightHistory || [];
-    const today = todayKey();
-    let existingIdx = history.findIndex(h => h.date === today);
-    
-    const entry = {
-      date: today,
-      timestamp: Date.now(),
-      weight: weight,
-      bodyFat: parseFloat(bf.toFixed(1)),
-      method: currentMetricMethod
-    };
-
-    if (existingIdx >= 0) {
-      history[existingIdx] = entry;
-    } else {
-      history.push(entry);
-      history.sort((a,b) => new Date(a.date) - new Date(b.date));
-    }
-
-    try {
-      await setDoc(doc(db, 'profiles', currentUser.uid), { weightHistory: history }, { merge: true });
-      currentProfile.weightHistory = history;
-
-      const box = document.getElementById('bodyFatResult');
-      document.getElementById('bfPercentage').textContent = entry.bodyFat + '%';
-      
-      let desc = "";
-      let range = "";
-      if (entry.bodyFat < 14) { desc = "Athletic range."; range = "Essential: 10-13% | Athletic: 14-20% | Fitness: 21-24% | Average: 25-31%"; }
-      else if (entry.bodyFat < 21) { desc = "Fitness range. Great work!"; range = "Essential: 10-13% | Athletic: 14-20% | Fitness: 21-24% | Average: 25-31%"; }
-      else if (entry.bodyFat < 25) { desc = "Healthy Fitness range."; range = "Essential: 10-13% | Athletic: 14-20% | Fitness: 21-24% | Average: 25-31%"; }
-      else if (entry.bodyFat < 32) { desc = "Average/Healthy range for women."; range = "Essential: 10-13% | Athletic: 14-20% | Fitness: 21-24% | Average: 25-31%"; }
-      else { desc = "Above average range."; range = "Essential: 10-13% | Athletic: 14-20% | Fitness: 21-24% | Average: 25-31%"; }
-
-      document.getElementById('bfDescription').textContent = desc;
-      document.getElementById('bfRange').innerHTML = `<strong>ACE Ranges:</strong><br>${range}`;
-      box.classList.add('show');
-
-      renderMetricsHistory();
-    } catch (e) { alert("Error saving body fat: " + e.message); }
-  };
-
-  function renderMetricsHistory() {
-    const history = currentProfile.weightHistory || [];
-    const chartSvg = document.getElementById('progressChart');
-    const timeline = document.getElementById('metricTimeline');
-    
-    if (history.length === 0) {
-      chartSvg.innerHTML = '';
-      timeline.innerHTML = '<div class="empty">No history yet. Log your weight above to start tracking!</div>';
-      return;
-    }
-
-    const data = history.map(h => currentChartMode === 'weight' ? h.weight : h.bodyFat);
-    const min = Math.min(...data) * 0.98;
-    const max = Math.max(...data) * 1.02;
-    const range = max - min || 1;
-    
-    const w = 300; 
-    const h = 150;
-    const padding = 20;
-    
-    let points = [];
-    data.forEach((val, i) => {
-      const x = padding + (i * ((w - padding * 2) / (data.length - 1 || 1)));
-      const y = h - padding - ((val - min) / range) * (h - padding * 2);
-      points.push({ x, y, val, date: history[i].date });
-    });
-
-    let pathD = "";
-    points.forEach((p, i) => {
-      pathD += (i === 0 ? "M" : "L") + `${p.x},${p.y} `;
-    });
-
-    let svgHtml = `
-      <line x1="0" y1="${h-padding}" x2="${w}" y2="${h-padding}" class="chart-axis" />
-      <path d="${pathD}" class="chart-line" />
-    `;
-    
-    points.forEach(p => {
-      svgHtml += `<circle cx="${p.x}" cy="${p.y}" r="4" class="chart-dot"><title>${p.date}: ${p.val}</title></circle>`;
-    });
-    
-    svgHtml += `<text x="${points[0].x}" y="${h-5}" class="chart-labels" text-anchor="middle">${points[0].date.slice(5)}</text>`;
-    if (points.length > 1) {
-      const last = points[points.length-1];
-      svgHtml += `<text x="${last.x}" y="${h-5}" class="chart-labels" text-anchor="middle">${last.date.slice(5)}</text>`;
-    }
-
-    chartSvg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-    chartSvg.innerHTML = svgHtml;
-
-    const reversed = [...history].reverse(); 
-    timeline.innerHTML = reversed.map(entry => `
-      <div class="timeline-item">
-        <div class="timeline-date">${entry.date.slice(5)}</div>
-        <div class="timeline-val">
-          ${currentChartMode === 'weight' ? '⚖️ ' + entry.weight + ' kg' : '🧍 ' + entry.bodyFat + '%'}
-        </div>
-        <button class="timeline-del" onclick="deleteMetricEntry('${entry.date}')">✕</button>
-      </div>
-    `).join('');
-  }
-
-  // ---------- Coach Mark ----------
-  window.dismissCoachMark = function() {
-    const el = document.getElementById('chatCoachMark');
-    if (el) el.classList.remove('show');
-    localStorage.setItem('hasSeenChatCoachMark', 'true');
-  };
-
-  function showCoachMark() {
-    if (!localStorage.getItem('hasSeenChatCoachMark')) {
-      setTimeout(() => {
-        const el = document.getElementById('chatCoachMark');
-        if (el) el.classList.add('show');
-      }, 1500);
-    }
-  }
-
-  // ---------- Activity Level Helper ----------
-  const activityDesc = {
-    sedentary: "💡 Mostly sitting — office work, reading, TV. Very little walking.",
-    light: "💡 On your feet a little — light chores, short walks, standing occasionally.",
-    moderate: "💡 On your feet half the day — brisk walks, gardening, or a busy household.",
-    active: "💡 Very active — physical job, or vigorous exercise several times a week."
-  };
-
-  window.updateActivityHelp = function() {
-    const val = document.getElementById('activityLevel').value;
-    const el = document.getElementById('activityHelp');
-    if (el) {
-      el.textContent = activityDesc[val] || '';
-      el.classList.add('show');
-    }
-  };
-
-  // ---------- Slider (Educational Page) ----------
-  window.updateSliderUI = function(val) {
-    val = parseInt(val);
-    document.getElementById('sliderDisplay').textContent = val;
-    
-    const deficit = calculatedTDEE - val;
-    const box = document.getElementById('deficitBox');
-    
-    if (deficit > 0) {
-      const kgPerWeek = ((deficit * 7) / 7700).toFixed(2);
-      box.innerHTML = `I recommend aiming for about <strong>${val} calories</strong> to start. This leaves enough room for delicious, filling meals while still helping you lose weight at a safe pace (roughly <strong>${kgPerWeek} kg</strong> a week).<br><br>Don't worry about getting this perfect right now. You can always adjust this in Settings later!`;
-    } else if (deficit === 0) {
-      box.innerHTML = `This is your maintenance level. You won't lose weight here, but you won't gain any either. A great place to practice healthy habits!`;
-    } else {
-      box.innerHTML = `This is a surplus of <strong>${Math.abs(deficit)} calories</strong> a day. You would likely gain weight at this level.`;
-    }
-  };
-
-  // ---------- Smart Tips ----------
-  function showRandomTip() {
-    if (!showSmartTips || !currentProfile) return;
-    const banner = document.getElementById('smartTipBanner');
-    const textEl = document.getElementById('smartTipText');
-    if (!banner || !textEl) return;
-    
-    const p = currentProfile;
-    const allergies = (p.allergies || '').toLowerCase();
-    let safeProtein = "a hard-boiled egg or a small Greek yogurt";
-    if (allergies.includes('egg')) safeProtein = "a small Greek yogurt or a handful of almonds";
-    if (allergies.includes('yogurt') || allergies.includes('dairy')) safeProtein = "a handful of almonds or some roasted chickpeas";
-    
-    const tips = [
-      `Did you know you can snap a photo of a supermarket label to instantly see the macros?`,
-      `Struggling with a sweet craving? A square of dark chocolate or a handful of berries often does the trick for under 100 calories.`,
-      `Drinking a glass of water before a meal can help you feel fuller and prevent overeating.`,
-      `Protein keeps you full! If you're peckish, ${safeProtein} is a great choice.`,
-      `You can ask me to suggest a healthy recipe based on whatever is left in your fridge. Just open the chat!`
-    ];
-
-    const randomTip = tips[Math.floor(Math.random() * tips.length)];
-    
-    if (todaysMeals.length > 0 && Math.random() > 0.5) {
-      const calTotal = todaysMeals.reduce((s, m) => s + (m.calories || 0), 0);
-      const target = p.targets?.calorieTarget || 2000;
-      if (calTotal < target - 300) {
-        textEl.innerHTML = `💡 <strong>Dietitian Tip:</strong> You have about <strong>${target - calTotal} calories</strong> left today. ${safeProtein} would make a perfect filling snack right now.`;
-      } else {
-        textEl.innerHTML = `💡 <strong>Dietitian Tip:</strong> ${randomTip}`;
-      }
-    } else {
-      textEl.innerHTML = `💡 <strong>Dietitian Tip:</strong> ${randomTip}`;
-    }
-    
-    banner.classList.add('show');
-  }
-
-  window.toggleSmartTips = function() {
-    showSmartTips = document.getElementById('toggleTips').checked;
-    if (!showSmartTips) {
-      document.getElementById('smartTipBanner').classList.remove('show');
-    } else {
-      showRandomTip();
-    }
-  };
-
   // ---------- Chat & AI ----------
   window.openChat = function() { 
     document.getElementById('chatOverlay').classList.add('open'); 
     dismissCoachMark();
+    updateChatSummary();
     setTimeout(() => {
       const container = document.getElementById('chatMessages');
       container.scrollTop = container.scrollHeight;
@@ -1579,6 +1260,20 @@
   };
   
   window.closeChat = function() { document.getElementById('chatOverlay').classList.remove('open'); };
+
+  function updateChatSummary() {
+    if (!currentProfile) return;
+    const calTotal = todaysMeals.reduce((s, m) => s + (m.calories || 0), 0);
+    const proTotal = todaysMeals.reduce((s, m) => s + (Number(m.protein) || 0), 0);
+    const target = currentProfile.targets?.calorieTarget || 2000;
+    
+    document.getElementById('chatLiveSummary').innerHTML = `Looking at your day: <strong>${calTotal} cal</strong> · <strong>${Math.round(proTotal)}g protein</strong>`;
+  }
+
+  window.sendQuickChat = function(text) {
+    document.getElementById('chatInput').value = text;
+    sendChat();
+  };
 
   async function loadChatHistory() {
     if (!currentUser) return;
@@ -2147,7 +1842,6 @@
   function buildProfileObj() {
     const meds = Array.from(document.querySelectorAll('.med:checked')).map(cb => cb.value);
     
-    // THE FAIL-SAFE: If inputs are empty, fall back to existing profile data
     const hVal = parseFloat(document.getElementById('heightCm').value);
     const wVal = parseFloat(document.getElementById('currentWeightKg').value);
     
@@ -2427,7 +2121,7 @@
     showRandomTip();
     showCoachMark();
     checkPremiumModal();
-    updateSettingsSummary(); // Update settings profile view
+    updateSettingsSummary();
   }
 
   function updateSettingsSummary() {
